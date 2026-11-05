@@ -8,7 +8,19 @@ const names: Record<string, string> = {
   sword: "Knight", archer: "Ranger", cavalry: "Barbarian",
   mage: "Mage", guardian: "Rogue_Hooded", boss: "Barbarian",
 };
-const root = "/kaykit/adventurers/Characters/gltf/";
+const root = "/kaykit/adventurers/";
+const findModel = (paths: string[], name: string) => {
+  const models = paths.filter(p => /\\.(gltf|glb)$/i.test(p));
+  const wanted = name.toLowerCase();
+  return models.find(p => p.split("/").pop()?.replace(/\\.(gltf|glb)$/i, "").toLowerCase() === wanted)
+    ?? models.find(p => p.toLowerCase().includes(wanted))
+    ?? null;
+};
+async function awaitManifest(): Promise<string[]> {
+  const response = await fetch(root + "manifest.json");
+  if (!response.ok) throw Error("KayKit manifest missing");
+  return response.json() as Promise<string[]>;
+}
 export class KaykitUnits {
   readonly group = new T.Group();
   private templates = new Map<string, T.Group>();
@@ -23,8 +35,11 @@ export class KaykitUnits {
   private elapsed = 0;
   constructor(private onReady: () => void) {
     const loader = new GLTFLoader();
+    const manifest = awaitManifest();
     const characters = Promise.all([...new Set(Object.values(names))].map(async (name) => {
-      const model = await loader.loadAsync(root + name + ".glb");
+      const path = findModel(await manifest, name);
+      if (!path) throw Error("Missing KayKit character: " + name);
+      const model = await loader.loadAsync(root + path);
       const template = model.scene;
       template.updateMatrixWorld(true);
       const bounds = new T.Box3().setFromObject(template);
@@ -40,7 +55,9 @@ export class KaykitUnits {
       this.templates.set(name, normalized);
     }));
     const animationPacks = Promise.all(["Rig_Medium_General", "Rig_Medium_MovementBasic"].map(async (name) => {
-      const data = await loader.loadAsync("/kaykit/adventurers/Animations/gltf/Rig_Medium/" + name + ".glb");
+      const path = findModel(manifest, name);
+      if (!path) return;
+      const data = await loader.loadAsync(root + path);
       for (const clip of data.animations) this.clips.set(clip.name, clip);
     }));
     Promise.all([characters, animationPacks]).then(() => {
