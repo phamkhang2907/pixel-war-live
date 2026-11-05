@@ -33,7 +33,7 @@ export async function loadKaykitWorld(scene: T.Scene) {
     } catch (e) { console.warn("KayKit castle fallback", e); }
   }));
   const trees = [
-    "Tree_1_A_Color1.gltf", "Tree_2_A_Color1.gltf", "Tree_3_A_Color1.gltf",
+    "Tree_2_A_Color1.gltf", "Tree_3_A_Color1.gltf", "Tree_2_B_Color1.gltf",
   ];
   await Promise.all(Array.from({ length: 24 }, async (_, i) => {
     const side = i % 2 ? 1 : -1;
