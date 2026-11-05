@@ -6,6 +6,7 @@
     "dev": "npm run dev --prefix live",
     "test": "npm test --prefix live",
     "setup": "npm ci --prefix live",
-    "build": "npm run build --prefix live"
+    "build": "npm run build --prefix live",
+    "test:3d": "npm run test:3d --prefix live"
   }
 }

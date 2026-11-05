@@ -1,5 +1,11 @@
 # PIXEL WAR — RED VS BLUE
 
+**3D migration notice:** `/3d/` now provides the Phase 1 Three.js + TypeScript
+foundation. `/` remains the existing Phaser game documented below. Both share
+the original simulation, TikTok integration and persistence. See
+[MIGRATION-3D.md](MIGRATION-3D.md) for the audit, honest feature status, setup,
+tests, rollback points and the iPad Safari acceptance checklist.
+
 Node.js 20+, Phaser 3, Socket.IO. **Đã có chu kỳ vòng đấu 300 giây tự động và BXH chiến công bền vững** — xem [ROUNDS.md](ROUNDS.md) cho luật điểm, pha trận, phục hồi và lưu trữ. Bản hiện tại tiếp tục repo/branch `feature/pixel-war-live`, không tạo repo mới. Viewport livestream thật **1080×1920 (9:16)** nhìn vào thế giới **4800×2400**, Đỏ từ trái sang phải và Xanh từ phải sang trái. Camera Director chọn vùng giao tranh theo hai phe, DPS và công thành, pan/zoom mượt. Đội hình 15 hàng có chiều sâu Y, phối cảnh nghiêng nhẹ. [Thiết kế camera/HUD, safe area và giới hạn hiệu năng](CAMERA.md).
 
 ## Chạy và chơi Demo

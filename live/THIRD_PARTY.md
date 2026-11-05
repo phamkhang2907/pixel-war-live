@@ -10,6 +10,13 @@
 
 ## Dependencies
 
+- Three.js 0.180 (3D preview): MIT — https://github.com/mrdoob/three.js
+- Vite 6 (development/build): MIT — https://github.com/vitejs/vite
+- TypeScript 5.9 (development/build): Apache-2.0 — https://github.com/microsoft/TypeScript
+- New procedural 3D scenery/markers in `client3d/` are original development assets
+  under this project's MIT license. No final third-party GLB models, textures or
+  reference-video artwork were imported. Unit markers are temporary, unrigged.
+
 - Phaser 3.90: MIT — https://github.com/phaserjs/phaser
 - Socket.IO / socket.io-client: MIT — https://github.com/socketio/socket.io
 - Express: MIT — https://github.com/expressjs/express
