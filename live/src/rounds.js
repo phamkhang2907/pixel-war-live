@@ -23,6 +23,7 @@ export class RoundManager {
     this.game.reset();
     const active = this.league.start();
     this.game.round = active.number;
+    this.game.roundId = active.id;
     this.config = { ...this.league.data.config };
     this.elapsed = 0;
     this.phase = this.config.prepare ? "prepare" : "combat";
@@ -80,9 +81,17 @@ export class RoundManager {
       scores: [...g.teamScore],
       damage: [...a.damage],
       summoned: [...a.summoned],
-      top10: structuredClone(this.league.board("round")).map(p=>({...p,avatar:this.league.data.profiles?.[p.id]?.avatar || ""})),
+      top10: structuredClone(this.league.board("round")).map((p) => ({
+        ...p,
+        avatar: this.league.data.profiles?.[p.id]?.avatar || "",
+      })),
     };
+    this.paused = false;
     this.phase = "results";
+    this.game.queueStats.expired += this.game.summonQueue.reduce(
+      (n, q) => n + q.remaining,
+      0,
+    );
     this.game.summonQueue = [];
     this.phaseElapsed = 0;
     g.winner = winner;
@@ -111,7 +120,8 @@ export class RoundManager {
         this.phaseElapsed += used;
         remaining -= used;
         if (this.phaseElapsed >= duration - 1e-8) {
-          if (this.phase === "results" && this.config.countdown === 0) this.start();
+          if (this.phase === "results" && this.config.countdown === 0)
+            this.start();
           else if (this.phase === "results") {
             this.phase = "countdown";
             this.phaseElapsed = 0;
@@ -197,9 +207,11 @@ export class RoundManager {
       season: this.league.data.active.season,
       sessionId: this.league.data.active.sessionId,
       result: this.result,
-      state: this.phase === "results" || this.phase === "countdown" ? "ROUND_RESULTS" : this.phase.toUpperCase(),
+      state:
+        this.phase === "results" || this.phase === "countdown"
+          ? "ROUND_RESULTS"
+          : this.phase.toUpperCase(),
       // The dedicated history API serves archives; do not sort ten archives at 20Hz.
-
     };
   }
 }

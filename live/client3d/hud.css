@@ -686,19 +686,101 @@
 }
 
 /* Manual panels and automatic results have independent visibility/state. */
-.hud-assembly{z-index:11}
-.leaderboard-backdrop,.results-backdrop{position:absolute;inset:0;background:#02080a55;pointer-events:auto;z-index:10}
-.leaderboard-backdrop[hidden],.results-backdrop[hidden],.round-results[hidden]{display:none}
-.results-backdrop{z-index:30}
-.round-results{position:absolute;inset:0;z-index:40;pointer-events:auto}
-.result-banner{position:absolute;left:220px;top:550px;width:640px;height:150px;text-align:center}
-.result-banner h2{position:absolute;top:26px;left:55px;right:55px;margin:0;font-size:29px;line-height:36px}
-.result-banner p{position:absolute;top:69px;left:48px;right:48px;margin:0;font:14px/20px system-ui;overflow:hidden;white-space:nowrap}
-.result-banner>b{position:absolute;top:99px;left:0;right:0;font:700 20px system-ui;color:#f8d88f}
-.result-ranks{top:700px;height:920px}
-.result-ranks header{justify-content:center;left:70px;right:70px}
-.result-ranks header h2{font-size:25px}
-.result-ranks #resultEmpty{top:260px}
-.results-active .ranking-tabs{visibility:hidden}
-.hud-canvas .contributor-name{white-space:nowrap;text-overflow:ellipsis}
-.hero-score strong,.faction-score>b{max-width:100%;overflow:hidden;white-space:nowrap}
+.hud-assembly {
+  z-index: 11;
+}
+.leaderboard-backdrop,
+.results-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #02080a55;
+  pointer-events: auto;
+  z-index: 10;
+}
+.leaderboard-backdrop[hidden],
+.results-backdrop[hidden],
+.round-results[hidden] {
+  display: none;
+}
+.results-backdrop {
+  z-index: 30;
+}
+.round-results {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: auto;
+}
+.result-banner {
+  position: absolute;
+  left: 220px;
+  top: 550px;
+  width: 640px;
+  height: 150px;
+  text-align: center;
+}
+.result-banner h2 {
+  position: absolute;
+  top: 26px;
+  left: 55px;
+  right: 55px;
+  margin: 0;
+  font-size: 29px;
+  line-height: 36px;
+}
+.result-banner p {
+  position: absolute;
+  top: 69px;
+  left: 48px;
+  right: 48px;
+  margin: 0;
+  font: 14px/20px system-ui;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.result-banner > b {
+  position: absolute;
+  top: 99px;
+  left: 0;
+  right: 0;
+  font: 700 20px system-ui;
+  color: #f8d88f;
+}
+.result-ranks {
+  top: 700px;
+  height: 920px;
+}
+.result-ranks header {
+  justify-content: center;
+  left: 70px;
+  right: 70px;
+}
+.result-ranks header h2 {
+  font-size: 25px;
+}
+.result-ranks #resultEmpty {
+  top: 260px;
+}
+.results-active .ranking-tabs {
+  visibility: hidden;
+}
+.hud-canvas .contributor-name {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hero-score strong,
+.faction-score > b {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+/* Results fit below the combat dashboard; gift wings do not cover rank rows. */
+.result-banner {
+  top: 655px;
+}
+.result-ranks {
+  top: 810px;
+}
+.results-active .gift-notice {
+  display: none;
+}

@@ -44,17 +44,20 @@ try {
   socket.on("state", (s) => (latest = s));
   await cmd("cameraScenario", { scenario: "balanced", count: 50 });
   await cmd("pause");
+  const cfg=await fetch(base+'/api/config',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());
+  await cmd('giftMappings',{mappings:cfg.giftMappings.map(r=>r.key==='heavy-tier'?{...r,giftName:'Heavy Demo',enabled:true}:r.key==='giant-tier'?{...r,giftName:'Giant Demo',enabled:true}:r)});
   const names = [
     ["Astra", "Kael", "Ember"],
     ["Luna", "Orion", "Nova"],
   ];
   for (const team of [0, 1])
     for (let i = 0; i < 6; i++)
-      await cmd("spawn", {
+      await cmd("demoGift", {
         team,
         name: names[team][i % 3],
         coins: [1, 10, 50, 100, 200, 1000][i],
-        count: 4,
+        count: 2,
+        giftName:["Rose","Finger Heart","Doughnut","Perfume","Heavy Demo","Giant Demo"][i],
         avatar: "/assets/ui/kit/IMG_4974.PNG",
       });
   browser = await chromium.launch({
@@ -148,7 +151,7 @@ try {
     await page.screenshot({ path: `artifacts/grok-hud-${scope}.png` });
     await page.locator("#closeRanking").click();
   }
-  await cmd("spawn", { team: 0, name: "New Summoner", coins: 1000, count: 1 });
+  await cmd("demoGift", { team: 0, name: "New Summoner", giftName:"Giant Demo",coins: 1000, count: 1 });
   await page.waitForFunction(
     () => document.querySelector("#giftName").textContent === "New Summoner",
   );

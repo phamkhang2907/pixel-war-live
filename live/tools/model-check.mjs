@@ -148,13 +148,12 @@ try {
       "archer",
       "mage",
       "cavalry",
-      "guardian",
       "boss",
     ])
       await control("troop", { team, type, count: 1 });
   await page.goto(base + "/3d/?debug=1");
   await page.waitForFunction(
-    () => window.__PW3D?.inspect().assets.rendered >= 12,
+    () => window.__PW3D?.inspect().assets.rendered >= 10,
   );
   await page.locator('[data-camera="front"]').click();
   await control("speed", { value: 8 });
@@ -201,7 +200,7 @@ try {
     r.json(),
   );
   assert.equal(version.characters.length, 6);
-  assert.equal((await fetch(base + "/legacy/")).status, 200);
+  assert.equal((await fetch(base + "/legacy/")).status, 410);
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
   assert.deepEqual(

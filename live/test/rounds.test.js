@@ -157,7 +157,7 @@ test("durable season/session/history and gift receipts survive restart", () => {
     adapter.chat({ user, comment: "1" });
     const gift = {
       user,
-      giftDetails: { diamondCount: 1000, giftType: 0 },
+      giftDetails: { giftName:"Rose",diamondCount: 1000, giftType: 0 },
       repeatCount: 1,
       common: { msgId: "persistent" },
     };

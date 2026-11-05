@@ -36,7 +36,7 @@ export function calendarBoard(league, period, now = Date.now()) {
       const old = totals.get(p.id) || { ...p, points: 0 };
       totals.set(p.id, {
         ...old,
-        name: p.name,
+        name: league.data.profiles?.[p.id]?.name || p.name,
         team: p.team,
         points: old.points + p.points,
       });
@@ -52,16 +52,14 @@ export function calendarBoard(league, period, now = Date.now()) {
 export function hudSnapshot(game, league, now = Date.now()) {
   const profile = (p) => ({
     id: p.id,
-    name: p.name,
+    name: league.data.profiles?.[p.id]?.name || p.name,
     team: p.team,
     points: p.points,
     avatar: safeAvatar(league.data.profiles?.[p.id]?.avatar),
   });
   const weekly = calendarBoard(league, "weekly", now),
     monthly = calendarBoard(league, "monthly", now);
-  const players = Object.values(league.data.active.players).sort(
-    (a, b) => b.points - a.points || a.id.localeCompare(b.id),
-  );
+  const players = league.board("round", Infinity);
   return {
     boards: {
       round: players.slice(0, 10).map(profile),

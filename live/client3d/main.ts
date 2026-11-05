@@ -1,3 +1,5 @@
+import { BattleAudio } from "./audio";
+import { openAdmin } from "./admin";
 import "./style.css";
 import { BattleHud, type HudState } from "./hud";
 import { io } from "socket.io-client";
@@ -8,8 +10,15 @@ import type { BattleState } from "./state";
 const element = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const hud = new BattleHud(element("stage"));
+const audio = new BattleAudio();
 const query = new URLSearchParams(location.search);
+if (query.has("debug"))
+  Object.defineProperty(window, "__PW_AUDIO", {
+    value: { inspect: () => audio.diagnostics() },
+    configurable: true,
+  });
 if (query.has("overlay")) document.body.classList.add("overlay");
+if (query.has("admin")) element<HTMLDetailsElement>("admin").open = true;
 const showError = (message: string) => {
   element("error").textContent = message;
   element("error").hidden = false;
@@ -23,7 +32,7 @@ try {
   battlefield = new BattlefieldRenderer(element("world"), setStatus);
 } catch (error) {
   showError(
-    "The 3D renderer could not start. This preview needs WebGL 2 (Safari 15.4+). Reload the page or use the existing game via the link above. " +
+    "The 3D renderer could not start. This preview needs WebGL 2 (Safari 15.4+). Reload the page or select the low quality preset. " +
       (error instanceof Error ? error.message : ""),
   );
 }
@@ -40,9 +49,14 @@ socket.on("connect_error", () => setStatus("Server unavailable · retrying…"))
 let latestServerTime = 0;
 socket.on("state", (state: BattleState) => {
   if (state.serverNow && state.serverNow < latestServerTime) return;
-  latestServerTime=state.serverNow??latestServerTime;
+  latestServerTime = state.serverNow ?? latestServerTime;
+  const liveStatus = element("liveStatus");
+  if (liveStatus)
+    liveStatus.textContent =
+      (state as BattleState & { liveStatus?: string }).liveStatus ?? state.mode;
   battlefield?.setState(state);
   hud.render(state as HudState);
+  audio.update(state as HudState, battlefield?.director.camera.position.x ?? 0);
   element("round").textContent = `ROUND ${state.round}`;
   const phase = state.roundState.phase;
   element("phase").textContent = state.paused ? "PAUSED" : phase.toUpperCase();
@@ -60,7 +74,6 @@ socket.on("state", (state: BattleState) => {
     element(name + "Count").textContent =
       `${state.units.filter((u) => u.team === team && u.hp > 0).length} units`;
   }
-
 });
 socket.connect();
 document
@@ -86,6 +99,14 @@ element("auth").onsubmit = async (event) => {
     });
     if (!response.ok) throw Error("Invalid admin token");
     token = candidate;
+    openAdmin(await response.json(), control, () =>
+      fetch("/api/config", {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((r) => {
+        if (!r.ok) throw Error("Unauthorized");
+        return r.json();
+      }),
+    );
     element("demoActions").hidden = false;
     element<HTMLInputElement>("token").value = "";
     element("adminStatus").textContent =
@@ -142,7 +163,9 @@ if (battlefield) {
     element("debug").hidden = false;
     // Read-only diagnostic hook for acceptance tests; no admin commands or token.
     Object.defineProperty(window, "__PW3D", {
-      value: { inspect: () => view.diagnostics() },
+      value: {
+        inspect: () => ({ ...view.diagnostics(), audio: audio.diagnostics() }),
+      },
       configurable: true,
     });
   }
@@ -182,6 +205,7 @@ function cleanup() {
   socket.disconnect();
   battlefield?.dispose();
   hud.dispose();
+  audio.dispose();
 }
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) cleanup();

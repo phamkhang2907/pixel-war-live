@@ -1,6 +1,8 @@
 import { Worker } from "node:worker_threads";
 import {
   mkdirSync,
+  copyFileSync,
+  constants,
   existsSync,
   readFileSync,
   openSync,
@@ -31,7 +33,9 @@ export function roundConfig(input) {
     c.countdown < 0 ||
     !/^[-\w]{1,48}$/.test(c.season)
   )
-    throw Error("Need positive combat/results and nonnegative countdown and a valid season ID");
+    throw Error(
+      "Need positive combat/results and nonnegative countdown and a valid season ID",
+    );
   return c;
 }
 const row = (id, name, team) => ({
@@ -89,6 +93,11 @@ export class League {
         "Unsupported or corrupt league storage; refusing to overwrite",
       );
     if (this.data.presentationVersion !== 2) {
+      if (path && existsSync(path)) {
+        const backup = join(directory, "league.before-3d-v2.json");
+        if (!existsSync(backup))
+          copyFileSync(path, backup, constants.COPYFILE_EXCL);
+      }
       this.data.config.results = 7;
       this.data.config.countdown = 0;
       this.data.presentationVersion = 2;
@@ -177,13 +186,25 @@ export class League {
   }
   event(e) {
     if (e.kind === "profile") {
-      const id=String(e.userId); this.data.profiles ??= {};
-      const previous=this.data.profiles[id];
-      const next={name:e.profile.name,avatar:e.profile.avatar || previous?.avatar || ""};
-      if (previous?.name === next.name && previous?.avatar === next.avatar) return;
-      Object.defineProperty(this.data.profiles,id,{value:next,enumerable:true,writable:true,configurable:true});
-      const keys=Object.keys(this.data.profiles); if(keys.length>5000) delete this.data.profiles[keys[0]];
-      this.dirty=true; return;
+      const id = String(e.userId);
+      this.data.profiles ??= {};
+      const previous = this.data.profiles[id];
+      const next = {
+        name: e.profile.name,
+        avatar: e.profile.avatar || previous?.avatar || "",
+      };
+      if (previous?.name === next.name && previous?.avatar === next.avatar)
+        return;
+      Object.defineProperty(this.data.profiles, id, {
+        value: next,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      });
+      const keys = Object.keys(this.data.profiles);
+      if (keys.length > 5000) delete this.data.profiles[keys[0]];
+      this.dirty = true;
+      return;
     }
     const a = this.data.active;
     if (!a || a.finished) return;
@@ -287,27 +308,37 @@ export class League {
   checkpoint(urgent = false) {
     if (!this.asyncPersistence) return this.flush();
     if (!this.dirty || !this.directory || this.flushTimer) return;
-    this.flushTimer = setTimeout(() => {
-      this.flushTimer = null;
-      if (this.saving) return;
-      if (!this.worker) {
-        this.worker = new Worker(new URL("./persistence-worker.js", import.meta.url), { workerData: this.directory });
-        this.worker.on("message", (message) => {
-          this.saving = false;
-          if (message.error) { this.dirty = true; this.persistenceError = message.error; }
-          else this.persistenceError = null;
-          this.checkpoint();
-        });
-        this.worker.on("error", (error) => {
-          this.persistenceError = error.message; this.dirty = true; this.saving = false;
-          this.worker = null;
-        });
-        this.worker.unref();
-      }
-      this.dirty = false;
-      this.saving = true;
-      this.worker.postMessage(this.data);
-    }, urgent ? 0 : 1000);
+    this.flushTimer = setTimeout(
+      () => {
+        this.flushTimer = null;
+        if (this.saving) return;
+        if (!this.worker) {
+          this.worker = new Worker(
+            new URL("./persistence-worker.js", import.meta.url),
+            { workerData: this.directory },
+          );
+          this.worker.on("message", (message) => {
+            this.saving = false;
+            if (message.error) {
+              this.dirty = true;
+              this.persistenceError = message.error;
+            } else this.persistenceError = null;
+            this.checkpoint();
+          });
+          this.worker.on("error", (error) => {
+            this.persistenceError = error.message;
+            this.dirty = true;
+            this.saving = false;
+            this.worker = null;
+          });
+          this.worker.unref();
+        }
+        this.dirty = false;
+        this.saving = true;
+        this.worker.postMessage(this.data);
+      },
+      urgent ? 0 : 1000,
+    );
     this.flushTimer.unref();
   }
   async close() {

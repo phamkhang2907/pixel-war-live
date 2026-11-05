@@ -22,11 +22,11 @@ test("cumulative milestones trigger exactly once, team-specific, heal capped", (
   assert.equal(b.energy[1], 0);
   assert.ok(b.likes({ id: "unknown", count: 100 }).error);
 });
-test("all milestones grant guardian, rain projectiles and 20% haste for 15 simulated sec", () => {
+test("all milestones grant Heavy Soldier, rain projectiles and 20% haste for 15 simulated sec", () => {
   const { b } = setup();
   b.likes({ id: "a", count: 5000 });
   assert.deepEqual(b.claimed[0], [100, 300, 500, 1000, 3000, 5000]);
-  assert.ok(b.units.some((u) => u.type === "guardian"));
+  assert.ok(b.units.some((u) => u.type === "cavalry"));
   assert.equal(b.projectiles.length, 24);
   assert.equal(b.boostUntil[0], 15);
   b.spawn(0, "sword", 1);

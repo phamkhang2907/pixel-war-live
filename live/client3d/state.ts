@@ -33,6 +33,21 @@ export interface BattleState {
     phase: string;
     remaining: number;
     phaseRemaining: number;
-    result?: { id:string; number:number; winner: Team | null; aborted: boolean; scores:number[]; castles:number[]; damage:number[]; top10:{id:string;name:string;team:number;points:number;avatar?:string}[] } | null;
+    result?: {
+      id: string;
+      number: number;
+      winner: Team | null;
+      aborted: boolean;
+      scores: number[];
+      castles: number[];
+      damage: number[];
+      top10: {
+        id: string;
+        name: string;
+        team: number;
+        points: number;
+        avatar?: string;
+      }[];
+    } | null;
   };
 }

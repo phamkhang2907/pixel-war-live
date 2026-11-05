@@ -27,17 +27,17 @@ export const unitAssets: Record<
   mage: { model: "Mage", status: "KayKit Mage", weapons: ["staff"] },
   cavalry: {
     model: "Barbarian",
-    status: "TEMPORARY dismounted Barbarian; horse/rider asset missing",
+    status: "KayKit Barbarian · Heavy Soldier (on foot)",
     weapons: ["axe_2handed"],
   },
   guardian: {
     model: "Knight",
-    status: "TEMPORARY enlarged Knight; Guardian asset missing",
+    status: "RESERVED · approved castle Guardian asset missing; not spawned",
     weapons: ["sword_1handed", "shield_round"],
   },
   boss: {
     model: "Barbarian",
-    status: "TEMPORARY enlarged Barbarian; Titan asset missing",
+    status: "Giant · enlarged existing KayKit Barbarian (shared rig)",
     weapons: ["axe_2handed"],
   },
 };
@@ -56,6 +56,7 @@ export interface CharacterInstance {
   model: T.Group;
   mixer: T.AnimationMixer;
   materials: T.Material[];
+  poolKey: string;
 }
 export function findModel(paths: string[], name: string) {
   // Match the extension itself, not a literal backslash before it.
@@ -78,6 +79,7 @@ export class CharacterAssets {
   private weapons = new Map<string, T.Group>();
   private ownedMaterials = new Set<T.Material>();
   private disposed = false;
+  private pool = new Map<string, CharacterInstance[]>();
   constructor() {
     for (const model of characterNames)
       this.reports.set(model, { model, status: "loading" });
@@ -210,6 +212,14 @@ export class CharacterAssets {
     team: Team,
     weapons: string[] = [],
   ): CharacterInstance | null {
+    const poolKey = name + ":" + team + ":" + weapons.join(",");
+    const cached = this.pool.get(poolKey)?.pop();
+    if (cached) {
+      cached.root.position.set(0, 0, 0);
+      cached.root.rotation.set(0, 0, 0);
+      cached.root.scale.setScalar(1);
+      return cached;
+    }
     const source = this.templates.get(name);
     if (!source || this.disposed) return null;
     const root = cloneRig(source) as T.Group;
@@ -255,10 +265,28 @@ export class CharacterAssets {
     ring.name = "Team ownership ring";
     root.add(ring);
     materials.push(ring.material);
-    return { root, model, mixer: new T.AnimationMixer(root), materials };
+    return {
+      root,
+      model,
+      mixer: new T.AnimationMixer(root),
+      materials,
+      poolKey,
+    };
   }
   release(instance: CharacterInstance) {
     instance.mixer.stopAllAction();
+    instance.root.removeFromParent();
+    if (!this.disposed) {
+      const list = this.pool.get(instance.poolKey) ?? [];
+      if ([...this.pool.values()].reduce((n, p) => n + p.length, 0) < 300) {
+        list.push(instance);
+        this.pool.set(instance.poolKey, list);
+        return;
+      }
+    }
+    this.destroy(instance);
+  }
+  private destroy(instance: CharacterInstance) {
     instance.mixer.uncacheRoot(instance.root);
     instance.root.traverse((o) => {
       if (o instanceof T.SkinnedMesh) o.skeleton.dispose();
@@ -274,10 +302,14 @@ export class CharacterAssets {
       models: [...this.reports.values()],
       clips: [...this.clips.keys()],
       errors: [...this.errors],
+      pooled: [...this.pool.values()].reduce((n, p) => n + p.length, 0),
     };
   }
   dispose() {
     this.disposed = true;
+    for (const list of this.pool.values())
+      for (const instance of list) this.destroy(instance);
+    this.pool.clear();
     const geometry = new Set<T.BufferGeometry>(),
       textures = new Set<T.Texture>();
     for (const root of [...this.templates.values(), ...this.weapons.values()])

@@ -1,7 +1,7 @@
 import { WORLD } from "../src/characters.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { Battle, TYPES, DEFAULT_RULES } from "../src/game.js";
+import { Battle, TYPES } from "../src/game.js";
 const run = (b, seconds) => {
   for (let n = 0; n < seconds / 0.05; n++) b.tick(0.05);
 };
@@ -18,7 +18,7 @@ function pair(a = "sword", b = "sword", distance = 25) {
   });
   return g;
 }
-test("six precise base stats and gift tiers", () => {
+test("six configured combat stats and name-based gift queue", () => {
   assert.deepEqual(
     Object.values(TYPES).map((t) => [t.hp, t.damage]),
     [
@@ -30,14 +30,10 @@ test("six precise base stats and gift tiers", () => {
       [2500, 120],
     ],
   );
-  const g = new Battle();
-  g.choose("a", 0);
-  for (const r of DEFAULT_RULES) {
-    const old = g.units.length;
-    g.gift({ id: "a", name: "A", coins: r.min });
-    assert.equal(g.units.length, old + 1);
-    assert.equal(g.units.at(-1).type, r.type);
-  }
+  const g = new Battle();g.choose("a",0);
+  const result=g.gift({id:"a",name:"A",giftName:"Finger Heart",count:2});
+  assert.equal(result.queued,10);g.drainSummons(20);
+  assert.equal(g.units.length,10);assert.ok(g.units.every(u=>u.type==='sword'));
   assert.ok(new Battle().gift({ id: "x", coins: 1 }).error);
 });
 test("melee damages, hurt, death remains then is removed", () => {
@@ -80,10 +76,10 @@ test("fireball real flight and splash damage", () => {
   assert.equal(g.units[1].hp, 50);
   assert.equal(g.units[2].hp, 50);
 });
-test("cavalry charge does collision bonus damage, consumes charge", () => {
+test("Heavy Soldier is on foot and deals its configured damage", () => {
   const g = pair("cavalry", "sword");
   g.tick(0.05);
-  assert.equal(g.units[1].hp, 37);
+  assert.equal(g.units[1].hp, 65);
   assert.equal(g.units[0].charge, false);
 });
 test("guardian frontal shield and stomp knockback", () => {
@@ -154,8 +150,9 @@ test("300 mixed-unit CPU benchmark", () => {
 test("gift streak repeats multiply unit quantity rather than promote tier", () => {
   const b = new Battle();
   b.choose("a", 0);
-  b.gift({ id: "a", name: "A", coins: 50, count: 3 });
-  assert.equal(b.units.length, 3);
-  assert.ok(b.units.every((u) => u.type === "cavalry"));
+  b.gift({ id: "a", name: "A", giftName:"Doughnut",coins: 50, count: 3 });
+  b.drainSummons(20);
+  assert.equal(b.units.length, 9);
+  assert.ok(b.units.every((u) => u.type === "archer"));
   assert.equal(b.scores.get("a").coins, 150);
 });

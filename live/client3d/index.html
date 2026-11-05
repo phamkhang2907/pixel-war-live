@@ -13,11 +13,13 @@
   <body>
     <main>
       <div class="page-heading">
-        <a href="/legacy/">← Admin dashboard</a
-        ><span>3D BATTLEFIELD · LIVE</span>
+        <a href="/3d/?admin=1">3D Admin</a><span>3D BATTLEFIELD · LIVE</span>
       </div>
       <section id="stage" aria-label="Portrait livestream preview">
         <div id="world"></div>
+        <button id="soundToggle" class="sound-toggle" aria-pressed="false">
+          Enable sound
+        </button>
         <div id="error" role="alert" hidden></div>
         <div class="hud-bottom">
           <div class="compass">
@@ -25,8 +27,8 @@
             ><span>BLUE →</span>
           </div>
           <p class="development">
-            KayKit Knight · Ranger · Mage<br />Cavalry / Guardian / Titan use
-            temporary substitutes
+            KayKit Knight · Ranger · Mage<br />Heavy / Giant use the existing
+            Barbarian mesh; castle Guardian pending
           </p>
           <div class="connection">
             <i id="connectionDot"></i
@@ -57,6 +59,34 @@
           stays at 52° elevation. This preview shares the existing server
           battle.
         </p>
+        <div class="audio-settings">
+          <label
+            >Sound effects<input
+              id="sfxVolume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.65" /></label
+          ><label
+            >Music<input
+              id="musicVolume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0" /></label
+          ><label
+            >Listen for<select id="audioTeam">
+              <option value="-1">Spectator</option>
+              <option value="0">RED kingdom</option>
+              <option value="1">BLUE kingdom</option>
+            </select></label
+          >
+          <p id="audioStatus" role="status">
+            Sound stays off until you tap Enable sound.
+          </p>
+        </div>
         <details id="admin">
           <summary>Demo controls · admin token required</summary>
           <form id="auth">
@@ -75,12 +105,13 @@
           </p>
           <div id="demoActions" hidden>
             <button data-scenario="balanced">300-unit demo</button
-            ><button data-scenario="boss">Titan size preview</button
+            ><button data-scenario="boss">Giant size preview</button
             ><button data-scenario="red">RED siege preview</button
             ><button data-scenario="blue">BLUE siege preview</button
             ><button id="pause">Pause / resume</button
             ><button id="reset">Reset round</button>
           </div>
+          <section id="adminWorkspace" hidden></section>
         </details>
         <p><a href="/3d/gallery.html">Open 3D Model Gallery ↗</a></p>
         <p id="assetStatus" role="status">Loading real KayKit characters…</p>

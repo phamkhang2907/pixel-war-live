@@ -1,12 +1,7 @@
+import { DEFAULT_GIFT_MAPPINGS, resolveGift, SUMMONABLE } from "./gifts.js";
 import { safeAvatar } from "./hud-data.js";
-import {
-  TYPES,
-  DEFAULT_RULES,
-  WORLD,
-  LIKE_REWARDS,
-  formation,
-} from "./characters.js";
-export { TYPES, DEFAULT_RULES } from "./characters.js";
+import { TYPES, WORLD, LIKE_REWARDS, formation } from "./characters.js";
+export { TYPES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export class Battle {
   constructor({ clock = () => Date.now() / 1000 } = {}) {
@@ -14,7 +9,8 @@ export class Battle {
     this.acceptReceipt = () => true;
     this.combatEventId = 1;
     this.clock = clock;
-    this.rules = structuredClone(DEFAULT_RULES);
+    this.giftMappings = structuredClone(DEFAULT_GIFT_MAPPINGS);
+    this.giftCatalog = new Map();
     this.teams = new Map();
     this.scores = new Map();
     this.round = 0;
@@ -23,6 +19,11 @@ export class Battle {
     this.reset();
   }
   reset() {
+    this.roundStartedAt = Date.now();
+    this.summonQueue = [];
+    this.giftRates = new Map();
+    this.globalGiftRate = { at: this.clock(), count: 0 };
+    this.queueStats = { accepted: 0, spawned: 0, rejected: 0, expired: 0 };
     this.inputOpen = true;
     this.combatOpen = true;
     this.pendingPowers = [];
@@ -48,7 +49,14 @@ export class Battle {
   }
   profile(id, name, avatar) {
     if (id === undefined || id === null) return;
-    this.onCombat({kind:"profile", userId:String(id), profile:{name:String(name || id).slice(0,64),avatar:safeAvatar(avatar)}});
+    this.onCombat({
+      kind: "profile",
+      userId: String(id),
+      profile: {
+        name: String(name || id).slice(0, 64),
+        avatar: safeAvatar(avatar),
+      },
+    });
   }
   choose(id, team, name = String(id)) {
     if (!this.inputOpen || ![0, 1].includes(team) || id === undefined) return;
@@ -89,7 +97,7 @@ export class Battle {
         dead: 0,
         windup: 0.4,
         skill: 0,
-        charge: type === "cavalry",
+        charge: false,
         chargeUntil: 0,
         rage: false,
       });
@@ -114,7 +122,7 @@ export class Battle {
     if (this.cameraEvents.length > 256) this.cameraEvents.shift();
   }
   event(data) {
-    this.events.unshift({ ...data, at: Date.now() });
+    this.events.unshift({ ...data, id: this.effectId++, at: Date.now() });
     this.events = this.events.slice(0, 20);
   }
   effect(type, x, y, extra = {}) {
@@ -138,34 +146,113 @@ export class Battle {
     s.team = team;
     return s;
   }
-  gift({ id, name, coins, count = 1 }) {
+  gift({
+    id,
+    name,
+    coins,
+    count = 1,
+    giftId = "",
+    giftName = "",
+    roundId,
+    eventAt,
+  }) {
     const team = this.teams.get(String(id));
-    if (team === undefined) return { error: "Choose a team with 1 or 2 first" };
+    const reject = (error) => {
+      this.queueStats.rejected++;
+      return { error };
+    };
+    if (team === undefined) return reject("Choose a team with 1 or 2 first");
     if (!this.inputOpen || this.winner !== null)
-      return { error: "Battle ended" };
-    if (!Number.isFinite(Number(coins)) || Number(coins) <= 0)
-      return { error: "Invalid coins" };
+      return reject("Round closed; gift is not carried to the next round");
+    if (
+      (roundId && roundId !== this.roundId) ||
+      (eventAt && eventAt < this.roundStartedAt - 1000)
+    )
+      return reject("Late gift from an earlier round");
+    const rule = resolveGift(this.giftMappings, { giftId, giftName, coins });
+    if (!rule) return reject("No configured action for this gift");
+    const repeats = Number(count ?? 1);
+    if (!Number.isInteger(repeats) || repeats < 1 || repeats > 10000)
+      return reject("Invalid streak count");
+    const quantity = rule.count * repeats,
+      pending = this.summonQueue.reduce((n, q) => n + q.remaining, 0);
+    const now = this.clock();
+    if (now - this.globalGiftRate.at >= 1)
+      this.globalGiftRate = { at: now, count: 0 };
+    let rate = this.giftRates.get(String(id));
+    if (!rate || now - rate.at >= 10) {
+      rate = { at: now, count: 0 };
+      this.giftRates.set(String(id), rate);
+    }
+    if (
+      this.globalGiftRate.count >= 200 ||
+      rate.count >= 40 ||
+      this.summonQueue.length >= 500 ||
+      pending + quantity > 5000
+    )
+      return reject(
+        "Summon queue/rate limit reached; no units or coins credited",
+      );
+    if (this.giftRates.size > 5000)
+      this.giftRates.delete(this.giftRates.keys().next().value);
+    rate.count++;
+    this.globalGiftRate.count++;
     this.committedTeams.set(String(id), team);
     this.onCombat({ kind: "join", userId: id, name, team });
-    const repeats = clamp(Math.floor(Number(count) || 1), 1, 100);
-    const unitValue = clamp(Number(coins), 1, 100000);
-    const value = clamp(unitValue * repeats, 1, 100000);
-    const rule = [...this.rules]
-      .sort((a, b) => b.min - a.min)
-      .find((r) => unitValue >= r.min);
-    if (!rule) return { spawned: 0 };
-    const spawned = this.spawn(team, rule.type, rule.count * repeats, name, id);
+    const value =
+      Number.isFinite(Number(coins)) && Number(coins) > 0
+        ? Math.min(Number(coins), 100000) * repeats
+        : 0;
     this.score(id, name, team).coins += value;
     this.teamScore[team] += value;
+    this.summonQueue.push({
+      team,
+      type: rule.type,
+      remaining: quantity,
+      name,
+      userId: id,
+      roundId: this.roundId,
+    });
+    this.queueStats.accepted += quantity;
     this.event({
       name,
       team,
       type: rule.type,
-      count: spawned,
+      count: quantity,
       value,
       kind: "gift",
+      queued: true,
+      giftName: giftName || rule.giftName,
+      giftId,
     });
-    return { spawned };
+    return { queued: quantity, spawned: 0 };
+  }
+  drainSummons(budget = 8) {
+    if (!this.inputOpen) return 0;
+    let spawned = 0,
+      checked = 0;
+    while (this.summonQueue.length && budget > 0 && checked++ < 500) {
+      const q = this.summonQueue[0];
+      if (q.roundId !== this.roundId) {
+        this.queueStats.expired += q.remaining;
+        this.summonQueue.shift();
+        continue;
+      }
+      const n = this.spawn(
+        q.team,
+        q.type,
+        Math.min(q.remaining, budget),
+        q.name,
+        q.userId,
+      );
+      q.remaining -= n;
+      budget -= n;
+      spawned += n;
+      if (q.remaining === 0) this.summonQueue.shift();
+      else if (n === 0) break;
+    }
+    this.queueStats.spawned += spawned;
+    return spawned;
   }
   likes({ id, name = "Viewer", count }) {
     const team = this.teams.get(String(id));
@@ -204,7 +291,7 @@ export class Battle {
           this.effect("heal", WORLD.castles[team], WORLD.ground, { team });
           break;
         case 1000:
-          this.spawn(team, "guardian", 1, name, id);
+          this.spawn(team, "cavalry", 1, name, id);
           break;
         case 3000:
           this.arrowRain(team, { userId: id, name, team });
@@ -356,6 +443,8 @@ export class Battle {
       amount,
       team: target.team,
       air: TYPES[target.type].air,
+      sourceKind: source.kind || TYPES[source.type]?.projectile || "melee",
+      dead: target.hp <= 0,
     });
     return amount;
   }
@@ -419,6 +508,7 @@ export class Battle {
     }
   }
   tick(dt) {
+    this.drainSummons();
     if (!this.combatOpen) return;
     const powers = this.pendingPowers.splice(0);
     for (const p of powers) {
@@ -500,12 +590,6 @@ export class Battle {
           const boost = this.boostUntil[u.team] > this.time ? 1.2 : 1;
           u.cd = t.cooldown / boost / (u.rage ? 1.2 : 1);
           let amount = t.damage * (u.rage ? 1.25 : 1);
-          if (u.type === "cavalry" && u.charge) {
-            amount *= 1.8;
-            u.charge = false;
-            u.chargeUntil = this.time + 6;
-            this.effect("charge", u.x, u.y, { team: u.team });
-          }
           if (t.projectile)
             this.addProjectile(u, target, amount, t.projectile, t.splash || 0);
           else if (target.castle) {
@@ -536,8 +620,7 @@ export class Battle {
         }
       } else {
         u.state = u.hurt > 0 ? "hurt" : t.air ? "fly" : "run";
-        if (u.type === "cavalry" && this.time >= u.chargeUntil) u.charge = true;
-        const velocity = t.speed * (u.charge ? 1.65 : 1);
+        const velocity = t.speed;
         if (best > 0) {
           u.x += ((target.x - u.x) / best) * velocity * dt;
           const goalY = clamp(
@@ -655,6 +738,11 @@ export class Battle {
       round: this.round,
       energy: this.energy,
       teamScore: this.teamScore,
+      summonQueue: {
+        ...this.queueStats,
+        pending: this.summonQueue.reduce((n, q) => n + q.remaining, 0),
+        batches: this.summonQueue.length,
+      },
       claimed: this.claimed,
       boost: this.boostUntil.map((t) => Math.max(0, t - this.time)),
       furyCooldown: this.furyUntil.map((t) => Math.max(0, t - now)),
