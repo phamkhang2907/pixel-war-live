@@ -21,7 +21,8 @@
     "build:assets": "python3 tools/extract-ui-kit.py && node tools/build.mjs && python3 tools/extract-kaykit.py && python3 tools/validate-kaykit.py",
     "test:browser": "npm run build && node tools/gameplay-check.mjs",
     "test:audio": "node tools/audio-check.mjs",
-    "audio:generate": "python3 tools/make-audio.py"
+    "audio:generate": "python3 tools/make-audio.py",
+    "test:terrain": "npm run build && node tools/terrain-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

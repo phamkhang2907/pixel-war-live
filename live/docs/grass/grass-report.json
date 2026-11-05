@@ -1,0 +1,178 @@
+{
+  "browser": "155.0.8059.79",
+  "platform": "Linux headless Chromium / SwiftShader; no physical iPad test",
+  "runs": [
+    {
+      "label": "before",
+      "units": 50,
+      "independentSkeletons": 12,
+      "bakedLod": 38,
+      "drawCalls": 203,
+      "triangles": 366666,
+      "terrain": null,
+      "portraitBuffer": [
+        552,
+        983
+      ],
+      "mobile": {
+        "css": [
+          390,
+          844
+        ],
+        "buffer": [
+          199,
+          354
+        ],
+        "samples": [
+          {
+            "frames": 5,
+            "elapsedMs": 2201.000000005959,
+            "fps": 2.2716946842282884
+          },
+          {
+            "frames": 5,
+            "elapsedMs": 2313.5000000029795,
+            "fps": 2.1612275772611027
+          },
+          {
+            "frames": 6,
+            "elapsedMs": 2302.800000005962,
+            "fps": 2.6055237102590176
+          }
+        ],
+        "fps": 2.3469702081417907
+      },
+      "camera": {
+        "x": -0.40000000000000013,
+        "distance": 76,
+        "yaw": 0,
+        "elevation": 52
+      },
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "textured",
+      "units": 50,
+      "independentSkeletons": 12,
+      "bakedLod": 38,
+      "drawCalls": 201,
+      "triangles": 366684,
+      "terrain": {
+        "status": "ready",
+        "errors": [],
+        "maps": [
+          {
+            "file": "leafy_grass_diff_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "srgb",
+            "anisotropy": 2
+          },
+          {
+            "file": "leafy_grass_nor_gl_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "",
+            "anisotropy": 1
+          },
+          {
+            "file": "leafy_grass_rough_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "",
+            "anisotropy": 1
+          },
+          {
+            "file": "grass_path_3_diff_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              1,
+              1
+            ],
+            "colorSpace": "srgb",
+            "anisotropy": 2
+          }
+        ]
+      },
+      "portraitBuffer": [
+        552,
+        983
+      ],
+      "mobile": {
+        "css": [
+          390,
+          844
+        ],
+        "buffer": [
+          199,
+          354
+        ],
+        "samples": [
+          {
+            "frames": 5,
+            "elapsedMs": 2412.7999999985113,
+            "fps": 2.072281167110032
+          },
+          {
+            "frames": 4,
+            "elapsedMs": 2115.4999999985084,
+            "fps": 1.8908059560400947
+          },
+          {
+            "frames": 5,
+            "elapsedMs": 2437.0999999999985,
+            "fps": 2.0516187271757427
+          }
+        ],
+        "fps": 2.009934820685961
+      },
+      "camera": {
+        "x": -0.40000000000000013,
+        "distance": 76,
+        "yaw": 0,
+        "elevation": 52
+      },
+      "errors": [],
+      "requests": [
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_diff_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_nor_gl_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_rough_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/grass_path_3_diff_1k.jpg",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

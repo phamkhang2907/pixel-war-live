@@ -1,0 +1,62 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+textured loaded PIXEL WAR 3D — Live battlefield
+textured models ready
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'WebGL: INVALID_OPERATION: Error: 0x00000502, in /home/pwuser/webkit/Source/ThirdParty/ANGLE/src/libANGLE/renderer/gl/TextureGL.cpp, setImageHelper:373. Internal error: 0x00000502: Unexpected driver error.',
++   'WebGL: INVALID_OPERATION: glBindTexture: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glTexImage2D: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glBindTexture: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glFramebufferTexture2D: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glCheckFramebufferStatus: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glBindFramebuffer: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glGetFloatv: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glClearColor: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glGetBooleanv: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glColorMask: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glGetFloatv: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glClearDepthf: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glGetBooleanv: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glDepthMask: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glClear: Context has been lost.',
++   'WebGL: INVALID_OPERATION: glClearColor: Context has been lost. (No more validation messages will be reported)',
++   'WebGL: context lost.'
++ ]
+- []
+
+    at run (file:///workspace/pixel-war-live/live/tools/terrain-webkit.tmp.mjs:212:12)
+    at async file:///workspace/pixel-war-live/live/tools/terrain-webkit.tmp.mjs:253:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'WebGL: INVALID_OPERATION: Error: 0x00000502, in /home/pwuser/webkit/Source/ThirdParty/ANGLE/src/libANGLE/renderer/gl/TextureGL.cpp, setImageHelper:373. Internal error: 0x00000502: Unexpected driver error.',
+    'WebGL: INVALID_OPERATION: glBindTexture: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glTexImage2D: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glBindTexture: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glFramebufferTexture2D: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glCheckFramebufferStatus: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glBindFramebuffer: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glGetFloatv: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glClearColor: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glGetBooleanv: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glColorMask: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glGetFloatv: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glClearDepthf: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glGetBooleanv: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glDepthMask: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glClear: Context has been lost.',
+    'WebGL: INVALID_OPERATION: glClearColor: Context has been lost. (No more validation messages will be reported)',
+    'WebGL: context lost.'
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

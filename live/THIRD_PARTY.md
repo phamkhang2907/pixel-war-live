@@ -6,6 +6,10 @@ The repository's KayKit Adventurers, Forest Nature and Medieval ZIPs contain the
 
 Small Soldier uses Knight; Heavy Soldier uses Barbarian on foot; Archer uses Ranger; Mage uses Mage; Giant is a scaled version of the existing Barbarian. Far-distance LOD geometry is derived from those same licensed meshes, with original textures. No third-party dragon or approved castle Guardian model has been integrated.
 
+## Terrain textures
+
+Poly Haven **Leafy Grass** (albedo, OpenGL normal, roughness) and **Grass Path 3** (albedo), all original 1K JPEGs, are CC0-1.0. Sources: <https://polyhaven.com/a/leafy_grass>, <https://polyhaven.com/a/grass_path_3>. License: <https://polyhaven.com/license> and <https://creativecommons.org/publicdomain/zero/1.0/>. Commercial use and redistribution are allowed. Original downloads, dimensions and SHA-256 hashes are recorded in `assets/3d/terrain/leafy_grass/sources.json`, with the licensing evidence in the adjacent `LICENSE.txt`. The application serves these files locally; it does not hotlink Poly Haven at runtime. See [TEXTURED-GRASS.md](TEXTURED-GRASS.md) for rendering and measured costs.
+
 ## Grok UI KIT
 
 `assets/ui/UI KIT.zip` was provided by the project owner for this HUD. Its 15 PNGs are copied byte-for-byte to `public/assets/ui/kit/`. No separate license text was supplied inside the ZIP. These images are not represented as KayKit/CC0 or third-party MIT artwork. The Douyin reference informs composition only and is not bundled. Fonts use browser/system fallbacks.

@@ -2,6 +2,8 @@
 
 See [FULL-3D-MIGRATION.md](FULL-3D-MIGRATION.md) for current gameplay, admin controls, gifting, audio, testing and limitations. This replaces the retired 2D setup instructions.
 
+See [TEXTURED-GRASS.md](TEXTURED-GRASS.md) for the licensed PBR terrain maps, before/after screenshots and measured rendering costs.
+
 From the repository root:
 
 ```sh
@@ -25,6 +27,7 @@ node tools/model-check.mjs
 node tools/hud-check.mjs
 node tools/fortress-check.mjs
 node tools/audio-check.mjs
+node tools/terrain-check.mjs
 ```
 
 Install browser test engines with `npx playwright install --with-deps chromium webkit` from `live/` when required. Browser results are headless Linux measurements; physical iPad Safari still needs a device test.

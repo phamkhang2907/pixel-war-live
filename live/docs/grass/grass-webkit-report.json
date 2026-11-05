@@ -1,0 +1,129 @@
+{
+  "browser": "27.2",
+  "platform": "Linux headless WebKit / touch emulation; no physical iPad test",
+  "runs": [
+    {
+      "label": "textured",
+      "units": 50,
+      "independentSkeletons": 12,
+      "bakedLod": 38,
+      "drawCalls": 201,
+      "triangles": 366684,
+      "terrain": {
+        "status": "ready",
+        "errors": [],
+        "maps": [
+          {
+            "file": "leafy_grass_diff_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "srgb",
+            "anisotropy": 2
+          },
+          {
+            "file": "leafy_grass_nor_gl_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "",
+            "anisotropy": 1
+          },
+          {
+            "file": "leafy_grass_rough_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              40,
+              35
+            ],
+            "colorSpace": "",
+            "anisotropy": 1
+          },
+          {
+            "file": "grass_path_3_diff_1k.jpg",
+            "size": [
+              1024,
+              1024
+            ],
+            "repeat": [
+              1,
+              1
+            ],
+            "colorSpace": "srgb",
+            "anisotropy": 2
+          }
+        ]
+      },
+      "portraitBuffer": [
+        552,
+        983
+      ],
+      "mobile": {
+        "css": [
+          390,
+          844
+        ],
+        "buffer": [
+          199,
+          354
+        ],
+        "samples": [
+          {
+            "frames": 16,
+            "elapsedMs": 2065,
+            "fps": 7.74818401937046
+          },
+          {
+            "frames": 16,
+            "elapsedMs": 2036,
+            "fps": 7.858546168958743
+          },
+          {
+            "frames": 16,
+            "elapsedMs": 2025,
+            "fps": 7.901234567901234
+          }
+        ],
+        "fps": 7.835455435847209
+      },
+      "camera": {
+        "x": -0.40000000000000013,
+        "distance": 76,
+        "yaw": 0,
+        "elevation": 52
+      },
+      "errors": [],
+      "requests": [
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_diff_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_nor_gl_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/leafy_grass_rough_1k.jpg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:3177/assets/3d/terrain/leafy_grass/grass_path_3_diff_1k.jpg",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

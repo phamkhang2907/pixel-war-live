@@ -1,5 +1,6 @@
 import * as T from "three";
 import { BattlefieldCamera, type CameraMode } from "./camera";
+import type { TerrainSurface } from "./grass-material";
 import { buildWorld } from "./world";
 import { KaykitUnits } from "./kaykit-units";
 import { CombatEffects } from "./combat-effects";
@@ -27,6 +28,7 @@ export class BattlefieldRenderer {
   private lowQuality = matchMedia("(pointer: coarse)").matches;
   private disposed = false;
   private sun: T.DirectionalLight;
+  private terrain: TerrainSurface;
   private fortresses: T.Group[] = [];
   private pointers = new Map<number, { x: number; y: number }>();
   private pinchDistance = 0;
@@ -55,7 +57,15 @@ export class BattlefieldRenderer {
     );
     this.renderer.domElement.tabIndex = 0;
     this.host.append(this.renderer.domElement);
-    this.sun = buildWorld(this.scene).sun;
+    const world = buildWorld(this.scene, {
+      anisotropy: Math.min(
+        matchMedia("(pointer: coarse)").matches ? 2 : 4,
+        this.renderer.capabilities.getMaxAnisotropy(),
+      ),
+      onTerrainError: (message) => this.status(message),
+    });
+    this.sun = world.sun;
+    this.terrain = world.terrain;
     this.scene.add(this.kaykit.group, this.effects.group);
     void loadKaykitWorld(this.scene)
       .then((forts) => {
@@ -226,6 +236,7 @@ export class BattlefieldRenderer {
           : [],
         visible: f.visible,
       })),
+      terrain: this.terrain.inspect(),
       assets: this.kaykit.diagnostics(),
       fps: this.fps,
       totalFrames: this.totalFrames,
@@ -268,6 +279,7 @@ export class BattlefieldRenderer {
     });
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
+    this.terrain.dispose();
     this.sun.shadow.dispose();
     this.effects.dispose();
     this.kaykit.dispose();
