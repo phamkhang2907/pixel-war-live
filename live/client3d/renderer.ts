@@ -3,6 +3,7 @@ import { BattlefieldCamera, type CameraMode } from "./camera";
 import { buildWorld } from "./world";
 import { DevelopmentUnits } from "./development-units";
 import { KaykitUnits } from "./kaykit-units";
+import { CombatEffects } from "./combat-effects";
 import { loadKaykitWorld } from "./kaykit-world";
 import { CASTLE_X, type BattleState } from "./state";
 
@@ -11,6 +12,7 @@ export class BattlefieldRenderer {
   readonly director = new BattlefieldCamera();
   readonly renderer: T.WebGLRenderer;
   private units = new DevelopmentUnits();
+  private effects = new CombatEffects();
   private kaykit = new KaykitUnits(() => { this.units.group.visible = false; });
   private state: BattleState | null = null;
   private resizeObserver: ResizeObserver;
@@ -50,7 +52,7 @@ export class BattlefieldRenderer {
     this.renderer.domElement.tabIndex = 0;
     this.host.append(this.renderer.domElement);
     this.sun = buildWorld(this.scene).sun;
-    this.scene.add(this.units.group, this.kaykit.group);
+    this.scene.add(this.units.group, this.kaykit.group, this.effects.group);
     void loadKaykitWorld(this.scene);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
@@ -104,6 +106,7 @@ export class BattlefieldRenderer {
       this.director.update(dt);
       this.units.update(this.state, dt);
       this.kaykit.update(this.state, dt);
+      this.effects.update(this.state, dt);
       this.renderer.render(this.scene, this.director.camera);
       this.frames++;
       this.elapsed += wallDt;
@@ -210,6 +213,7 @@ export class BattlefieldRenderer {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     this.sun.shadow.dispose();
+    this.effects.dispose();
     this.kaykit.dispose();
     this.scene.clear();
     this.renderer.dispose();
