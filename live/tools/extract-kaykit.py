@@ -51,7 +51,7 @@ for pack, archives in packs.items():
                     colored = any("/buildings/" + team + "/" in "/" + path and
                                   stem in {model + "_" + team for model in FORTRESS_TEAM}
                                   for team in ("red", "blue"))
-                    if not ((neutral and stem in FORTRESS_NEUTRAL) or colored):
+                    if not ((neutral and stem in FORTRESS_NEUTRAL) or colored or (rel.name == "hexagons_medieval.png" and "/buildings/" in "/" + path and any("/" + side + "/" in "/" + path for side in ("neutral", "red", "blue")))):
                         continue
                 out = target / rel
                 out.parent.mkdir(parents=True, exist_ok=True)
