@@ -9,6 +9,15 @@ from zipfile import ZipFile
 import shutil
 import json
 
+# Fortress models are already present in the uploaded original Medieval Part02.
+FORTRESS_NEUTRAL = {"wall_straight", "wall_straight_gate", "wall_corner_A_gate",
+                    "wall_corner_A_inside", "wall_corner_A_outside",
+                    "wall_corner_B_inside", "wall_corner_B_outside"}
+FORTRESS_TEAM = {"building_castle", "building_tower_A", "building_tower_B",
+                 "building_tower_base", "building_barracks", "building_home_A",
+                 "building_blacksmith"}
+
+
 root = Path(__file__).resolve().parents[1]
 source = root / "assets" / "3d"
 dest = root / "dist" / "public" / "kaykit"
@@ -35,6 +44,15 @@ for pack, archives in packs.items():
                     continue
                 if any(p.lower() in {"fbx", "obj", "fbx(unity)", "samples"} for p in rel.parts):
                     continue
+                if pack == "medieval":
+                    path = rel.as_posix()
+                    stem = rel.stem
+                    neutral = "/buildings/neutral/" in "/" + path
+                    colored = any("/buildings/" + team + "/" in "/" + path and
+                                  stem in {model + "_" + team for model in FORTRESS_TEAM}
+                                  for team in ("red", "blue"))
+                    if not ((neutral and stem in FORTRESS_NEUTRAL) or colored):
+                        continue
                 out = target / rel
                 out.parent.mkdir(parents=True, exist_ok=True)
                 with z.open(entry) as src, out.open("wb") as dst:
