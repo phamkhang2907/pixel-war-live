@@ -6,13 +6,14 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/game.test.js && node test/tiktok.test.js && node test/connection.test.js",
+    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js",
     "assets": "python3 tools/sprites.py",
     "test:browser": "node tools/browser-check.mjs",
     "build": "node tools/build.mjs",
     "prestart": "npm run build",
     "predev": "npm run build",
-    "pretest:browser": "npm run build"
+    "pretest:browser": "npm run build",
+    "assets:check": "python3 tools/check-art.py"
   },
   "dependencies": {
     "express": "^5.1.0",

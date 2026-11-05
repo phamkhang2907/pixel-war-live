@@ -70,6 +70,12 @@ export class TikTokService {
                 ingest.gift(d);
               } catch {}
           });
+          connection.on("like", (d) => {
+            if (current() && this.mode === "live")
+              try {
+                ingest.like(d);
+              } catch {}
+          });
           connection.on("disconnected", fail);
           connection.on("error", fail);
           await connection.connect();

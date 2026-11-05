@@ -20,9 +20,9 @@ test("TikTok factory rejection leaves playable demo", async () => {
   await assert.rejects(s.connect("test"));
   assert.equal(s.mode, "demo");
   b.spawn(0, "sword", 1);
-  const y = b.units[0].y;
-  b.tick(0.05);
-  assert.notEqual(b.units[0].y, y);
+  const y = b.units[0].x;
+  for (let i = 0; i < 20; i++) b.tick(0.05);
+  assert.notEqual(b.units[0].x, y);
 });
 test("timeout, late connection, stale events cannot overwrite demo", async () => {
   const b = new Battle();

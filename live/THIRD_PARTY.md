@@ -2,11 +2,11 @@
 
 ## Repository tham khảo
 
-`quangrau/island-defense-demo` được clone từ GitHub; tại thời điểm kiểm tra không có LICENSE ở root. README dẫn Tiny Swords by Pixel Frog nhưng không đủ để cấp phép cho toàn bộ bundle mã nguồn. **Không sao chép, import hoặc sửa bundle JS/artwork vào game mới.** Toàn bộ file tham khảo được giữ nguyên trên branch, game mới ở `live/` độc lập. Quyền các file gốc thuộc chủ sở hữu tương ứng; giấy phép của phần mới không áp dụng cho chúng.
+`quangrau/island-defense-demo` được clone từ GitHub; tại thời điểm kiểm tra không có LICENSE ở root. README dẫn Tiny Swords by Pixel Frog nhưng không đủ để cấp phép cho toàn bộ bundle mã nguồn. **Không sao chép, import hoặc sửa bundle JS/artwork vào game mới.** Bản tham khảo tại workspace gốc được giữ nguyên; repo standalone này chỉ có mã mới ở `live/`. Quyền các file gốc thuộc chủ sở hữu tương ứng; giấy phép của phần mới không áp dụng cho chúng.
 
 ## Artwork mới
 
-`live/tools/sprites.py`, PNG trong `live/public/assets/`, terrain code trong app.js là artwork nguyên bản được tạo cho dự án này. Sprite sheet raster 6 frame × 5 trạng thái; idle thở, run chân/bob, attack vũ khí, hurt recoil, death xoay/fade. Không lấy hình từ Tiny Swords hay nguồn chưa rõ phép. Cho phép sử dụng/sửa/phân phối artwork mới theo MIT trong `live/LICENSE`.
+`live/tools/sprites.py`, PNG trong `live/public/assets/`, terrain code trong arena.js là artwork nguyên bản được tạo cho dự án này. 12 sprite sheets raster 512×512, frame 64×64, 8 frame × 8 trạng thái; idle thở, run chân/bob, attack vũ khí, hurt recoil, death xoay/fade. Không lấy hình từ Tiny Swords hay nguồn chưa rõ phép. Cho phép sử dụng/sửa/phân phối artwork mới theo MIT trong `live/LICENSE`.
 
 ## Dependencies
 

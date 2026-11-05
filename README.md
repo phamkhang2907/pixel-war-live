@@ -1,6 +1,6 @@
 # PIXEL WAR — RED VS BLUE
 
-Game livestream tương tác độc lập, Node.js 20+, Phaser 3 và Socket.IO. Hai phe chiến đấu tự động trên canvas 9:16; 5 lớp quân dùng sprite sheets pixel art gốc với idle/run/attack/hurt/death. Demo chơi được ngay, không cần TikTok LIVE.
+Game livestream tương tác độc lập, Node.js 20+, Phaser 3 và Socket.IO. Hai phe chiến đấu tự động trên canvas 9:16; 6 lớp quân dùng sprite sheets pixel art gốc với idle/run/attack/hurt/death. Demo chơi được ngay, không cần TikTok LIVE.
 
 ```bash
 npm run setup
@@ -18,3 +18,5 @@ Chọn branch `feature/pixel-war-live` → **Code → Codespaces → Create code
 [Hướng dẫn chi tiết, Admin và TikTok](live/README.md) · [Giấy phép/artwork audit](live/THIRD_PARTY.md) · [Kết quả kiểm thử](live/VERIFICATION.md).
 
 Mã mới được viết độc lập sau khi kiểm tra island-defense-demo không có LICENSE ở root. Repository này không chứa bundle/artwork của game tham khảo. MIT chỉ áp dụng mã/artwork mới; connector có license AGPL-3.0 kèm ngoại lệ, xem tài liệu trước khi cung cấp dịch vụ hosted.
+
+Bản cập nhật character/combat: sáu lớp quân, air/anti-air, charge, shield/stomp/rage, projectile thực, năng lượng Like và Fury. Chi tiết luật/cấu hình, bảng stats, frame metadata và giới hạn: [live/README.md](live/README.md).

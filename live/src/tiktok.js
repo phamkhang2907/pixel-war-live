@@ -10,6 +10,24 @@ export class TikTokIngest {
     if (id && (comment === "1" || comment === "2"))
       this.battle.choose(id, Number(comment) - 1);
   }
+  like(data) {
+    const id = data?.user?.userId,
+      count = Number(data?.likeCount),
+      key = data?.common?.msgId || data?.msgId;
+    if (!id || !Number.isInteger(count) || count < 1) return;
+    if (key) {
+      const k = "like-" + key;
+      if (this.seen.has(k)) return;
+      this.seen.add(k);
+      if (this.seen.size > 5000)
+        this.seen.delete(this.seen.values().next().value);
+    }
+    return this.battle.likes({
+      id,
+      name: data.user.nickname || data.user.uniqueId || "Viewer",
+      count,
+    });
+  }
   gift(data) {
     const id = data.user?.userId,
       details = data.giftDetails;

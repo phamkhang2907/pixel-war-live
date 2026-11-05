@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { Battle, TYPES } from "./game.js";
+import { Battle, TYPES, DEFAULT_RULES } from "./game.js";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = express(),
   http = createServer(app),
@@ -90,9 +90,41 @@ app.post("/api/control", auth, async (req, res) => {
           count: p.count || 1,
         });
         break;
+      case "likes":
+        if (
+          tiktok.mode !== "demo" ||
+          ![0, 1].includes(p.team) ||
+          !Number.isInteger(p.count) ||
+          p.count < 1 ||
+          p.count > 100000
+        )
+          throw Error("Invalid demo likes");
+        game.choose("demo-like", p.team);
+        game.likes({
+          id: "demo-like",
+          name: p.name || "Demo Hearts",
+          count: p.count,
+        });
+        break;
+      case "defaultRules":
+        game.rules = structuredClone(DEFAULT_RULES);
+        await mkdir(dataDir, { recursive: true });
+        await writeFile(
+          dataDir + "/rules.json",
+          JSON.stringify(game.rules, null, 2),
+        );
+        break;
       case "burst":
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
-        for (let i = 0; i < 2; i++) game.spawn(i, "sword", 100, "Demo army");
+        if (![100, 200, 300].includes(p.count ?? 200))
+          throw Error("Use 100, 200 or 300 units");
+        for (let i = 0; i < (p.count ?? 200); i++)
+          game.spawn(
+            i % 2,
+            Object.keys(TYPES)[Math.floor(i / 2) % 6],
+            1,
+            "Demo army",
+          );
         break;
       case "speed":
         if (tiktok.mode !== "demo" || ![1, 2, 4, 8].includes(p.value))
@@ -178,7 +210,7 @@ setInterval(() => {
       game.gift({
         id: name,
         name,
-        coins: [1, 5, 20, 50][Math.floor(Math.random() * 4)],
+        coins: [1, 10, 50, 100, 200, 1000][Math.floor(Math.random() * 6)],
       });
     }
   }

@@ -1120,3 +1120,203 @@ body.overlay {
 .gift-values > label {
   width: 50%;
 }
+/* Side-scrolling battlefield HUD remains fixed above the Phaser camera. */
+.arena-heading {
+  top: 7%;
+}
+.castle-ui {
+  top: 18%;
+  bottom: auto;
+  left: 18px;
+  width: 44%;
+  right: auto;
+}
+.blue-ui {
+  left: auto;
+  right: 18px;
+}
+.energy-hud {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 24%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.energy-hud > div {
+  width: 48%;
+  font-size: 8px;
+  background: #121d30ad;
+  border: 1px solid #56677a5c;
+  padding: 9px;
+  border-radius: 5px;
+}
+.energy-hud b {
+  color: #ef9caa;
+  font-size: 8px;
+  letter-spacing: 0.8px;
+}
+.energy-hud span {
+  float: right;
+  color: #fff;
+}
+.energy-hud small {
+  display: block;
+  color: #b9c7d3;
+  line-height: 1.7;
+  font-size: 7px;
+}
+.energy-hud .blue-energy b {
+  color: #9cc8ff;
+}
+.camera-controls {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 35%;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+.camera-controls button {
+  font-size: 8px;
+  color: #b6c5d9;
+  background: #152135d9;
+  border: 1px solid #536078;
+  border-radius: 4px;
+  padding: 7px;
+}
+.camera-controls .selected {
+  background: #3f4e62;
+  color: #fff;
+}
+.minimap {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 10%;
+  height: 18px;
+  border: 1px solid #73829569;
+  background: #101e2fcc;
+  cursor: pointer;
+  overflow: hidden;
+}
+.minimap i {
+  position: absolute;
+  height: 100%;
+  background: #c2d6e62b;
+  border: 1px solid #9eb5cc9e;
+}
+.minimap > span {
+  position: absolute;
+  top: 5px;
+  width: 5px;
+  height: 7px;
+}
+.red-dot {
+  left: 5%;
+  background: #f38997;
+}
+.blue-dot {
+  right: 5%;
+  background: #8ec4ff;
+}
+.like-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.like-actions button {
+  font-size: 10px;
+}
+#spawnCount,
+#stressCount,
+#speed {
+  max-width: 100%;
+  background: #121823;
+  border: 1px solid #414955;
+  border-radius: 4px;
+  padding: 7px;
+  color: #cbd5e3;
+}
+#stressCount {
+  width: 100%;
+  margin-top: 15px;
+}
+.sprite-icon {
+  width: 44px;
+  height: 44px;
+  background: #283442;
+}
+.troop-info small {
+  font-size: 8px;
+}
+.arena-footer {
+  line-height: 1.7;
+}
+.join-bar {
+  bottom: 20px;
+}
+.overlay .battle-column {
+  max-width: 540px;
+}
+.arena-wrap {
+  touch-action: pan-y;
+}
+.guide .panel-title + h3 {
+  font-size: 12px;
+}
+.stream-leaders {
+  position: absolute;
+  top: 40%;
+  left: 18px;
+  right: 18px;
+  background: #15203399;
+  border: 1px solid #65738b38;
+  padding: 8px;
+  border-radius: 4px;
+  color: #c5d3df;
+  font: 8px monospace;
+  line-height: 1.7;
+  text-align: center;
+  pointer-events: none;
+  overflow: hidden;
+  max-height: 45px;
+}
+#arenaUnits {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #d6dfef;
+  padding-top: 5px;
+}
+.energy-hud small {
+  overflow-wrap: anywhere;
+}
+.stream-leaders b {
+  color: #f0cb8c;
+}
+.reward-ladder {
+  font-size: 10px;
+  color: #9eaac0;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+.reward-ladder summary {
+  cursor: pointer;
+  color: #c0cbda;
+}
+.reward-ladder p {
+  padding-left: 12px;
+  border-left: 1px solid #4b5870;
+}
+/* Leave headroom for 3.4x Titans; keep fixed HUD outside the combat band. */
+.camera-controls {
+  top: 31.5%;
+}
+.stream-leaders {
+  top: auto;
+  bottom: 14%;
+  max-height: 40px;
+}

@@ -19,7 +19,7 @@ test("native nested TikTok chat and completed streak; deduplicate message", () =
   gift.repeatEnd = true;
   a.gift(gift);
   a.gift(gift);
-  assert.equal(b.units.length, 3);
+  assert.equal(b.units.length, 10);
   assert.equal(b.units[0].team, 1);
   assert.equal(b.units[0].name, "Minh");
   assert.equal(b.snapshot().scores[0].coins, 50);
@@ -31,4 +31,17 @@ test("unknown coin value and unknown users do not summon", () => {
   a.chat({ user: { userId: "x" }, comment: "1" });
   a.gift({ user: { userId: "x" }, giftDetails: { giftType: 0 } });
   assert.equal(b.units.length, 0);
+});
+test("native likeCount is per-event, team selected by chat, duplicate IDs ignored", () => {
+  const b = new Battle(),
+    a = new TikTokIngest(b),
+    user = { userId: "heart", nickname: "Heart" };
+  a.like({ user, likeCount: 500, common: { msgId: "a" } });
+  assert.deepEqual(b.energy, [0, 0]);
+  a.chat({ user, comment: "2" });
+  const d = { user, likeCount: 100, common: { msgId: "b" } };
+  a.like(d);
+  a.like(d);
+  assert.deepEqual(b.energy, [0, 100]);
+  assert.equal(b.units.length, 3);
 });

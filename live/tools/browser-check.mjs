@@ -64,13 +64,13 @@ try {
   let latest,
     seen = new Set(),
     moved = false,
-    initialY;
+    initialX;
   socket = io(base);
   socket.on("state", (s) => {
     latest = s;
     for (const u of s.units) {
       seen.add(u.state);
-      if (initialY !== undefined && u.y !== initialY) moved = true;
+      if (initialX !== undefined && u.x !== initialX) moved = true;
     }
   });
   await page.goto(base);
@@ -90,14 +90,14 @@ try {
     .getByRole("button", { name: "Summon Swordsman", exact: true })
     .click();
   await wait(() => latest?.units.length === 1);
-  initialY = latest.units[0].y;
+  initialX = latest.units[0].x;
   await page.locator('[data-team="1"]').click();
   await page
     .getByRole("button", { name: "Summon Swordsman", exact: true })
     .click();
   await wait(() => latest?.units.length === 2);
   await page.locator("#giftName").fill("iPad Commander");
-  await page.locator("#giftCoins").fill("50");
+  await page.locator("#giftCoins").fill("100");
   await page.locator("#sendGift").click();
   await wait(() =>
     latest?.events.some(
@@ -105,12 +105,13 @@ try {
     ),
   );
   await page.getByText("iPad Commander", { exact: true }).first().waitFor();
-  await page.locator("#speed").selectOption("8");
+  await page.locator("#speed").selectOption("1");
   await wait(
     () => seen.has("attack") && seen.has("hurt") && seen.has("death"),
-    20000,
+    30000,
   );
   assert.ok(moved);
+  await page.locator("#speed").selectOption("8");
   console.log(
     engine,
     "UI + API + Socket.IO: movement, target acquisition, damage, hurt, death, gift and ranking PASS",
@@ -132,13 +133,29 @@ try {
     "Full siege through actual server timer: BLUE castle HP=0, RED victory rendered PASS",
   );
   await control("reset");
+  await page.locator('[data-likes="500"]').click();
+  await wait(() => latest?.energy[1] === 500);
+  assert.deepEqual(latest.claimed[1], [100, 300, 500]);
+  await page.locator("#energy1").getByText("500", { exact: true }).waitFor();
+  await page.locator('[data-likes="500"]').click();
+  await wait(() => latest?.energy[1] === 1000);
+  assert.ok(latest.units.some((u) => u.type === "guardian"));
+  console.log(engine, "Demo Like energy, milestones and Fury UI PASS");
+  await control("reset");
   await control("burst");
   await control("burst");
   await wait(() => latest?.units.length === 300);
   console.log(engine, "300-unit cap/render PASS");
   await control("reset");
   for (const team of [0, 1])
-    for (const type of ["sword", "archer", "cavalry", "mage", "boss"])
+    for (const type of [
+      "sword",
+      "archer",
+      "cavalry",
+      "mage",
+      "guardian",
+      "boss",
+    ])
       await control("troop", { team, type, count: 3 });
   await control("speed", { value: 1 });
   await mkdir("artifacts", { recursive: true });
@@ -146,6 +163,18 @@ try {
     path: `artifacts/${engine}-desktop.png`,
     fullPage: true,
   });
+  await page.locator('[data-camera="red"]').click();
+  await page.waitForTimeout(500);
+  const left = await page
+    .locator("#cameraView")
+    .evaluate((e) => parseFloat(e.style.left));
+  await page.locator('[data-camera="blue"]').click();
+  await page.waitForTimeout(800);
+  const right = await page
+    .locator("#cameraView")
+    .evaluate((e) => parseFloat(e.style.left));
+  assert.ok(right > left + 20);
+  await page.locator('[data-camera="auto"]').click();
   await page.setViewportSize({ width: 820, height: 1180 });
   await page.screenshot({
     path: `artifacts/${engine}-ipad.png`,
