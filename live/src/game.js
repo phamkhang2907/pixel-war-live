@@ -277,7 +277,7 @@ export class Battle {
       castle: true,
       team,
       x: WORLD.castles[team],
-      y: clamp(lane, WORLD.ground - 140, WORLD.ground + 140),
+      y: clamp(lane, WORLD.laneMin, WORLD.laneMax),
       hp: this.castles[team],
     };
   }
@@ -471,6 +471,7 @@ export class Battle {
       for (const v of near) {
         if (v.team === u.team || v.hp <= 0 || (TYPES[v.type].air && !t.antiAir))
           continue;
+        if (Math.abs(v.y - u.y) > WORLD.rowGap * 1.4) continue;
         const d = Math.hypot(v.x - u.x, (v.y - u.y) * 1.2);
         if (d < best) {
           best = d;
@@ -534,7 +535,12 @@ export class Battle {
         const velocity = t.speed * (u.charge ? 1.65 : 1);
         if (best > 0) {
           u.x += ((target.x - u.x) / best) * velocity * dt;
-          u.y += ((target.y - u.y) / best) * velocity * dt;
+          const goalY = clamp(
+            target.y,
+            (u.lane ?? u.y) - WORLD.rowGap * 0.45,
+            (u.lane ?? u.y) + WORLD.rowGap * 0.45,
+          );
+          u.y += ((goalY - u.y) / best) * velocity * dt;
         }
       }
       if (u.stomping > 0) {
@@ -550,8 +556,11 @@ export class Battle {
         const ax = u.x - v.x,
           ay = u.y - v.y,
           d = Math.hypot(ax, ay),
-          r = t.radius + TYPES[v.type].radius;
-        if (d < r && d > 0.01) {
+          r = Math.max(25, t.radius) + Math.max(25, TYPES[v.type].radius);
+        if (d <= 0.01) {
+          sx += (u.id < v.id ? -1 : 1) * r * 0.6;
+          n++;
+        } else if (d < r) {
           sx += (ax / d) * (r - d);
           sy += (ay / d) * (r - d);
           n++;
@@ -561,6 +570,8 @@ export class Battle {
         u.x += (sx / n) * dt * 3;
         u.y += (sy / n) * dt * 4;
       }
+      // Lane restoration prevents pursuit and separation from collapsing the frontage.
+      if (u.lane !== undefined) u.y += clamp(u.lane - u.y, -35, 35) * dt * 0.6;
       u.x = clamp(u.x, WORLD.castles[0] + 60, WORLD.castles[1] - 60);
       u.y = clamp(u.y, WORLD.laneMin, WORLD.laneMax);
     }

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/camera.test.js",
+    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/camera.test.js && node test/formations.test.js",
     "assets": "python3 tools/sprites.py",
     "test:browser": "node tools/browser-check.mjs",
     "build": "npm run build:legacy && npm run build:3d",
@@ -21,7 +21,9 @@
     "dev:3d": "vite",
     "typecheck": "tsc -p tsconfig.json",
     "test:3d": "npm run build && node tools/three-check.mjs",
-    "test:models": "npm run build && node tools/model-check.mjs"
+    "test:models": "npm run build && node tools/model-check.mjs",
+    "test:battlefield": "npm run build && node tools/battlefield-check.mjs",
+    "test:fortresses": "npm run build && node tools/fortress-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

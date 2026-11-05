@@ -1,0 +1,1401 @@
+{
+  "buildingCount": 93,
+  "missingDependencies": [],
+  "buildings": [
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_archeryrange_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_archeryrange_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_archeryrange_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_barracks_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_barracks_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_barracks_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_blacksmith_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_blacksmith_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_blacksmith_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_castle_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_castle_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_castle_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_church_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_church_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_church_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_home_A_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_home_B_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_lumbermill_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_market_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_market_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_market_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_mine_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_mine_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_mine_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tavern_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_tavern_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tavern_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_A_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_tower_A_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_A_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_B_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_tower_B_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_B_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_base_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_tower_base_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_base_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_catapult_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_tower_catapult_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_tower_catapult_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_watermill_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_watermill_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_watermill_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_well_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_well_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_well_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_windmill_blue.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/blue/building_windmill_blue.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/building_windmill_blue.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/blue/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_archeryrange_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_archeryrange_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_archeryrange_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_barracks_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_barracks_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_barracks_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_blacksmith_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_blacksmith_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_blacksmith_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_castle_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_castle_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_castle_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_church_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_church_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_church_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_home_A_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_home_A_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_home_A_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_home_B_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_home_B_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_home_B_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_lumbermill_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_lumbermill_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_lumbermill_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_market_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_market_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_market_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_mine_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_mine_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_mine_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tavern_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_tavern_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tavern_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_A_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_tower_A_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_A_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_B_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_tower_B_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_B_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_base_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_tower_base_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_base_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_catapult_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_tower_catapult_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_tower_catapult_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_watermill_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_watermill_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_watermill_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_well_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_well_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_well_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_windmill_green.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/green/building_windmill_green.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/building_windmill_green.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/green/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_bridge_A.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_bridge_A.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_bridge_A.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_bridge_B.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_bridge_B.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_bridge_B.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_destroyed.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_destroyed.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_destroyed.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_dirt.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_dirt.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_dirt.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_grain.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_grain.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_grain.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_scaffolding.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_scaffolding.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_scaffolding.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_A.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_stage_A.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_A.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_B.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_stage_B.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_B.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_C.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/building_stage_C.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/building_stage_C.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_stone_straight.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/fence_stone_straight.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_stone_straight.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_stone_straight_gate.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/fence_stone_straight_gate.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_stone_straight_gate.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_wood_straight.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/fence_wood_straight.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_wood_straight.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_wood_straight_gate.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/fence_wood_straight_gate.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/fence_wood_straight_gate.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/projectile_catapult.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/projectile_catapult.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/projectile_catapult.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_gate.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_corner_A_gate.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_gate.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_inside.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_corner_A_inside.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_inside.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_outside.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_corner_A_outside.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_A_outside.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_B_inside.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_corner_B_inside.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_B_inside.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_B_outside.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_corner_B_outside.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_corner_B_outside.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_straight.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_straight.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_straight.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_straight_gate.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/neutral/wall_straight_gate.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/wall_straight_gate.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/neutral/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_archeryrange_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_archeryrange_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_archeryrange_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_barracks_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_barracks_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_barracks_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_blacksmith_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_blacksmith_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_blacksmith_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_castle_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_castle_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_castle_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_church_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_church_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_church_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_home_A_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_home_A_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_home_A_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_home_B_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_home_B_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_home_B_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_lumbermill_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_lumbermill_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_lumbermill_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_market_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_market_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_market_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_mine_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_mine_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_mine_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tavern_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_tavern_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tavern_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_A_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_tower_A_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_A_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_B_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_tower_B_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_B_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_base_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_tower_base_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_base_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_catapult_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_tower_catapult_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_tower_catapult_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_watermill_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_watermill_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_watermill_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_well_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_well_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_well_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_windmill_red.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/red/building_windmill_red.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/building_windmill_red.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/red/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_archeryrange_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_archeryrange_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_archeryrange_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_barracks_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_barracks_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_barracks_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_blacksmith_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_blacksmith_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_blacksmith_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_castle_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_castle_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_castle_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_church_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_church_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_church_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_home_A_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_home_A_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_home_A_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_home_B_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_home_B_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_home_B_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_lumbermill_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_lumbermill_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_lumbermill_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_market_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_market_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_market_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_mine_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_mine_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_mine_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tavern_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_tavern_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tavern_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_A_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_tower_A_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_A_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_B_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_tower_B_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_B_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_base_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_tower_base_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_base_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_catapult_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_tower_catapult_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_tower_catapult_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_watermill_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_watermill_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_watermill_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_well_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_well_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_well_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    },
+    {
+      "archive": "live/assets/3d/KayKit_FULL_Medieval_Part02.zip",
+      "archivePath": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_windmill_yellow.gltf",
+      "runtimePath": "/kaykit/medieval/Assets/gltf/buildings/yellow/building_windmill_yellow.gltf",
+      "dependencies": [
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/building_windmill_yellow.bin",
+          "present": true
+        },
+        {
+          "path": "KayKit_Medieval_Hexagon_Pack_1.0_FREE/Assets/gltf/buildings/yellow/hexagons_medieval.png",
+          "present": true
+        }
+      ]
+    }
+  ]
+}

@@ -22,6 +22,7 @@ export class BattlefieldRenderer {
   private lost = false;
   private disposed = false;
   private sun: T.DirectionalLight;
+  private fortresses: T.Group[] = [];
   private pointers = new Map<number, { x: number; y: number }>();
   private pinchDistance = 0;
   constructor(
@@ -51,7 +52,11 @@ export class BattlefieldRenderer {
     this.host.append(this.renderer.domElement);
     this.sun = buildWorld(this.scene).sun;
     this.scene.add(this.kaykit.group, this.effects.group);
-    void loadKaykitWorld(this.scene);
+    void loadKaykitWorld(this.scene)
+      .then((forts) => {
+        this.fortresses = forts;
+      })
+      .catch((error) => this.status("Environment load failed: " + error));
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.resize();
@@ -68,6 +73,9 @@ export class BattlefieldRenderer {
   }
   setState(state: BattleState) {
     this.state = state;
+    this.fortresses.forEach((fort, team) => {
+      fort.visible = state.castles[team] > 0;
+    });
   }
   select(mode: CameraMode) {
     this.director.select(mode);
@@ -101,6 +109,7 @@ export class BattlefieldRenderer {
     const dt = Math.min(wallDt, 0.1);
     this.last = now;
     if (!document.hidden) {
+      this.director.follow(this.state);
       this.director.update(Math.min(wallDt, 1));
       this.kaykit.update(this.state, dt);
       this.effects.update(this.state, dt);
@@ -173,6 +182,24 @@ export class BattlefieldRenderer {
       new T.Vector3(x, 0, 0).project(this.director.camera).toArray();
     return {
       ...this.director.diagnostics(),
+      fortresses: this.fortresses.map((f) => ({
+        name: f.name,
+        modules: f.children.length,
+        catalog: f.userData.modules,
+        bounds: f.userData.bounds,
+        projectedBounds: f.userData.bounds
+          ? [0, 1, 2, 3, 4, 5, 6, 7].map((i) =>
+              new T.Vector3(
+                f.userData.bounds[i & 1 ? "max" : "min"][0],
+                f.userData.bounds[i & 2 ? "max" : "min"][1],
+                f.userData.bounds[i & 4 ? "max" : "min"][2],
+              )
+                .project(this.director.camera)
+                .toArray(),
+            )
+          : [],
+        visible: f.visible,
+      })),
       assets: this.kaykit.diagnostics(),
       fps: this.fps,
       contextLost: this.lost,

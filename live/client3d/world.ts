@@ -112,7 +112,7 @@ function castle(team: number) {
 
 export function buildWorld(scene: T.Scene) {
   scene.background = new T.Color(0xc9e5e5);
-  scene.fog = new T.Fog(0xc9e5e5, 270, 490);
+  scene.fog = new T.Fog(0xc9e5e5, 180, 540);
   scene.add(new T.HemisphereLight(0xeaf8ff, 0x728652, 1.5));
   const sun = new T.DirectionalLight(0xffedce, 2.0);
   sun.position.set(-35, 75, 35);
@@ -141,7 +141,7 @@ export function buildWorld(scene: T.Scene) {
   for (let i = 0; i < positions.count; i++) {
     const x = positions.getX(i),
       z = positions.getZ(i);
-    const hills = Math.min(1, Math.max(0, (Math.abs(z) - 17) / 30));
+    const hills = Math.min(1, Math.max(0, (Math.abs(z) - 35) / 45));
     const height =
       hills *
       (2 + Math.sin(x * 0.07 + z * 0.04) * 2 + Math.cos(z * 0.12) * 1.2);
@@ -163,17 +163,17 @@ export function buildWorld(scene: T.Scene) {
   ground.castShadow = false;
 
   // Wide dirt battle corridor: X is movement; Z holds all fifteen formation rows.
-  const road = new T.PlaneGeometry(102, 19, 34, 6);
+  const road = new T.PlaneGeometry(102, 30, 34, 6);
   road.rotateX(-Math.PI / 2);
   const roadPos = road.getAttribute("position");
   for (let i = 0; i < roadPos.count; i++) {
     const z = roadPos.getZ(i);
-    if (Math.abs(z) > 9)
+    if (Math.abs(z) > 14)
       roadPos.setZ(i, z + Math.sin(roadPos.getX(i) * 0.6) * 1.1);
   }
   mesh(scene, road, material(0xc5b583), 0, -0.08, 0);
   const verge = material(0xd5c69b);
-  for (const z of [-9, 9]) {
+  for (const z of [-14.5, 14.5]) {
     const strip = mesh(
       scene,
       new T.PlaneGeometry(100, 0.32),
@@ -186,7 +186,7 @@ export function buildWorld(scene: T.Scene) {
   }
   const centerLine = mesh(
     scene,
-    new T.PlaneGeometry(0.14, 16),
+    new T.PlaneGeometry(0.14, 27),
     material(0xebdcb3),
     0,
     -0.04,
@@ -194,8 +194,8 @@ export function buildWorld(scene: T.Scene) {
   );
   centerLine.rotation.x = -Math.PI / 2;
 
-  const castles = [castle(0), castle(1)];
-  scene.add(...castles);
+  const castles: T.Group[] = [];
+  // Modular licensed fortresses are loaded separately.
   const rings: T.Mesh[] = [];
   for (let team = 0; team < 2; team++) {
     const color = team === 0 ? 0xf47770 : 0x6aaff4;
@@ -230,9 +230,9 @@ export function buildWorld(scene: T.Scene) {
     rock = material(0xa0aaa0, { flatShading: true });
   const crown = new T.IcosahedronGeometry(1, 0),
     trunkGeo = new T.CylinderGeometry(0.18, 0.3, 2.2, 5);
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 65; i++) {
     const x = (random() - 0.5) * 155;
-    const z = (i % 2 === 0 ? -1 : 1) * (20 + random() * 44);
+    const z = (i % 2 === 0 ? -1 : 1) * (48 + random() * 40);
     const tree = new T.Group();
     tree.position.set(x, 0, z);
     tree.scale.setScalar(0.7 + random() * 1.0);
@@ -248,7 +248,7 @@ export function buildWorld(scene: T.Scene) {
   const pebble = new T.DodecahedronGeometry(1, 0);
   for (let i = 0; i < 85; i++) {
     const x = (random() - 0.5) * 126;
-    const z = (i % 2 === 0 ? -1 : 1) * (12 + random() * 9);
+    const z = (i % 2 === 0 ? -1 : 1) * (33 + random() * 12);
     const stone = mesh(scene, pebble, rock, x, 0.15, z);
     stone.scale.set(0.3 + random(), 0.25 + random() * 0.5, 0.4 + random());
     stone.rotation.set(random(), random() * 6, random());
@@ -263,7 +263,7 @@ export function buildWorld(scene: T.Scene) {
       grass,
       (random() - 0.5) * 113,
       0.2,
-      (i % 2 === 0 ? -1 : 1) * (10.8 + random() * 6),
+      (i % 2 === 0 ? -1 : 1) * (29 + random() * 8),
     );
 
   // Bake static scenery by material, avoiding a draw call for every leaf/stone.
