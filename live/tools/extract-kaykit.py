@@ -10,7 +10,7 @@ import shutil
 
 root = Path(__file__).resolve().parents[1]
 source = root / "assets" / "3d"
-dest = root / "public" / "kaykit"
+dest = root / "dist" / "public" / "kaykit"
 packs = {
     "adventurers": ["KayKit_Adventurers_2.0_FREE.zip"],
     "forest": ["KayKit_Forest_Nature_Pack_1.0_FREE.zip"],
