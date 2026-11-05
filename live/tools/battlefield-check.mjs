@@ -83,7 +83,7 @@ try {
       return Math.max(...a) - Math.min(...a);
     });
     assert.ok(span.every((n) => n > 900));
-    assert.ok(d.fortresses.every((f) => f.modules === 15));
+    assert.ok(d.fortresses.every((f) => f.modules >= 29));
     await page.screenshot({
       path: `artifacts/battlefield-${count}-1080x1920.png`,
     });

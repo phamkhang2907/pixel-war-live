@@ -10,17 +10,27 @@ export class BattlefieldCamera {
   private distance = 260;
   private desiredDistance = 260;
   private position = new Vector3();
+  private yaw = 0;
+  private desiredYaw = 0;
   constructor() {
     this.update(1);
   }
   select(mode: CameraMode) {
     this.mode = mode;
+    this.desiredYaw = MathUtils.degToRad(
+      mode === "red" ? 38 : mode === "blue" ? -38 : 0,
+    );
     this.desiredFocus.set(
-      mode === "red" ? CASTLE_X[0] + 5 : mode === "blue" ? CASTLE_X[1] - 5 : 0,
+      mode === "red"
+        ? CASTLE_X[0] - 5.5
+        : mode === "blue"
+          ? CASTLE_X[1] + 5.5
+          : 0,
       0,
       0,
     );
-    this.desiredDistance = mode === "overview" ? 260 : 76;
+    this.desiredDistance =
+      mode === "overview" ? 310 : mode === "red" || mode === "blue" ? 115 : 76;
   }
   pan(delta: number) {
     this.mode = "manual";
@@ -31,7 +41,7 @@ export class BattlefieldCamera {
     this.desiredDistance = MathUtils.clamp(
       this.desiredDistance * factor,
       35,
-      280,
+      320,
     );
   }
   follow(state: BattleState | null) {
@@ -72,6 +82,10 @@ export class BattlefieldCamera {
       this.distance * Math.sin(MathUtils.degToRad(52)),
       this.distance * Math.cos(MathUtils.degToRad(52)),
     );
+    this.yaw = MathUtils.lerp(this.yaw, this.desiredYaw, alpha);
+    const horizontal = this.distance * Math.cos(MathUtils.degToRad(52));
+    this.position.x += horizontal * Math.sin(this.yaw);
+    this.position.z = horizontal * Math.cos(this.yaw);
     this.camera.position.copy(this.position);
     this.camera.lookAt(this.focus);
     this.camera.updateMatrixWorld();
@@ -84,6 +98,8 @@ export class BattlefieldCamera {
       targetDistance: this.desiredDistance,
       distance: this.distance,
       elevation: 52,
+      yaw: MathUtils.radToDeg(this.yaw),
+      targetYaw: MathUtils.radToDeg(this.desiredYaw),
     };
   }
 }

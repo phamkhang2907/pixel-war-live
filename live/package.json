@@ -22,7 +22,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "test:3d": "npm run build && node tools/three-check.mjs",
     "test:models": "npm run build && node tools/model-check.mjs",
-    "test:battlefield": "npm run build && node tools/battlefield-check.mjs"
+    "test:battlefield": "npm run build && node tools/battlefield-check.mjs",
+    "test:fortresses": "npm run build && node tools/fortress-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

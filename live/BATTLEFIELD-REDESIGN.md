@@ -16,9 +16,9 @@ reduce the surviving frontage; units do not teleport back into a rigid grid.
 
 Castles accept siege targets along the whole lane interval rather than pulling
 all fifteen lanes toward a narrow central point. Castle HP, damage attribution,
-victory and round ending rules are unchanged. Each visible fortress contains
-nine separate wall/gate modules, five towers and a keep (15 modules), spread
-along its Z edge. Modules use the supplied CC0 KayKit Medieval models at uniform
+victory and round ending rules are unchanged. The initial 15-module fortress layout is superseded by the
+[29-instance textured fortress assembly](EXTENDED-FORTRESSES.md), including gate
+flanks, return walls, watchtowers and courtyard buildings along the Z edge. Modules use the supplied CC0 KayKit Medieval models at uniform
 scale; no single castle is stretched. Destruction hides the corresponding
 fortress when its authoritative castle HP reaches zero.
 
@@ -50,7 +50,7 @@ npm start
 The Demo cameraScenario endpoint now accepts optional `count: 50 | 100 | 300` for
 balanced-army previews. It keeps the original 300 default and Admin token guard.
 `test:battlefield` uses real server units, pauses for repeatable screenshots,
-checks all KayKit instances loaded and both 15-module fortresses, and captures
+checks all KayKit instances loaded and both extended fortresses, and captures
 50/100/300 armies at actual 1080×1920 portrait resolution. Separate overview and
 RED/BLUE fortress captures inspect the full architecture. Three new simulation
 tests run eight seconds of engagement at each count and check surviving lane
@@ -86,3 +86,5 @@ Software-renderer diagnostic samples (not hardware benchmarks):
 ![300-unit portrait capture](docs/battlefield/battlefield-300-1080x1920.png)
 
 ![Both extended fortresses and environment layers](docs/battlefield/battlefield-overview.png)
+
+The screenshots above record the first battlefield redesign. See [EXTENDED-FORTRESSES.md](EXTENDED-FORTRESSES.md) for the current fortress geometry and verified framing.

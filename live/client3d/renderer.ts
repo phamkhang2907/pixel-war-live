@@ -185,6 +185,19 @@ export class BattlefieldRenderer {
       fortresses: this.fortresses.map((f) => ({
         name: f.name,
         modules: f.children.length,
+        catalog: f.userData.modules,
+        bounds: f.userData.bounds,
+        projectedBounds: f.userData.bounds
+          ? [0, 1, 2, 3, 4, 5, 6, 7].map((i) =>
+              new T.Vector3(
+                f.userData.bounds[i & 1 ? "max" : "min"][0],
+                f.userData.bounds[i & 2 ? "max" : "min"][1],
+                f.userData.bounds[i & 4 ? "max" : "min"][2],
+              )
+                .project(this.director.camera)
+                .toArray(),
+            )
+          : [],
         visible: f.visible,
       })),
       assets: this.kaykit.diagnostics(),

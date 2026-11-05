@@ -1,6 +1,6 @@
 import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { CASTLE_X } from "./state";
+import { buildFortresses } from "./fortresses";
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<T.Group>>();
 async function model(url: string) {
@@ -28,52 +28,7 @@ function normalize(object: T.Group, height: number, x: number, z: number) {
   return object;
 }
 export async function loadKaykitWorld(scene: T.Scene) {
-  const fortresses: T.Group[] = [];
-  for (const team of [0, 1]) {
-    const color = team === 0 ? "red" : "blue",
-      fort = new T.Group();
-    fort.name = `${color} modular fortress`;
-    scene.add(fort);
-    fortresses.push(fort);
-    const x = CASTLE_X[team];
-    const add = async (
-      path: string,
-      height: number,
-      px: number,
-      z: number,
-      turn = 0,
-    ) => {
-      const object = normalize(
-        await model("/kaykit/medieval/Assets/gltf/buildings/" + path + ".gltf"),
-        height,
-        0,
-        0,
-      );
-      const pivot = new T.Group();
-      pivot.position.set(px, 0, z);
-      pivot.rotation.y = turn;
-      pivot.add(object);
-      fort.add(pivot);
-    };
-    const jobs: Promise<void>[] = [];
-    jobs.push(
-      add(`${color}/building_castle_${color}`, 7, x + (team === 0 ? -4 : 4), 0),
-    );
-    for (let i = -4; i <= 4; i++) {
-      jobs.push(
-        add(
-          `neutral/${i === 0 ? "wall_straight_gate" : "wall_straight"}`,
-          3.6,
-          x,
-          i * 3.6,
-          Math.PI / 2,
-        ),
-      );
-      if (i % 2 === 0)
-        jobs.push(add(`${color}/building_tower_A_${color}`, 6.5, x, i * 3.6));
-    }
-    await Promise.all(jobs);
-  }
+  const fortresses = await buildFortresses(scene);
   // CC0 KayKit rock meshes form overlapping, uniformly scaled mountain ridges.
   for (const layer of [0, 1])
     for (let i = 0; i < 11; i++) {
