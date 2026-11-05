@@ -16,7 +16,7 @@ const app = express(),
   io = new Server(http, { maxHttpBufferSize: 16000 });
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
-const league = new League(dataDir);
+const league = new League(dataDir, { asyncPersistence: true });
 const rounds = new RoundManager(game, league);
 const tiktok = new TikTokService(game);
 let auto = true,
@@ -61,6 +61,7 @@ app.get("/health", (_, r) =>
     units: game.units.length,
     mode: tiktok.mode,
     phase: rounds.phase,
+    persistenceError: league.persistenceError,
     roundId: league.data.active.id,
   }),
 );
@@ -249,8 +250,8 @@ app.post("/api/control", auth, async (req, res) => {
           duration: 12,
           prepare: 2,
           final: 3,
-          results: 3,
-          countdown: 1,
+          results: 7,
+          countdown: 0,
         });
         rounds.start();
         break;
@@ -300,7 +301,7 @@ app.post("/api/control", auth, async (req, res) => {
         throw Error("Unknown action");
     }
     rounds.settle();
-    league.flush();
+    league.checkpoint();
     res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -321,6 +322,7 @@ function state() {
     serverNow: Date.now(),
   };
 }
+app.get("/api/leaderboards", auth, (_req,res)=>res.json({live:league.board("live"),season:league.board("season")}));
 app.get("/api/history", auth, (req, res) => {
   const offset = Math.max(0, Number(req.query.offset) || 0);
   res.json({
@@ -339,11 +341,11 @@ app.get("/api/history", auth, (req, res) => {
 });
 io.on("connection", (socket) => socket.emit("state", state()));
 let previous = performance.now();
-setInterval(() => {
+const tickTimer=setInterval(() => {
   const now = performance.now(),
     dt = (now - previous) / 1000;
   previous = now;
-  rounds.advance(dt * speed);
+  rounds.advance(dt, speed);
   if (
     !rounds.paused &&
     auto &&
@@ -364,16 +366,18 @@ setInterval(() => {
     });
   }
   rounds.settle();
-  league.flush();
+  league.checkpoint();
   io.emit("state", state());
 }, 50);
 for (let team = 0; team < 2; team++)
   for (const type of ["sword", "archer", "cavalry", "mage"])
     game.spawn(team, type, 3, "Founders", null);
-league.flush();
+league.checkpoint();
 for (const signal of ["SIGTERM", "SIGINT"])
-  process.on(signal, () => {
-    league.flush();
+  process.on(signal, async () => {
+    clearInterval(tickTimer);
+    await league.close();
+    io.disconnectSockets(true);
     http.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 1500).unref();
   });

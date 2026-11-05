@@ -1,3 +1,4 @@
+import { Worker } from "node:worker_threads";
 import {
   mkdirSync,
   existsSync,
@@ -14,8 +15,8 @@ export const DEFAULT_ROUND = {
   duration: 300,
   prepare: 30,
   final: 30,
-  results: 15,
-  countdown: 5,
+  results: 7,
+  countdown: 0,
   season: new Date().toISOString().slice(0, 7),
 };
 export function roundConfig(input) {
@@ -27,10 +28,10 @@ export function roundConfig(input) {
     c.duration < 1 ||
     c.prepare + c.final >= c.duration ||
     c.results < 1 ||
-    c.countdown < 1 ||
+    c.countdown < 0 ||
     !/^[-\w]{1,48}$/.test(c.season)
   )
-    throw Error("Need positive combat/results/countdown and a valid season ID");
+    throw Error("Need positive combat/results and nonnegative countdown and a valid season ID");
   return c;
 }
 const row = (id, name, team) => ({
@@ -58,7 +59,10 @@ const rank = (players) =>
       a.id.localeCompare(b.id),
   );
 export class League {
-  constructor(directory = null) {
+  constructor(directory = null, { asyncPersistence = false } = {}) {
+    this.asyncPersistence = asyncPersistence;
+    this.saving = false;
+    this.persistenceError = null;
     this.directory = directory;
     this.dirty = false;
     const path = directory && join(directory, "league.json");
@@ -84,6 +88,12 @@ export class League {
       throw Error(
         "Unsupported or corrupt league storage; refusing to overwrite",
       );
+    if (this.data.presentationVersion !== 2) {
+      this.data.config.results = 7;
+      this.data.config.countdown = 0;
+      this.data.presentationVersion = 2;
+      this.dirty = true;
+    }
     roundConfig(this.data.config);
     this.ensureScopes();
   }
@@ -273,6 +283,39 @@ export class League {
           ? d.sessions[a?.sessionId || d.sessionId]?.players
           : a?.players;
     return rank(players || {}).slice(0, limit);
+  }
+  checkpoint(urgent = false) {
+    if (!this.asyncPersistence) return this.flush();
+    if (!this.dirty || !this.directory || this.flushTimer) return;
+    this.flushTimer = setTimeout(() => {
+      this.flushTimer = null;
+      if (this.saving) return;
+      if (!this.worker) {
+        this.worker = new Worker(new URL("./persistence-worker.js", import.meta.url), { workerData: this.directory });
+        this.worker.on("message", (message) => {
+          this.saving = false;
+          if (message.error) { this.dirty = true; this.persistenceError = message.error; }
+          else this.persistenceError = null;
+          this.checkpoint();
+        });
+        this.worker.on("error", (error) => {
+          this.persistenceError = error.message; this.dirty = true; this.saving = false;
+          this.worker = null;
+        });
+        this.worker.unref();
+      }
+      this.dirty = false;
+      this.saving = true;
+      this.worker.postMessage(this.data);
+    }, urgent ? 0 : 1000);
+    this.flushTimer.unref();
+  }
+  async close() {
+    this.asyncPersistence = false;
+    clearTimeout(this.flushTimer);
+    if (this.worker) await this.worker.terminate();
+    this.dirty = true;
+    this.flush();
   }
   flush() {
     if (!this.dirty || !this.directory) return;

@@ -29,7 +29,7 @@ export class RoundManager {
     this.phaseElapsed = 0;
     this.result = null;
     this.gates();
-    this.league.flush();
+    this.league.checkpoint();
   }
   configure(input) {
     this.league.data.config = roundConfig({
@@ -37,7 +37,7 @@ export class RoundManager {
       ...input,
     });
     this.league.dirty = true;
-    this.league.flush();
+    this.league.checkpoint();
   }
   gates() {
     this.game.inputOpen = ["prepare", "combat", "final"].includes(this.phase);
@@ -77,15 +77,17 @@ export class RoundManager {
       reason,
       aborted,
       castles: [...g.castles],
+      scores: [...g.teamScore],
       damage: [...a.damage],
       summoned: [...a.summoned],
-      top10: structuredClone(this.league.board("round")),
+      top10: structuredClone(this.league.board("round")).map(p=>({...p,avatar:this.league.data.profiles?.[p.id]?.avatar || ""})),
     };
     this.phase = "results";
+    this.game.summonQueue = [];
     this.phaseElapsed = 0;
     g.winner = winner;
     this.gates();
-    this.league.flush();
+    this.league.checkpoint();
   }
   settle() {
     if (
@@ -94,7 +96,7 @@ export class RoundManager {
     )
       this.finish("castle_destroyed");
   }
-  advance(dt) {
+  advance(dt, speed = 1) {
     if (this.paused) return;
     this.settle();
     let remaining = Math.max(0, dt),
@@ -109,7 +111,8 @@ export class RoundManager {
         this.phaseElapsed += used;
         remaining -= used;
         if (this.phaseElapsed >= duration - 1e-8) {
-          if (this.phase === "results") {
+          if (this.phase === "results" && this.config.countdown === 0) this.start();
+          else if (this.phase === "results") {
             this.phase = "countdown";
             this.phaseElapsed = 0;
             this.gates();
@@ -124,7 +127,7 @@ export class RoundManager {
             ? this.config.duration - this.config.final
             : this.config.duration;
       const step = Math.min(
-        remaining,
+        remaining * speed,
         0.05,
         Math.max(0, boundary - this.elapsed),
       );
@@ -133,7 +136,7 @@ export class RoundManager {
           if (steps++ < 400) this.game.tick(step);
         }
         this.elapsed += step;
-        remaining -= step;
+        remaining -= step / speed;
         this.settle();
         if (this.phase === "results") continue;
       }
@@ -162,7 +165,7 @@ export class RoundManager {
       };
       this.league.dirty = true;
     }
-    this.league.flush();
+    this.league.checkpoint();
   }
   snapshot() {
     const resultPhase = this.phase === "results" || this.phase === "countdown";
@@ -194,20 +197,9 @@ export class RoundManager {
       season: this.league.data.active.season,
       sessionId: this.league.data.active.sessionId,
       result: this.result,
-      boards: {
-        round: this.league.board("round"),
-        live: this.league.board("live"),
-        season: this.league.board("season"),
-      },
-      history: this.league.data.history
-        .slice(-10)
-        .reverse()
-        .map(({ players, ...r }) => ({
-          ...r,
-          top10: Object.values(players)
-            .sort((a, b) => b.points - a.points)
-            .slice(0, 10),
-        })),
+      state: this.phase === "results" || this.phase === "countdown" ? "ROUND_RESULTS" : this.phase.toUpperCase(),
+      // The dedicated history API serves archives; do not sort ten archives at 20Hz.
+
     };
   }
 }

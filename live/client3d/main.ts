@@ -37,7 +37,10 @@ socket.on("disconnect", () => {
   setStatus("Disconnected · reconnecting…");
 });
 socket.on("connect_error", () => setStatus("Server unavailable · retrying…"));
+let latestServerTime = 0;
 socket.on("state", (state: BattleState) => {
+  if (state.serverNow && state.serverNow < latestServerTime) return;
+  latestServerTime=state.serverNow??latestServerTime;
   battlefield?.setState(state);
   hud.render(state as HudState);
   element("round").textContent = `ROUND ${state.round}`;
@@ -57,14 +60,7 @@ socket.on("state", (state: BattleState) => {
     element(name + "Count").textContent =
       `${state.units.filter((u) => u.team === team && u.hp > 0).length} units`;
   }
-  const result = state.roundState.result;
-  element("result").hidden = !result;
-  if (result)
-    element("result").textContent = result.aborted
-      ? "ROUND INTERRUPTED"
-      : result.winner === null
-        ? "DRAW"
-        : `${result.winner === 0 ? "RED" : "BLUE"} WINS`;
+
 });
 socket.connect();
 document

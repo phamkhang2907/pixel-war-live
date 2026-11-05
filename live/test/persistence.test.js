@@ -97,7 +97,8 @@ test("real server restart retains completed history, LIVE and season merit/wins/
     await start();
     assert.equal(latest.roundState.sessionId, session);
     for (const scope of ["live", "season"]) {
-      const p = latest.roundState.boards[scope].find(
+      const boards = await fetch(base+"/api/leaderboards",{headers}).then(r=>r.json());
+      const p = boards[scope].find(
         (p) => p.id === "demo:0:persistent",
       );
       assert.equal(p.points, 5);
