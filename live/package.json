@@ -16,7 +16,7 @@
     "assets:check": "python3 tools/check-art.py",
     "test:round-ui": "npm run build && node tools/round-ui-check.mjs",
     "test:vertical": "npm run build && node tools/vertical-check.mjs",
-    "build:legacy": "node tools/build.mjs",
+    "build:legacy": "python3 tools/extract-kaykit.py && node tools/build.mjs",
     "build:3d": "tsc -p tsconfig.json && vite build",
     "dev:3d": "vite",
     "typecheck": "tsc -p tsconfig.json",
