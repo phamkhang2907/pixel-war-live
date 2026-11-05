@@ -1,4 +1,5 @@
 import "./style.css";
+import { BattleHud, type HudState } from "./hud";
 import { io } from "socket.io-client";
 import { BattlefieldRenderer } from "./renderer";
 import type { CameraMode } from "./camera";
@@ -6,6 +7,7 @@ import type { BattleState } from "./state";
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
+const hud = new BattleHud(element("stage"));
 const query = new URLSearchParams(location.search);
 if (query.has("overlay")) document.body.classList.add("overlay");
 const showError = (message: string) => {
@@ -37,6 +39,7 @@ socket.on("disconnect", () => {
 socket.on("connect_error", () => setStatus("Server unavailable · retrying…"));
 socket.on("state", (state: BattleState) => {
   battlefield?.setState(state);
+  hud.render(state as HudState);
   element("round").textContent = `ROUND ${state.round}`;
   const phase = state.roundState.phase;
   element("phase").textContent = state.paused ? "PAUSED" : phase.toUpperCase();
@@ -182,6 +185,7 @@ function cleanup() {
   clearInterval(timer);
   socket.disconnect();
   battlefield?.dispose();
+  hud.dispose();
 }
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) cleanup();

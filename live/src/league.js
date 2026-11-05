@@ -166,6 +166,15 @@ export class League {
     return true;
   }
   event(e) {
+    if (e.kind === "profile") {
+      const id=String(e.userId); this.data.profiles ??= {};
+      const previous=this.data.profiles[id];
+      const next={name:e.profile.name,avatar:e.profile.avatar || previous?.avatar || ""};
+      if (previous?.name === next.name && previous?.avatar === next.avatar) return;
+      Object.defineProperty(this.data.profiles,id,{value:next,enumerable:true,writable:true,configurable:true});
+      const keys=Object.keys(this.data.profiles); if(keys.length>5000) delete this.data.profiles[keys[0]];
+      this.dirty=true; return;
+    }
     const a = this.data.active;
     if (!a || a.finished) return;
     const p = e.source || e;

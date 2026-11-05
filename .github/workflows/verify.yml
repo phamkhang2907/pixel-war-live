@@ -22,3 +22,26 @@ jobs:
       - run: npm run test:models --prefix live
       - run: python3 live/tools/audit-medieval-castles.py
       - run: npm run test:fortresses --prefix live
+  hud-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+        working-directory: live
+      - run: node tools/hud-check.mjs
+        working-directory: live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: grok-hud-browser-captures
+          path: |
+            live/artifacts/grok-hud-*.png
+            live/artifacts/hud-report.json

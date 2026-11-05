@@ -1,3 +1,4 @@
+import { hudSnapshot } from "./hud-data.js";
 import { WORLD } from "./characters.js";
 import { League } from "./league.js";
 import { RoundManager } from "./rounds.js";
@@ -105,6 +106,7 @@ app.post("/api/control", auth, async (req, res) => {
           p.team +
           ":" +
           String(p.userId || p.name || "You").slice(0, 64);
+        game.profile(demoId,p.name || "You",p.avatar);
         game.choose(demoId, p.team, p.name || "You");
         game.gift({
           id: demoId,
@@ -304,9 +306,12 @@ app.post("/api/control", auth, async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+let lastHud = null, lastHudAt = 0;
 function state() {
+  if(!lastHud || Date.now()-lastHudAt>=250){lastHud=hudSnapshot(game,league);lastHudAt=Date.now();}
   return {
     ...game.snapshot(),
+    hud:lastHud,
     roundState: rounds.snapshot(),
     paused: rounds.paused,
     auto,

@@ -1,0 +1,686 @@
+.hud-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  transform-origin: 0 0;
+  pointer-events: none;
+  color: #ffedc2;
+  font-family: Georgia, "Times New Roman", serif;
+  text-shadow: 0 2px 3px #000;
+  z-index: 4;
+}
+.hud-canvas * {
+  box-sizing: border-box;
+}
+.hud-canvas .kit-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hud-assembly {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 670px;
+  isolation: isolate;
+}
+.hud-backlight {
+  position: absolute;
+  inset: 0 0 0;
+  background: linear-gradient(#081019e8, #11101cd9 70%, transparent);
+  z-index: -1;
+}
+.hud-hero {
+  position: absolute;
+  left: 370px;
+  top: 0;
+  width: 340px;
+  height: 370px;
+  z-index: 4;
+  filter: drop-shadow(0 7px 15px #000b);
+}
+.hero-score {
+  position: absolute;
+  left: 45px;
+  right: 45px;
+  top: 255px;
+  text-align: center;
+  display: grid;
+  gap: 2px;
+}
+.hero-score small {
+  font: 600 14px system-ui;
+  letter-spacing: 1.3px;
+  color: #d2b782;
+}
+.hero-score strong {
+  font-size: 38px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: #fff0b4;
+}
+.hero-score > span {
+  font: 11px system-ui;
+  letter-spacing: 2px;
+  color: #bba577;
+}
+.clock-bridge {
+  position: absolute;
+  left: 385px;
+  top: 335px;
+  width: 310px;
+  height: 105px;
+  z-index: 6;
+  text-align: center;
+}
+.clock-bridge > b {
+  position: absolute;
+  inset: 24px 0 auto;
+  font-size: 35px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.clock-bridge > small {
+  position: absolute;
+  top: 61px;
+  left: 18px;
+  right: 18px;
+  font: 12px system-ui;
+  color: #ddc28d;
+  letter-spacing: 1px;
+}
+.faction {
+  position: absolute;
+  top: 0;
+  width: 330px;
+  height: 555px;
+  z-index: 2;
+}
+.faction-red {
+  left: 15px;
+}
+.faction-blue {
+  right: 15px;
+}
+.faction-emblem {
+  position: absolute;
+  left: 90px;
+  top: 132px;
+  width: 150px;
+  height: 162px;
+  z-index: 3;
+}
+.faction-blue .faction-emblem {
+  top: 148px;
+  height: 142px;
+}
+.faction-shell {
+  position: absolute;
+  left: 0;
+  top: 264px;
+  width: 330px;
+  height: 174px;
+}
+.faction-title {
+  position: absolute;
+  left: 18px;
+  top: 273px;
+  width: 294px;
+  height: 54px;
+  z-index: 5;
+}
+.faction-title h2 {
+  position: absolute;
+  inset: 12px 6px auto;
+  text-align: center;
+  margin: 0;
+  font-size: 23px;
+  letter-spacing: 0.6px;
+  line-height: 1.3;
+  color: #ffb6a1;
+}
+.faction-blue h2 {
+  color: #b5dcff;
+}
+.faction-score {
+  position: absolute;
+  top: 327px;
+  left: 20px;
+  right: 20px;
+  text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 9px;
+  z-index: 5;
+}
+.faction-score > b {
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+}
+.faction-score > small {
+  font: 10px system-ui;
+  color: #c5b083;
+  letter-spacing: 1px;
+}
+.hp-shell {
+  position: absolute;
+  left: 27px;
+  top: 367px;
+  width: 276px;
+  height: 52px;
+  z-index: 5;
+}
+.hp-track {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 17px;
+  height: 17px;
+  overflow: hidden;
+  background: #080c12;
+  border-radius: 4px;
+}
+.hp-fill {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.2s;
+}
+.hp-fill svg {
+  width: 224px !important;
+  max-width: none;
+}
+.hp-shell > strong {
+  position: absolute;
+  inset: 15px 0 auto;
+  text-align: center;
+  font: 700 19px/20px system-ui;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 1px 2px #000,
+    1px 1px 2px #000;
+}
+.player-shell {
+  position: absolute;
+  left: -4px;
+  top: 418px;
+  width: 338px;
+  height: 138px;
+  z-index: 5;
+}
+.faction-players {
+  position: absolute;
+  left: 35px;
+  right: 35px;
+  top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.contributor {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  font-family: system-ui;
+  text-align: center;
+}
+.avatar-slot {
+  position: relative;
+  width: 61px;
+  height: 61px;
+  display: grid;
+  place-items: center;
+  font: 700 20px system-ui;
+  color: #dac58d;
+}
+.avatar-slot:before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(#4a3d33, #141822);
+}
+.avatar-slot > span {
+  position: relative;
+  z-index: 1;
+}
+.avatar-slot > img:not(.avatar-ring) {
+  position: absolute;
+  inset: 7px;
+  width: 47px;
+  height: 47px;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 2;
+}
+.avatar-slot .avatar-ring {
+  z-index: 3;
+}
+.contributor-name {
+  display: block;
+  max-width: 100%;
+  width: 85px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #ffebc6;
+  font: 17px/22px system-ui;
+}
+.contributor > b {
+  font: 700 16px/20px system-ui;
+  color: #e8c772;
+}
+.army-counter {
+  position: absolute;
+  top: 556px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  display: grid;
+  gap: 3px;
+}
+.army-counter b {
+  font-size: 24px;
+  color: #ffbca1;
+}
+.faction-blue .army-counter b {
+  color: #a8d8ff;
+}
+.army-counter small {
+  font: 11px system-ui;
+  letter-spacing: 2px;
+  color: #cbb88c;
+}
+.hud-troops {
+  position: absolute;
+  left: 310px;
+  top: 412px;
+  width: 460px;
+  height: 240px;
+  z-index: 3;
+}
+.hud-troops h2 {
+  position: absolute;
+  left: 70px;
+  right: 70px;
+  top: 31px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 21px;
+  letter-spacing: 1px;
+}
+.hud-troops h2 span:first-child {
+  color: #ffa197;
+}
+.hud-troops h2 span:last-child {
+  color: #88c9ff;
+}
+.hud-troops h2 i {
+  font-size: 16px;
+  color: #b79a65;
+  font-style: normal;
+}
+.troop-table {
+  position: absolute;
+  left: 66px;
+  right: 66px;
+  top: 65px;
+}
+.troop-row {
+  display: grid;
+  grid-template-columns: 65px 1fr 65px;
+  align-items: center;
+  text-align: center;
+  height: 23px;
+  border-bottom: 1px solid #a0814538;
+  font: 20px/23px system-ui;
+  font-variant-numeric: tabular-nums;
+}
+.red-number {
+  color: #ffaaa0;
+}
+.blue-number {
+  color: #98ceff;
+}
+.troop-name {
+  font-size: 17px;
+  color: #e1cfa5;
+}
+.short-name {
+  display: none;
+}
+.ranking-tabs {
+  position: absolute;
+  left: 280px;
+  right: 280px;
+  top: 612px;
+  display: flex;
+  gap: 0;
+  z-index: 8;
+  pointer-events: auto;
+}
+.ranking-tabs button {
+  position: relative;
+  flex: 1;
+  height: 58px;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  font: bold 15px Georgia;
+  color: #f3d497;
+  letter-spacing: 0.4px;
+}
+.ranking-tabs button > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-top: 0;
+}
+.ranking-tabs button:hover {
+  background: transparent;
+  filter: brightness(1.25);
+}
+.hud-source {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 15px;
+  text-align: center;
+  font: 11px system-ui;
+  letter-spacing: 1.8px;
+  color: #d8c38b;
+  z-index: 9;
+}
+.ranking-panel {
+  position: absolute;
+  top: 695px;
+  left: 285px;
+  width: 510px;
+  height: 920px;
+  pointer-events: auto;
+  filter: drop-shadow(0 12px 18px #000c);
+  z-index: 20;
+}
+.ranking-panel[hidden] {
+  display: none;
+}
+.ranking-panel > header {
+  position: absolute;
+  left: 55px;
+  right: 40px;
+  top: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+.ranking-panel h2 {
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+.ranking-panel header button {
+  background: transparent;
+  border: 0;
+  color: #ffe0a5;
+  min-height: 44px;
+  font-size: 30px;
+  padding: 0 5px;
+}
+.ranking-panel > p {
+  position: absolute;
+  left: 50px;
+  right: 35px;
+  top: 80px;
+  margin: 0;
+  text-align: center;
+  font: 15px/20px system-ui;
+  color: #d8c28f;
+}
+.ranking-panel ol {
+  position: absolute;
+  left: 33px;
+  right: 28px;
+  top: 130px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-auto-rows: 72px;
+  gap: 0;
+}
+.ranking-panel li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-left: 18px;
+}
+.ranking-panel .place {
+  width: 30px;
+  font-size: 22px;
+  color: #edbf68;
+}
+.ranking-panel .contributor {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  justify-content: start;
+  align-items: center;
+}
+.ranking-panel .contributor-name {
+  width: 170px;
+  text-align: left;
+  font-size: 18px;
+}
+.ranking-panel .contributor > b {
+  display: none;
+}
+.ranking-panel .avatar-slot {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+}
+.ranking-panel .avatar-slot > img:not(.avatar-ring) {
+  inset: 5px;
+  width: 35px;
+  height: 35px;
+}
+.ranking-panel li > strong {
+  font: 700 19px system-ui;
+  color: #f6db96;
+  margin-right: 16px;
+  white-space: nowrap;
+}
+.ranking-panel #rankingEmpty {
+  top: 280px;
+}
+.gift-notice {
+  position: absolute;
+  left: 190px;
+  top: 1510px;
+  width: 700px;
+  height: 177px;
+  z-index: 6;
+}
+.gift-notice[hidden] {
+  display: none;
+}
+.gift-notice > .gift-reward {
+  inset: 55px auto auto 58px;
+  width: 118px;
+  height: 56px;
+}
+.gift-notice > div {
+  position: absolute;
+  left: 196px;
+  right: 65px;
+  top: 50px;
+  display: grid;
+  gap: 8px;
+}
+.gift-notice strong {
+  font-size: 26px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gift-notice span {
+  font: 20px system-ui;
+  color: #dfc18f;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.hud-canvas.narrow .troop-name {
+  font-size: 22px;
+}
+.hud-canvas.narrow .short-name {
+  display: inline;
+}
+.hud-canvas.narrow .long-name {
+  display: none;
+}
+.hud-canvas.narrow .contributor-name {
+  font-size: 23px;
+}
+.hud-canvas.narrow .contributor > b {
+  font-size: 21px;
+}
+.hud-canvas.narrow .hud-source {
+  font-size: 20px;
+}
+.hud-canvas.narrow .ranking-tabs button {
+  font-size: 21px;
+}
+.hud-canvas.narrow .clock-bridge > small {
+  font-size: 17px;
+  letter-spacing: 0;
+}
+.hud-canvas.narrow .hero-score small {
+  font-size: 19px;
+  letter-spacing: 0;
+}
+.hud-canvas.narrow .hero-score > span {
+  font-size: 16px;
+}
+.hud-canvas.narrow .army-counter small {
+  font-size: 17px;
+}
+.hud-canvas.narrow .faction-score small {
+  font-size: 16px;
+}
+/* Align text and portraits with the artwork's actual interior slots. */
+.hud-canvas meter[hidden] {
+  display: none;
+}
+.hero-score {
+  top: 254px;
+}
+.hero-score strong {
+  font-size: 34px;
+}
+.faction-players {
+  top: 13px;
+}
+.faction-players .avatar-slot {
+  width: 52px;
+  height: 52px;
+}
+.faction-players .avatar-slot > img:not(.avatar-ring) {
+  inset: 6px;
+  width: 40px;
+  height: 40px;
+}
+.hud-troops h2 {
+  top: 29px;
+}
+.troop-table {
+  top: 64px;
+}
+.troop-row {
+  height: 21px;
+  font-size: 19px;
+  line-height: 21px;
+}
+.ranking-panel ol {
+  left: 0;
+  right: 0;
+  top: 121px;
+  grid-auto-rows: 75.5px;
+}
+.ranking-panel li {
+  padding-left: 114px;
+  position: relative;
+  gap: 0;
+}
+.ranking-panel .place {
+  display: none;
+}
+.ranking-panel .avatar-slot {
+  width: 62px;
+  height: 62px;
+}
+.ranking-panel .avatar-slot:before {
+  inset: 0;
+}
+.ranking-panel .avatar-slot > img:not(.avatar-ring) {
+  inset: 0;
+  width: 62px;
+  height: 62px;
+}
+.ranking-panel .avatar-ring {
+  display: none;
+}
+.ranking-panel .contributor {
+  gap: 12px;
+  min-width: 0;
+}
+.ranking-panel .contributor-name {
+  width: 170px;
+  min-width: 0;
+}
+.ranking-panel li > strong {
+  margin-right: 42px;
+  font-size: 18px;
+}
+.hud-canvas.narrow .ranking-panel .contributor-name {
+  font-size: 22px;
+}
+/* Existing render surface, camera and scene remain unchanged. */
+.hud-bottom {
+  padding: 0 4% 2%;
+  background: linear-gradient(transparent, #111725b0);
+  pointer-events: none;
+}
+.hud-bottom .development {
+  display: none;
+}
+.hud-bottom .compass {
+  font-size: 9px;
+}
+.hud-bottom .connection {
+  font-size: 8px;
+}
+.hud-top {
+  display: none;
+}
+
+.ranking-panel #rankingPeriod {
+  left: 58px;
+  right: 58px;
+  font-size: 13px;
+  line-height: 17px;
+}
