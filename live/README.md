@@ -1,7 +1,11 @@
 # PIXEL WAR — RED VS BLUE
 
+**Current 3D battle HUD:** see [HUD.md](HUD.md) for the extracted Grok UI KIT,
+connected data, portrait layout and iPad test instructions. `/` opens `/3d/`;
+the original Phaser game remains available at `/legacy/`.
+
 **3D migration notice:** `/3d/` now provides the Phase 1 Three.js + TypeScript
-foundation. `/` remains the existing Phaser game documented below. Both share
+foundation. The existing Phaser game documented below is at `/legacy/`. Both share
 the original simulation, TikTok integration and persistence. See
 [MIGRATION-3D.md](MIGRATION-3D.md) for the audit, honest feature status, setup,
 tests, rollback points and the iPad Safari acceptance checklist.

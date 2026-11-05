@@ -4,7 +4,12 @@ export class TikTokIngest {
     this.battle = battle;
     this.seen = new Set();
   }
+  profile(data) {
+    const user=data?.user;
+    if(user?.userId) this.battle.profile?.(user.userId,user.nickname || user.uniqueId,user.avatarThumb?.urlList?.[0] || user.avatarMedium?.urlList?.[0] || user.profilePictureUrl || data.profilePictureUrl);
+  }
   chat(data) {
+    this.profile(data);
     const id = data.user?.userId;
     const comment = String(data.comment || "").trim();
     if (id && (comment === "1" || comment === "2"))
@@ -15,6 +20,7 @@ export class TikTokIngest {
       );
   }
   like(data) {
+    this.profile(data);
     const id = data?.user?.userId,
       count = Number(data?.likeCount),
       key = data?.common?.msgId || data?.msgId;
@@ -33,6 +39,7 @@ export class TikTokIngest {
     });
   }
   gift(data) {
+    this.profile(data);
     const id = data.user?.userId,
       details = data.giftDetails;
     if (!id || !details || !(Number(details.diamondCount) > 0)) return;

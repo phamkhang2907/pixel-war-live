@@ -1,5 +1,15 @@
 # License audit — 2026-11-05
 
+## User-provided Grok UI KIT
+
+`assets/ui/UI KIT.zip` was supplied in this repository by the project owner.
+Its 15 original RGBA PNGs are extracted unchanged to `public/assets/ui/kit/`.
+The ZIP contains no separate license text. They are used for the requested
+project HUD as supplied; they are **not** represented as KayKit assets or CC0.
+The Douyin screenshot is a composition reference only and is not bundled.
+Asset purposes, hashes and non-destructive viewports are in the UI manifest;
+see `HUD.md`. No new fonts or third-party UI images were downloaded.
+
 ## Repository tham khảo
 
 `quangrau/island-defense-demo` được clone từ GitHub; tại thời điểm kiểm tra không có LICENSE ở root. README dẫn Tiny Swords by Pixel Frog nhưng không đủ để cấp phép cho toàn bộ bundle mã nguồn. **Không sao chép, import hoặc sửa bundle JS/artwork vào game mới.** Bản tham khảo tại workspace gốc được giữ nguyên; repo standalone này chỉ có mã mới ở `live/`. Quyền các file gốc thuộc chủ sở hữu tương ứng; giấy phép của phần mới không áp dụng cho chúng.

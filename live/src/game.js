@@ -1,3 +1,4 @@
+import { safeAvatar } from "./hud-data.js";
 import {
   TYPES,
   DEFAULT_RULES,
@@ -44,6 +45,10 @@ export class Battle {
     this.likeBuckets = [[], []];
     this.furyUntil = [0, 0];
     this.boostUntil = [0, 0];
+  }
+  profile(id, name, avatar) {
+    if (id === undefined || id === null) return;
+    this.onCombat({kind:"profile", userId:String(id), profile:{name:String(name || id).slice(0,64),avatar:safeAvatar(avatar)}});
   }
   choose(id, team, name = String(id)) {
     if (!this.inputOpen || ![0, 1].includes(team) || id === undefined) return;

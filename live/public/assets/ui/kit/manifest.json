@@ -1,0 +1,298 @@
+{
+  "source": "live/assets/ui/UI KIT.zip",
+  "assets": [
+    {
+      "file": "IMG_4979.PNG",
+      "purpose": "Gold, silver and bronze merit badges",
+      "width": 1792,
+      "height": 1008,
+      "mode": "RGBA",
+      "sha256": "2d66933e734aae83cd70e8520b2cc80a7d45996d4ab8b4f07574f73a290f6556"
+    },
+    {
+      "file": "IMG_4986.PNG",
+      "purpose": "RED lion scoreboard and frame pieces",
+      "width": 1152,
+      "height": 1728,
+      "mode": "RGBA",
+      "sha256": "7dcef90959771976e5209df5fd2cf2f0b574bea445373af66266d31c018106c1"
+    },
+    {
+      "file": "IMG_4987.PNG",
+      "purpose": "Crowned Top 10 leaderboard",
+      "width": 1152,
+      "height": 1728,
+      "mode": "RGBA",
+      "sha256": "9d9c46b6c25c4b6ad02174e0782b4aa6b10f0e28c7f33b79036dbdd0c18b6c0f"
+    },
+    {
+      "file": "IMG_4978.PNG",
+      "purpose": "Horizontal connector/notification frame",
+      "width": 1792,
+      "height": 1008,
+      "mode": "RGBA",
+      "sha256": "3547fab250b89fa594c8fdc8358c1e657a6d0db234c679f4c5780f1db63c52f6"
+    },
+    {
+      "file": "IMG_4985.PNG",
+      "purpose": "Large expandable ranking border",
+      "width": 1152,
+      "height": 1728,
+      "mode": "RGBA",
+      "sha256": "dc9e12dd3a60336864c6aa1f63482075e247275edf93f9682cbca03b29285925"
+    },
+    {
+      "file": "IMG_4984.PNG",
+      "purpose": "BLUE eagle scoreboard and frame pieces",
+      "width": 1152,
+      "height": 1728,
+      "mode": "RGBA",
+      "sha256": "2af46bf279ce9e35674ffdc41438dc2f294c6d8606e3db6e37834839238bfbc2"
+    },
+    {
+      "file": "IMG_4980.PNG",
+      "purpose": "BLUE HP fill",
+      "width": 1792,
+      "height": 1008,
+      "mode": "RGBA",
+      "sha256": "37287fa30750ae802f44f0cebd61be0422f3fac60e0bc22feeedff017b8bb17f"
+    },
+    {
+      "file": "IMG_4981.PNG",
+      "purpose": "Chest and coins reward illustrations",
+      "width": 1408,
+      "height": 1408,
+      "mode": "RGBA",
+      "sha256": "c8884f049c7dda9c966be53045c3ca8acfe442879766798ccbd18598f7484b6f"
+    },
+    {
+      "file": "IMG_4983.PNG",
+      "purpose": "Rare summon notification frame",
+      "width": 1792,
+      "height": 1008,
+      "mode": "RGBA",
+      "sha256": "4840adcb7157ded0ed81bc8784716815e169b29c6f4b8a3b0896c75b9a9de8fd"
+    },
+    {
+      "file": "IMG_4982.PNG",
+      "purpose": "Circular avatar ring",
+      "width": 1408,
+      "height": 1408,
+      "mode": "RGBA",
+      "sha256": "174fa450fd895b80b3e010320859dbf350280bf1ab3594a1d7d70d1f72e60c67"
+    },
+    {
+      "file": "IMG_4976.PNG",
+      "purpose": "Compact dark ornamental statistics frame",
+      "width": 1728,
+      "height": 1152,
+      "mode": "RGBA",
+      "sha256": "7231645aaf1916ecefd5f55533016655785f84f7dd3adcb4b9d79866ebe93ef6"
+    },
+    {
+      "file": "IMG_4989.PNG",
+      "purpose": "Nine-row alternate ranking artwork; use the crowned ten-slot panel for Top 10",
+      "width": 1152,
+      "height": 1728,
+      "mode": "RGBA",
+      "sha256": "89c6abd209f61c1e632714e926e61f02c173254ec336c17a3263ac75ab8b1442"
+    },
+    {
+      "file": "IMG_4988.PNG",
+      "purpose": "RED versus BLUE statistics panel",
+      "width": 1408,
+      "height": 1408,
+      "mode": "RGBA",
+      "sha256": "59d441f651cad11591340b9b5ab85f61bb21669c8da48e1e06ee6c89be6c3ffc"
+    },
+    {
+      "file": "IMG_4977.PNG",
+      "purpose": "RED HP fill",
+      "width": 1792,
+      "height": 1008,
+      "mode": "RGBA",
+      "sha256": "52d72fde7f1bbbab92079d48c6b9da1a70a1e7c4db3c6dc4cd9318d50d7d107b"
+    },
+    {
+      "file": "IMG_4974.PNG",
+      "purpose": "War Titan helmet, title and score centerpiece",
+      "width": 1648,
+      "height": 1648,
+      "mode": "RGBA",
+      "sha256": "5be13b5a8bf14021f5c6b2d09bb5be069a658f4b6ce8857194290ab46b280491"
+    }
+  ],
+  "views": {
+    "titan": {
+      "source": "IMG_4974.PNG",
+      "viewport": [
+        78,
+        5,
+        1501,
+        1634
+      ]
+    },
+    "stats": {
+      "source": "IMG_4976.PNG",
+      "viewport": [
+        225,
+        229,
+        1273,
+        660
+      ]
+    },
+    "red-fill": {
+      "source": "IMG_4977.PNG",
+      "viewport": [
+        104,
+        416,
+        1585,
+        153
+      ]
+    },
+    "connector": {
+      "source": "IMG_4978.PNG",
+      "viewport": [
+        46,
+        182,
+        1705,
+        644
+      ]
+    },
+    "badges": {
+      "source": "IMG_4979.PNG",
+      "viewport": [
+        109,
+        217,
+        1562,
+        551
+      ]
+    },
+    "blue-fill": {
+      "source": "IMG_4980.PNG",
+      "viewport": [
+        67,
+        428,
+        1659,
+        133
+      ]
+    },
+    "rewards": {
+      "source": "IMG_4981.PNG",
+      "viewport": [
+        112,
+        385,
+        1189,
+        551
+      ]
+    },
+    "avatar": {
+      "source": "IMG_4982.PNG",
+      "viewport": [
+        49,
+        27,
+        1309,
+        1338
+      ]
+    },
+    "rare-notice": {
+      "source": "IMG_4983.PNG",
+      "viewport": [
+        37,
+        122,
+        1718,
+        683
+      ]
+    },
+    "red-crest": {
+      "source": "IMG_4986.PNG",
+      "viewport": [
+        350,
+        185,
+        450,
+        535
+      ]
+    },
+    "blue-crest": {
+      "source": "IMG_4984.PNG",
+      "viewport": [
+        345,
+        100,
+        470,
+        405
+      ]
+    },
+    "red-name": {
+      "source": "IMG_4986.PNG",
+      "viewport": [
+        200,
+        730,
+        760,
+        140
+      ]
+    },
+    "blue-name": {
+      "source": "IMG_4984.PNG",
+      "viewport": [
+        190,
+        490,
+        780,
+        140
+      ]
+    },
+    "red-hp": {
+      "source": "IMG_4986.PNG",
+      "viewport": [
+        180,
+        990,
+        820,
+        190
+      ]
+    },
+    "blue-hp": {
+      "source": "IMG_4984.PNG",
+      "viewport": [
+        185,
+        630,
+        790,
+        145
+      ]
+    },
+    "panel": {
+      "source": "IMG_4985.PNG",
+      "viewport": [
+        68,
+        46,
+        1017,
+        1648
+      ]
+    },
+    "top10": {
+      "source": "IMG_4987.PNG",
+      "viewport": [
+        99,
+        6,
+        952,
+        1717
+      ]
+    },
+    "versus": {
+      "source": "IMG_4988.PNG",
+      "viewport": [
+        148,
+        86,
+        1105,
+        1200
+      ]
+    },
+    "period-rank": {
+      "source": "IMG_4989.PNG",
+      "viewport": [
+        204,
+        0,
+        743,
+        1724
+      ]
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # PIXEL WAR — RED VS BLUE
 
+[Grok UI KIT battle HUD: asset inventory, data sources, portrait screenshots and iPad testing](live/HUD.md).
+
 [Current extended KayKit fortresses: model inventory, verified renders and testing](live/EXTENDED-FORTRESSES.md).
 
 [Battlefield redesign: broad lanes, distant scenery, modular fortresses, validation and performance report](live/BATTLEFIELD-REDESIGN.md).
