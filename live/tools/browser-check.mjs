@@ -73,7 +73,7 @@ try {
       if (initialX !== undefined && u.x !== initialX) moved = true;
     }
   });
-  await page.goto(base);
+  await page.goto(base + "/legacy/");
   await page.waitForSelector("#game canvas");
   assert.equal(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
@@ -190,7 +190,7 @@ try {
     ),
     false,
   );
-  await page.goto(base + "/?overlay=1");
+  await page.goto(base + "/legacy/?overlay=1");
   await page.waitForSelector("#game canvas");
   const box = await page.locator("#game canvas").boundingBox();
   assert.ok(Math.abs(box.width / box.height - 9 / 16) < 0.002);
@@ -212,7 +212,7 @@ try {
   await control("troop", { team: 1, type: "boss", count: 1 });
   await wait(() => latest?.units.some((u) => u.type === "boss"));
   console.log(engine, "Gift mapping and independent troop selection PASS");
-  await page.goto(base);
+  await page.goto(base + "/legacy/");
   await page.waitForSelector("#game canvas");
   await control("speed", { value: 1 });
   await control("roundConfig", {
