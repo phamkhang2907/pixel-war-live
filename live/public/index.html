@@ -220,7 +220,7 @@
                   ● <span id="modeLabel">DEMO LIVE</span>
                 </div>
                 <div id="arenaUnits">0 UNITS</div>
-                <div id="timer">00:00</div>
+                <div id="timer">05:00</div>
               </div>
               <div class="arena-heading">
                 PIXEL <span>WAR</span><small>RED <em>VS</em> BLUE</small>
@@ -233,6 +233,7 @@
                 <span>BLUE KINGDOM</span><b id="blueHp">10,000</b>
                 <div><i id="blueBar"></i></div>
               </div>
+              <div id="phaseBanner" class="phase-banner">PREPARE</div>
               <div class="energy-hud">
                 <div class="red-energy">
                   <b>RED ENERGY <span id="energy0">0</span></b
@@ -276,16 +277,21 @@
           <section class="right-column">
             <div class="panel leaderboard">
               <div class="panel-title">
-                <h2>Top commanders</h2>
+                <h2>Merit leaderboard · Top 10</h2>
                 <span>♕</span>
               </div>
-              <p class="muted">Big gifts. Bigger impact.</p>
+              <p class="muted">Summon. Fight. Earn your place.</p>
+              <select id="boardScope" aria-label="Leaderboard scope">
+                <option value="round">Current round</option>
+                <option value="live">LIVE session</option>
+                <option value="season">Season</option>
+              </select>
               <div class="leader-head">
-                <span>COMMANDER</span><span>COINS</span>
+                <span>COMMANDER</span><span>MERIT</span>
               </div>
               <div id="scores"></div>
               <div class="leader-foot">
-                Your community writes the leaderboard.
+                Merit and victories persist across rounds.
               </div>
             </div>
             <div class="panel feed">
@@ -294,6 +300,10 @@
                 <span class="green-badge">● REALTIME</span>
               </div>
               <div id="events"></div>
+            </div>
+            <div class="panel history">
+              <div class="panel-title"><h2>Round history</h2></div>
+              <div id="roundHistory"></div>
             </div>
             <div class="panel guide">
               <div class="panel-title">
@@ -345,6 +355,61 @@
           placeholder="Paste your server token" /></label
       ><button id="unlock" class="button full">Unlock controls</button>
       <p id="authStatus"></p>
+      <h3>Automatic rounds</h3>
+      <p>
+        Saved timings apply to the next round. Total includes prepare and final;
+        main combat fills the remainder.
+      </p>
+      <div class="timing-fields">
+        <label
+          >Total round (s)<input
+            id="time-duration"
+            type="number"
+            value="300"
+            min="1"
+            max="7200" /></label
+        ><label
+          >Preparation (s)<input
+            id="time-prepare"
+            type="number"
+            value="30"
+            min="0"
+            max="7200" /></label
+        ><label
+          >Final Battle (s)<input
+            id="time-final"
+            type="number"
+            value="30"
+            min="0"
+            max="7200" /></label
+        ><label
+          >Results / Top 10 (s)<input
+            id="time-results"
+            type="number"
+            value="15"
+            min="1"
+            max="7200" /></label
+        ><label
+          >New round countdown (s)<input
+            id="time-countdown"
+            type="number"
+            value="5"
+            min="1"
+            max="7200" /></label
+        ><label
+          >Season ID<input id="seasonId" value="2026-11" maxlength="48"
+        /></label>
+      </div>
+      <button id="saveTimings" class="button full">Save round timings</button>
+      <div class="round-admin">
+        <button id="newRound" class="outline">Start new round</button
+        ><button id="demoCycle" class="outline">Demo full cycle · 12s</button
+        ><button id="newLiveSession" class="outline">New LIVE session</button>
+      </div>
+      <p class="muted">
+        New round/reset archives the interrupted round, keeps earned merit and
+        gives no win bonus. New LIVE session keeps the season ranking.
+      </p>
       <h3>Gift rules</h3>
       <p>Minimum coins per gift → troop type and quantity.</p>
       <div id="rules"></div>

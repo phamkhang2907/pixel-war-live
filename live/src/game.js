@@ -3,6 +3,9 @@ export { TYPES, DEFAULT_RULES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export class Battle {
   constructor({ clock = () => Date.now() / 1000 } = {}) {
+    this.onCombat = () => {};
+    this.acceptReceipt = () => true;
+    this.combatEventId = 1;
     this.clock = clock;
     this.rules = structuredClone(DEFAULT_RULES);
     this.teams = new Map();
@@ -13,6 +16,10 @@ export class Battle {
     this.reset();
   }
   reset() {
+    this.inputOpen = true;
+    this.combatOpen = true;
+    this.pendingPowers = [];
+    this.committedTeams = new Map();
     this.units = [];
     this.projectiles = [];
     this.effects = [];
@@ -29,12 +36,19 @@ export class Battle {
     this.furyUntil = [0, 0];
     this.boostUntil = [0, 0];
   }
-  choose(id, team) {
-    if ([0, 1].includes(team) && id !== undefined)
-      this.teams.set(String(id), team);
+  choose(id, team, name = String(id)) {
+    if (!this.inputOpen || ![0, 1].includes(team) || id === undefined) return;
+    if (
+      this.committedTeams.has(String(id)) &&
+      this.committedTeams.get(String(id)) !== team
+    )
+      return;
+    this.teams.set(String(id), team);
+    this.onCombat({ kind: "join", userId: id, name, team });
   }
   spawn(team, type, count, name = "Demo", userId = name) {
     if (
+      !this.inputOpen ||
       this.winner !== null ||
       !Object.hasOwn(TYPES, type) ||
       ![0, 1].includes(team) ||
@@ -43,9 +57,10 @@ export class Battle {
       return 0;
     const t = TYPES[type];
     count = clamp(Math.floor(count), 0, 300 - this.units.length);
-    for (let i = 0; i < count; i++)
+    for (let i = 0; i < count; i++) {
+      const unitId = this.nextId++;
       this.units.push({
-        id: this.nextId++,
+        id: unitId,
         team,
         type,
         name: String(name).slice(0, 24),
@@ -64,6 +79,9 @@ export class Battle {
         chargeUntil: 0,
         rage: false,
       });
+      if (userId !== null) this.committedTeams.set(String(userId), team);
+      this.onCombat({ kind: "spawn", unitId, source: { userId, name, team } });
+    }
     return count;
   }
   event(data) {
@@ -94,9 +112,12 @@ export class Battle {
   gift({ id, name, coins, count = 1 }) {
     const team = this.teams.get(String(id));
     if (team === undefined) return { error: "Choose a team with 1 or 2 first" };
-    if (this.winner !== null) return { error: "Battle ended" };
+    if (!this.inputOpen || this.winner !== null)
+      return { error: "Battle ended" };
     if (!Number.isFinite(Number(coins)) || Number(coins) <= 0)
       return { error: "Invalid coins" };
+    this.committedTeams.set(String(id), team);
+    this.onCombat({ kind: "join", userId: id, name, team });
     const repeats = clamp(Math.floor(Number(count) || 1), 1, 100);
     const unitValue = clamp(Number(coins), 1, 100000);
     const value = clamp(unitValue * repeats, 1, 100000);
@@ -120,10 +141,13 @@ export class Battle {
   likes({ id, name = "Viewer", count }) {
     const team = this.teams.get(String(id));
     if (team === undefined) return { error: "Choose a team first" };
-    if (this.winner !== null) return { error: "Battle ended" };
+    if (!this.inputOpen || this.winner !== null)
+      return { error: "Battle ended" };
     count = Number(count);
     if (!Number.isInteger(count) || count <= 0 || count > 100000)
       return { error: "Invalid like count" };
+    this.committedTeams.set(String(id), team);
+    this.onCombat({ kind: "join", userId: id, name, team });
     this.energy[team] += count;
     this.score(id, name, team).likes += count;
     const now = this.clock();
@@ -141,20 +165,20 @@ export class Battle {
       unlocked.push(r.at);
       switch (r.at) {
         case 100:
-          this.spawn(team, "sword", 3, "Like Army");
+          this.spawn(team, "sword", 3, name, id);
           break;
         case 300:
-          this.spawn(team, "archer", 2, "Like Army");
+          this.spawn(team, "archer", 2, name, id);
           break;
         case 500:
           this.castles[team] = Math.min(10000, this.castles[team] + 100);
           this.effect("heal", WORLD.castles[team], 550, { team });
           break;
         case 1000:
-          this.spawn(team, "guardian", 1, "Like Guardian");
+          this.spawn(team, "guardian", 1, name, id);
           break;
         case 3000:
-          this.arrowRain(team);
+          this.arrowRain(team, { userId: id, name, team });
           break;
         case 5000:
           this.boostUntil[team] = this.time + 15;
@@ -175,18 +199,23 @@ export class Battle {
       this.furyUntil[team] = now + 60;
       this.likeBuckets[team] = [];
       fury = true;
-      this.fury(team);
+      this.fury(team, { userId: id, name, team });
     }
     return { unlocked, fury, energy: this.energy[team] };
   }
-  fury(team) {
+  fury(team, source = { team, userId: null }) {
+    if (!this.combatOpen) {
+      this.pendingPowers.push({ type: "fury", team, source });
+      return;
+    }
+    if (this.winner !== null) return;
     const kind = team === 0 ? "meteor" : "ice";
     for (const u of this.units)
       if (u.team !== team && u.hp > 0) {
-        this.damage(u, 60, { team, x: WORLD.castles[team] }, true);
+        this.damage(u, 60, { ...source, team, x: WORLD.castles[team] }, true);
         this.effect(kind, u.x, u.y, { team });
       }
-    this.castles[1 - team] = Math.max(0, this.castles[1 - team] - 120);
+    this.damageCastle(1 - team, 120, source);
     this.effect(kind, WORLD.castles[1 - team], 600, { team });
     this.event({
       name: team === 0 ? "Red Fury · Meteor shower" : "Blue Fury · Ice storm",
@@ -197,14 +226,19 @@ export class Battle {
       value: 500,
     });
   }
-  arrowRain(team) {
+  arrowRain(team, source = { team, userId: null }) {
+    if (!this.combatOpen) {
+      this.pendingPowers.push({ type: "rain", team, source });
+      return;
+    }
+    if (this.winner !== null) return;
     const enemies = this.units.filter((u) => u.team !== team && u.hp > 0);
     for (let i = 0; i < 24; i++) {
       const t = enemies[i % Math.max(1, enemies.length)];
       const tx = t?.x ?? WORLD.castles[1 - team],
         ty = t?.y ?? 650;
       this.addProjectile(
-        { team, type: "archer", x: tx - 80, y: ty - 350 },
+        { ...source, team, type: "archer", x: tx - 80, y: ty - 350 },
         t ? { ...t } : this.castle(1 - team),
         20,
         "rain",
@@ -223,8 +257,22 @@ export class Battle {
       hp: this.castles[team],
     };
   }
+  damageCastle(team, amount, source) {
+    if (!this.combatOpen || this.winner !== null) return 0;
+    const actual = Math.min(this.castles[team], Math.round(amount));
+    if (actual <= 0) return 0;
+    this.castles[team] -= actual;
+    this.onCombat({
+      kind: "castle",
+      eventId: this.combatEventId++,
+      amount: actual,
+      source,
+    });
+    if (this.castles[team] === 0) this.winner = 1 - team;
+    return actual;
+  }
   damage(target, amount, source, magic = false) {
-    if (target.hp <= 0) return 0;
+    if (!this.combatOpen || this.winner !== null || target.hp <= 0) return 0;
     let blocked = false;
     if (
       target.type === "guardian" &&
@@ -234,12 +282,32 @@ export class Battle {
       amount *= 0.55;
       blocked = true;
     }
-    amount = Math.round(amount);
+    amount = Math.min(target.hp, Math.round(amount));
     target.hp = Math.max(0, target.hp - amount);
     target.hurt = 0.24;
+    target.contributors ??= new Map();
+    if (source.userId !== null && source.userId !== undefined)
+      target.contributors.set(String(source.userId), {
+        userId: source.userId,
+        name: source.name,
+        team: source.team,
+      });
+    this.onCombat({
+      kind: "damage",
+      eventId: this.combatEventId++,
+      amount,
+      source,
+    });
     if (target.hp === 0) {
       target.state = "death";
       target.dead = 0;
+      this.onCombat({
+        kind: "kill",
+        unitId: target.id,
+        source,
+        boss: target.type === "boss",
+        helpers: [...target.contributors.values()],
+      });
     }
     this.effect(blocked ? "block" : "hit", target.x, target.y, {
       amount,
@@ -259,6 +327,8 @@ export class Battle {
     this.projectiles.push({
       id: this.nextId++,
       team: u.team,
+      userId: u.userId,
+      name: u.name,
       kind,
       x: u.x,
       y: u.y - (TYPES[u.type]?.air ? 85 : 25),
@@ -271,7 +341,16 @@ export class Battle {
       age: 0,
     });
   }
-  hitArea(team, x, y, amount, radius, knock = 0, canAir = false) {
+  hitArea(
+    team,
+    x,
+    y,
+    amount,
+    radius,
+    knock = 0,
+    canAir = false,
+    source = { team, userId: null, x },
+  ) {
     for (const v of this.units) {
       if (
         v.team === team ||
@@ -280,11 +359,17 @@ export class Battle {
         Math.hypot(v.x - x, (v.y - y) * 1.2) > radius
       )
         continue;
-      this.damage(v, amount, { team, x }, true);
+      this.damage(v, amount, { ...source, team, x }, true);
       v.x = clamp(v.x + (team === 0 ? knock : -knock), 150, 1650);
     }
   }
   tick(dt) {
+    if (!this.combatOpen) return;
+    const powers = this.pendingPowers.splice(0);
+    for (const p of powers) {
+      if (p.type === "fury") this.fury(p.team, p.source);
+      else this.arrowRain(p.team, p.source);
+    }
     dt = clamp(dt, 0, 0.1); // Always age corpses, including after victory.
     for (const u of this.units) if (u.hp <= 0) u.dead += dt;
     this.units = this.units.filter((u) => u.dead < 0.95);
@@ -309,6 +394,7 @@ export class Battle {
       return list;
     };
     for (const u of this.units) {
+      if (this.winner !== null) break;
       if (u.hp <= 0) continue;
       const t = TYPES[u.type];
       u.cd -= dt;
@@ -367,10 +453,7 @@ export class Battle {
           if (t.projectile)
             this.addProjectile(u, target, amount, t.projectile, t.splash || 0);
           else if (target.castle) {
-            this.castles[1 - u.team] = Math.max(
-              0,
-              this.castles[1 - u.team] - Math.round(amount),
-            );
+            this.damageCastle(1 - u.team, amount, u);
             this.effect("hit", target.x, target.y, {
               amount: Math.round(amount),
               team: 1 - u.team,
@@ -386,6 +469,8 @@ export class Battle {
               u.type === "guardian" ? 35 : 120,
               u.type === "guardian" ? 135 : 175,
               u.type === "guardian" ? 48 : 24,
+              false,
+              u,
             );
             this.effect("stomp", u.x, u.y, {
               team: u.team,
@@ -432,6 +517,7 @@ export class Battle {
     const alive = new Map(this.units.map((u) => [u.id, u]));
     const pending = [];
     for (const p of this.projectiles) {
+      if (this.winner !== null) break;
       p.age += dt;
       const t =
         typeof p.target === "string"
@@ -447,7 +533,7 @@ export class Battle {
       if (d <= p.speed * dt) {
         if (typeof p.target === "string") {
           const team = Number(p.target.at(-1));
-          this.castles[team] = Math.max(0, this.castles[team] - p.damage);
+          this.damageCastle(team, p.damage, p);
         } else if (p.splash) {
           this.hitArea(
             p.team,
@@ -457,9 +543,9 @@ export class Battle {
             p.splash,
             0,
             true,
+            p,
           );
-        } else if (t && t.hp > 0)
-          this.damage(t, p.damage, { team: p.team, x: p.x });
+        } else if (t && t.hp > 0) this.damage(t, p.damage, p);
         this.effect(p.kind === "fireball" ? "explosion" : "spark", p.tx, p.ty, {
           team: p.team,
         });
@@ -470,7 +556,7 @@ export class Battle {
       }
     }
     this.projectiles = pending;
-    if (this.castles.some((h) => h <= 0))
+    if (this.winner === null && this.castles.some((h) => h <= 0))
       this.winner = this.castles[0] <= 0 ? 1 : 0;
   }
   snapshot() {

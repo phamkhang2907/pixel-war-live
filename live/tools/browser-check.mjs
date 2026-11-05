@@ -85,6 +85,9 @@ try {
   await page.getByText("Controls unlocked for this tab.").waitFor();
   await page.locator(".dialog-close").click();
   await control("auto");
+  await control("roundConfig", {
+    config: { duration: 300, prepare: 0, final: 30, results: 60, countdown: 5 },
+  });
   await control("reset");
   await page
     .getByRole("button", { name: "Summon Swordsman", exact: true })
@@ -209,6 +212,62 @@ try {
   await control("troop", { team: 1, type: "boss", count: 1 });
   await wait(() => latest?.units.some((u) => u.type === "boss"));
   console.log(engine, "Gift mapping and independent troop selection PASS");
+  await page.goto(base);
+  await page.waitForSelector("#game canvas");
+  await control("speed", { value: 1 });
+  await control("roundConfig", {
+    config: { duration: 4, prepare: 1, final: 1, results: 3, countdown: 1 },
+  });
+  await control("newRound");
+  await wait(() => latest?.roundState.phase === "prepare");
+  const cycleId = latest.roundState.id;
+  for (let i = 0; i < 12; i++)
+    await control("troop", {
+      team: i % 2,
+      type: "sword",
+      count: 1,
+      name: "Player " + i,
+      userId: "player-" + i,
+    });
+  await wait(() => latest.roundState.phase === "final");
+  await page.locator("#arenaWrap.final-battle").waitFor();
+  await page.screenshot({ path: `artifacts/${engine}-final-battle.png` });
+  await wait(() => latest.roundState.phase === "results");
+  assert.equal(latest.roundState.result.winner, null);
+  assert.equal(latest.roundState.result.top10.length, 10);
+  await page.locator("#winner").getByText("DRAW", { exact: true }).waitFor();
+  await control("pause");
+  await new Promise((r) => setTimeout(r, 150));
+  const leftResult = latest.roundState.phaseRemaining;
+  const second = io(base);
+  let secondState;
+  second.on("state", (s) => (secondState = s));
+  await wait(() => secondState?.roundState.id === cycleId);
+  assert.deepEqual(secondState.roundState.boards, latest.roundState.boards);
+  assert.equal(secondState.roundState.phaseRemaining, leftResult);
+  second.disconnect();
+  await page.screenshot({ path: `artifacts/${engine}-round-results.png` });
+  await page.locator("#boardScope").selectOption("season");
+  await page.locator("#scores").getByText(/XP/).first().waitFor();
+  await new Promise((r) => setTimeout(r, 250));
+  assert.equal(latest.roundState.phaseRemaining, leftResult);
+  await control("pause");
+  await wait(() => latest.roundState.phase === "countdown");
+  assert.ok(latest.roundState.phaseRemaining <= 1);
+  await wait(() => latest.roundState.id !== cycleId);
+  assert.equal(latest.roundState.number > 1, true);
+  const history = await fetch(base + "/api/history", { headers }).then((r) =>
+    r.json(),
+  );
+  assert.ok(
+    history.rounds.some(
+      (r) => r.id === cycleId && r.winner === null && !r.aborted,
+    ),
+  );
+  console.log(
+    engine,
+    "Timed prepare/combat/final/draw-results/countdown/auto-next, Top10, two-client synchronization and persistent history PASS",
+  );
   assert.deepEqual(errors, []);
   console.log(engine, "desktop/iPad/mobile/overlay, no JavaScript errors PASS");
 } catch (e) {

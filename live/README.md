@@ -1,6 +1,6 @@
 # PIXEL WAR — RED VS BLUE
 
-Node.js 20+, Phaser 3, Socket.IO. Bản hiện tại tiếp tục repo/branch `feature/pixel-war-live`, không tạo repo mới. Viewport livestream **540×960 (9:16)** nhìn vào chiến trường side-scrolling rộng **1800×960**. Hai thành ở x=100 và x=1700; kéo ngang, cuộn chuột hoặc dùng Red castle / Follow battle / Blue castle để xem.
+Node.js 20+, Phaser 3, Socket.IO. **Đã có chu kỳ vòng đấu 300 giây tự động và BXH chiến công bền vững** — xem [ROUNDS.md](ROUNDS.md) cho luật điểm, pha trận, phục hồi và lưu trữ. Bản hiện tại tiếp tục repo/branch `feature/pixel-war-live`, không tạo repo mới. Viewport livestream **540×960 (9:16)** nhìn vào chiến trường side-scrolling rộng **1800×960**. Hai thành ở x=100 và x=1700; kéo ngang, cuộn chuột hoặc dùng Red castle / Follow battle / Blue castle để xem.
 
 ## Chạy và chơi Demo
 
@@ -20,9 +20,9 @@ Mở http://localhost:3000. Terminal in **Admin token**; chọn **Stream setup**
 3. **Like Energy**: các nút +100/+300/+500/+1000/+3000/+5000 tim tính cho phe đang chọn. Bảng mốc thưởng trong panel và HUD hiển thị năng lượng, mốc tiếp theo, Fury cooldown, Haste.
 4. **Auto Battle** tự gửi quà cho hai phe. **Stress test** chọn 100/200/300 quân hỗn hợp. Tổng quân đang sống + corpse chưa xóa không vượt 300; khi đầy, các lần spawn dư bị bỏ qua, không xếp hàng. Coin/like vẫn được ghi nhận, mốc vẫn được đánh dấu nhận.
 5. **Pause / Resume**, **Reset Battle**, âm thanh bật theo thao tác người dùng, tốc độ Demo 1×/2×/4×/8×. Quân chết phát death trước khi xóa; client giữ animation khi server chạy nhanh.
-6. Khi một thành còn 0 HP, game báo chiến thắng và dừng chiến đấu. Reset mở vòng mới, xóa năng lượng, cooldown, boost, ranking; phe đã chọn của người xem vẫn giữ.
+6. Khi một thành còn 0 HP hoặc hết 300 giây, server xét kết quả, hiện bảng Top 10 trong 15 giây rồi đếm 5 giây và tự mở vòng mới. Reset mở vòng mới, xóa năng lượng/cooldown/buff/BXH trận; BXH LIVE và mùa giải được giữ.
 
-OBS Browser Source: http://localhost:3000/?overlay=1, kích thước 540×960 hoặc 1080×1920. Overlay có HP/điểm hai phe, đồng hồ, số quân, năng lượng và top 3 đóng góp. Dashboard có leaderboard top 5 và feed chi tiết.
+OBS Browser Source: http://localhost:3000/?overlay=1, kích thước 540×960 hoặc 1080×1920. Overlay có HP/điểm hai phe, đồng hồ server, pha trận, số quân, năng lượng, top chiến công và màn hình kết quả Top 10. Dashboard chọn BXH trận/LIVE/mùa và có lịch sử vòng.
 
 ## Sáu lớp quân
 
@@ -71,7 +71,7 @@ Background sky / mountain / forest là PNG riêng với parallax; terrain raster
 
 Mapping dùng ngưỡng coin **mỗi quà**, chọn ngưỡng cao nhất ≤ giá trị quà. Streak 3 quà 50 xu = 3 Cavalry và 150 coin đóng góp, không tự nâng thành loại quân khác. Repeat tối đa 100 cho một event. Chỉ tính khi streak kết thúc; chống trùng bằng msgId. Quà chưa biết giá trị bỏ qua.
 
-Admin sửa ngưỡng/loại/số lượng trong Stream settings; Save ghi `live/data/rules.json` và nạp lại sau restart. Không tự ghi đè mapping cũ; nút **Restore default gift rules** lưu lại sáu mốc trên. Dùng `DATA_DIR` để chọn thư mục lưu khác. Score team là tổng coin; leaderboard xếp theo coin×10 + likes/100 và hiển thị riêng coin/like để đọc được đóng góp.
+Admin sửa ngưỡng/loại/số lượng trong Stream settings; Save ghi `live/data/rules.json` và nạp lại sau restart. Không tự ghi đè mapping cũ; nút **Restore default gift rules** lưu lại sáu mốc trên. Dùng `DATA_DIR` để chọn thư mục lưu khác. Coin/like vẫn được ghi nhận trong game; BXH mới xếp theo điểm chiến công thực tế, wins và sát thương lên thành. Xem bảng luật điểm trong ROUNDS.md.
 
 ## Like Energy và Fury
 
@@ -119,6 +119,6 @@ Cài browser test nếu cần: `npx playwright install --with-deps chromium webk
 
 ## Giới hạn hiện tại
 
-Single process / single room, state ở RAM trừ mapping quà. Server 20 Hz, spatial hash 160px và va chạm mềm; không có rigid-body/obstacle pathfinding. Hard cap 300 unit kể cả corpse; cap 600 projectile và 140 effect event. Client ẩn nhãn tên trên 90 quân, giới hạn particle/damage text, parallax/scenery dựng một lần, chỉ gửi các field unit cần render. Chưa có auth nhiều quản trị viên, lưu trận, reconnect event replay, nhiều phòng hoặc load test hàng nghìn người xem. Không tạo hoặc đẩy repository mới trong lần cập nhật này; repo hiện tại chưa cấu hình remote được cấp quyền.
+Single process / single room. Mapping và bảng chiến công/lịch sử/season/receipt/config round được lưu đĩa; trạng thái vật lý quân không được phục hồi giữa trận. Vòng mặc định: 30s chuẩn bị + 240s combat + 30s Final Battle; Admin chỉnh timing cho vòng sau, tạm dừng, Reset/start new round, hoặc Demo full cycle. Server 20 Hz, spatial hash 160px và va chạm mềm; không có rigid-body/obstacle pathfinding. Hard cap 300 unit kể cả corpse; cap 600 projectile và 140 effect event. Client ẩn nhãn tên trên 90 quân, giới hạn particle/damage text, parallax/scenery dựng một lần, chỉ gửi các field unit cần render. Chưa có auth nhiều quản trị viên, replay vật lý trận, nhiều phòng hoặc load test hàng nghìn người xem. JSON storage dành cho một process; cần volume bền vững/backup khi deploy. Không tạo hoặc đẩy repository mới trong lần cập nhật này; repo hiện tại chưa cấu hình remote được cấp quyền.
 
 License mã/art mới MIT trong `LICENSE`; dependency connector có AGPL-3.0 kèm ngoại lệ. Xem `THIRD_PARTY.md`.

@@ -5,6 +5,7 @@ import { TYPES, DEFAULT_RULES, LIKE_REWARDS } from "../src/characters.js";
 const $ = (id) => document.getElementById(id),
   types = Object.keys(TYPES),
   costs = DEFAULT_RULES.map((r) => r.min);
+let boardScope = "round";
 let selected = 0,
   token = sessionStorage.getItem("pw-token") || "",
   state = null,
@@ -71,12 +72,56 @@ $("unlock").onclick = async () => {
     const data = await r.json();
     sessionStorage.setItem("pw-token", token);
     renderRules(data.rules);
+    if (data.roundConfig) {
+      for (const key of [
+        "duration",
+        "prepare",
+        "final",
+        "results",
+        "countdown",
+      ])
+        $("time-" + key).value = data.roundConfig[key];
+      $("seasonId").value = data.roundConfig.season;
+    }
     $("authStatus").textContent = "Controls unlocked for this tab.";
     toast("Controls unlocked");
   } catch (e) {
     toast(e.message);
   }
 };
+$("saveTimings").onclick = async () => {
+  const config = { season: $("seasonId").value.trim() };
+  for (const key of ["duration", "prepare", "final", "results", "countdown"])
+    config[key] = Number($("time-" + key).value);
+  if (await control("roundConfig", { config }))
+    toast("Timings saved for next round");
+};
+$("newRound").onclick = () => control("newRound");
+$("demoCycle").onclick = () => control("demoCycle");
+$("newLiveSession").onclick = () => control("newLiveSession");
+$("boardScope").onchange = () => {
+  boardScope = $("boardScope").value;
+  renderBoards(state);
+};
+function renderBoards(data) {
+  if (!data?.roundState) return;
+  const r = data.roundState;
+  $("scores").innerHTML =
+    r.boards[boardScope]
+      .map(
+        (p, i) =>
+          `<div class="score"><span class="rank">${i + 1}</span><div class="score-name">${esc(p.name)}<small>Team ${p.team === 0 ? "Red" : "Blue"} · ${p.wins} wins · ${p.kills} kills</small><small>${esc(p.achievements.join(" · "))}</small></div><span class="score-value">${p.points.toLocaleString()} XP</span></div>`,
+      )
+      .join("") ||
+    '<p class="empty">Choose a team or summon troops to join.</p>';
+  $("roundHistory").innerHTML =
+    r.history
+      .map(
+        (h) =>
+          `<div class="history-row"><b>Round ${h.number} · ${h.aborted ? "INTERRUPTED" : h.winner === null ? "DRAW" : h.winner === 0 ? "RED WINS" : "BLUE WINS"}</b><small>${esc(h.reason)} · damage ${h.damage.map((n) => Math.round(n).toLocaleString()).join(" / ")}</small></div>`,
+      )
+      .join("") || '<p class="empty">The first round is in progress.</p>';
+}
 $("saveRules").onclick = async () => {
   const rules = [...$("rules").children].map((row) => ({
     min: Number(row.children[0].value),
@@ -212,17 +257,28 @@ socket.on("state", (data) => {
   setBattleState(data);
   if (Date.now() - lastRender < 200) return;
   lastRender = Date.now();
+  const round = data.roundState,
+    clock = round
+      ? ["results", "countdown"].includes(round.phase)
+        ? round.phaseRemaining
+        : round.remaining
+      : data.time;
   $("timer").textContent =
-    `${String(Math.floor(data.time / 60)).padStart(2, "0")}:${String(Math.floor(data.time % 60)).padStart(2, "0")}`;
+    `${String(Math.floor(Math.ceil(clock) / 60)).padStart(2, "0")}:${String(Math.ceil(clock) % 60).padStart(2, "0")}`;
+  if (round) {
+    $("phaseBanner").textContent =
+      round.phase.toUpperCase() + " · " + Math.ceil(round.phaseRemaining) + "s";
+    $("arenaWrap").classList.toggle("final-battle", round.phase === "final");
+  }
   $("unitCount").textContent = data.units.filter((u) => u.hp > 0).length;
   $("arenaUnits").textContent =
     data.units.filter((u) => u.hp > 0).length + " UNITS";
   $("streamLeaders").textContent =
-    "TOP · " +
-    (data.scores
+    "MERIT TOP · " +
+    (data.roundState?.boards.round
       .slice(0, 3)
-      .map((s, i) => `${i + 1}. ${s.name} ${s.coins}c / ${s.likes} likes`)
-      .join("  ·  ") || "Send gifts or likes to join");
+      .map((p, i) => `${i + 1}. ${p.name} ${p.points} XP`)
+      .join(" · ") || "Choose a team and join");
   $("round").textContent = "ROUND " + String(data.round).padStart(2, "0");
   for (const [i, color] of ["red", "blue"].entries()) {
     document.querySelector("." + color + "-ui > span").textContent =
@@ -255,18 +311,19 @@ socket.on("state", (data) => {
   document.querySelector(".badge").textContent = data.mode.toUpperCase();
   $("liveStatus").textContent =
     data.mode === "demo" ? "Demo mode · no LIVE required" : data.liveStatus;
-  $("winner").hidden = data.winner === null;
-  if (data.winner !== null)
-    $("winner").textContent =
-      (data.winner === 0 ? "RED" : "BLUE") + " KINGDOM WINS";
-  $("scores").innerHTML = data.scores.length
-    ? data.scores
-        .map(
-          (s, i) =>
-            `<div class="score"><span class="rank ${i === 0 ? "first" : ""}">${String(i + 1).padStart(2, "0")}</span><span class="user-avatar ${s.team === 1 ? "blue" : ""}">${esc(s.name.slice(0, 1).toUpperCase())}</span><div class="score-name">${esc(s.name)}<small>Team ${s.team === 0 ? "Red" : "Blue"} · ${s.likes.toLocaleString()} likes</small></div><span class="score-value">${s.coins.toLocaleString()} ◈</span></div>`,
-        )
-        .join("")
-    : '<div class="empty">Send a demo gift or likes to join the ranks.</div>';
+  const showResult = round && ["results", "countdown"].includes(round.phase);
+  $("winner").hidden = !showResult;
+  if (showResult && round.result) {
+    const result = round.result;
+    const title = result.aborted
+      ? "ROUND INTERRUPTED"
+      : result.winner === null
+        ? "DRAW"
+        : (result.winner === 0 ? "RED" : "BLUE") + " KINGDOM WINS";
+    $("winner").innerHTML =
+      `<div class="result-title">${title}</div><small>${esc(result.reason)} · ${round.phase === "countdown" ? "New round in" : "Results remaining"} ${Math.ceil(round.phaseRemaining)}s</small><div class="result-metrics">RED / BLUE<br>Damage: ${result.damage.map((n) => Math.round(n).toLocaleString()).join(" / ")}<br>Summoned: ${result.summoned.join(" / ")}<br>Castle HP: ${result.castles.join(" / ")}</div><h3>TOP 10 · ROUND MERIT</h3><div class="result-table">${result.top10.map((p, i) => `<div><b>${i + 1}. ${esc(p.name)}</b><span>${p.points} XP · ${p.kills} K · ${p.wins} W</span></div>`).join("") || "<p>No players this round</p>"}</div>`;
+  }
+  renderBoards(data);
   $("events").innerHTML =
     data.events
       .slice(0, 10)

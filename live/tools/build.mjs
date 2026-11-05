@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 for (const file of [
   "game.js",
+  "league.js",
+  "rounds.js",
   "characters.js",
   "server.js",
   "tiktok.js",

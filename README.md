@@ -20,3 +20,5 @@ Chọn branch `feature/pixel-war-live` → **Code → Codespaces → Create code
 Mã mới được viết độc lập sau khi kiểm tra island-defense-demo không có LICENSE ở root. Repository này không chứa bundle/artwork của game tham khảo. MIT chỉ áp dụng mã/artwork mới; connector có license AGPL-3.0 kèm ngoại lệ, xem tài liệu trước khi cung cấp dịch vụ hosted.
 
 Bản cập nhật character/combat: sáu lớp quân, air/anti-air, charge, shield/stomp/rage, projectile thực, năng lượng Like và Fury. Chi tiết luật/cấu hình, bảng stats, frame metadata và giới hạn: [live/README.md](live/README.md).
+
+Vòng đấu tự động và BXH: mặc định 300s (30 chuẩn bị / 240 combat / 30 Final), kết quả Top 10 trong 15s, đếm 5s rồi tự chơi tiếp. Điểm chiến công gắn user ID, BXH trận/LIVE/mùa và lịch sử lưu bền vững. [Luật điểm, Admin và lưu trữ](live/ROUNDS.md).

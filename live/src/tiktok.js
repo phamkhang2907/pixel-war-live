@@ -8,7 +8,11 @@ export class TikTokIngest {
     const id = data.user?.userId;
     const comment = String(data.comment || "").trim();
     if (id && (comment === "1" || comment === "2"))
-      this.battle.choose(id, Number(comment) - 1);
+      this.battle.choose(
+        id,
+        Number(comment) - 1,
+        data.user.nickname || data.user.uniqueId || String(id),
+      );
   }
   like(data) {
     const id = data?.user?.userId,
@@ -17,7 +21,7 @@ export class TikTokIngest {
     if (!id || !Number.isInteger(count) || count < 1) return;
     if (key) {
       const k = "like-" + key;
-      if (this.seen.has(k)) return;
+      if (this.seen.has(k) || !this.battle.acceptReceipt(k)) return;
       this.seen.add(k);
       if (this.seen.size > 5000)
         this.seen.delete(this.seen.values().next().value);
@@ -38,7 +42,7 @@ export class TikTokIngest {
         data.msgId ||
         `${id}-${data.giftId}-${data.repeatCount}-${data.common?.createTime}`,
     );
-    if (this.seen.has(key)) return;
+    if (this.seen.has(key) || !this.battle.acceptReceipt("gift:" + key)) return;
     this.seen.add(key);
     if (this.seen.size > 5000)
       this.seen.delete(this.seen.values().next().value);

@@ -1,3 +1,5 @@
+import { League } from "./league.js";
+import { RoundManager } from "./rounds.js";
 import { TikTokService } from "./tiktok-connection.js";
 import express from "express";
 import { createServer } from "node:http";
@@ -12,9 +14,10 @@ const app = express(),
   io = new Server(http, { maxHttpBufferSize: 16000 });
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
+const league = new League(dataDir);
+const rounds = new RoundManager(game, league);
 const tiktok = new TikTokService(game);
-let paused = false,
-  auto = true,
+let auto = true,
   speed = 1;
 const token = process.env.ADMIN_TOKEN || randomBytes(18).toString("hex");
 try {
@@ -44,7 +47,13 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.static(root + "dist/public"));
 
 app.get("/health", (_, r) =>
-  r.json({ ok: true, units: game.units.length, mode: tiktok.mode }),
+  r.json({
+    ok: true,
+    units: game.units.length,
+    mode: tiktok.mode,
+    phase: rounds.phase,
+    roundId: league.data.active.id,
+  }),
 );
 function auth(req, res, next) {
   const provided = Buffer.from(
@@ -61,9 +70,10 @@ function auth(req, res, next) {
 app.get("/api/config", auth, (_, r) =>
   r.json({
     rules: game.rules,
+    roundConfig: league.data.config,
     mode: tiktok.mode,
     auto,
-    paused,
+    paused: rounds.paused,
     liveStatus: tiktok.status,
   }),
 );
@@ -82,9 +92,14 @@ app.post("/api/control", auth, async (req, res) => {
           (p.count ?? 1) > 100
         )
           throw Error("Invalid gift request");
-        game.choose("demo", p.team);
+        const demoId =
+          "demo:" +
+          p.team +
+          ":" +
+          String(p.userId || p.name || "You").slice(0, 64);
+        game.choose(demoId, p.team, p.name || "You");
         game.gift({
-          id: "demo",
+          id: demoId,
           name: p.name || "You",
           coins: p.coins,
           count: p.count || 1,
@@ -99,9 +114,14 @@ app.post("/api/control", auth, async (req, res) => {
           p.count > 100000
         )
           throw Error("Invalid demo likes");
-        game.choose("demo-like", p.team);
+        const likeId =
+          "demo:" +
+          p.team +
+          ":" +
+          String(p.userId || p.name || "Demo Hearts").slice(0, 64);
+        game.choose(likeId, p.team, p.name || "Demo Hearts");
         game.likes({
-          id: "demo-like",
+          id: likeId,
           name: p.name || "Demo Hearts",
           count: p.count,
         });
@@ -124,6 +144,7 @@ app.post("/api/control", auth, async (req, res) => {
             Object.keys(TYPES)[Math.floor(i / 2) % 6],
             1,
             "Demo army",
+            "demo:army:" + (i % 2) + ":" + (i % 12),
           );
         break;
       case "speed":
@@ -132,13 +153,38 @@ app.post("/api/control", auth, async (req, res) => {
         speed = p.value;
         break;
       case "pause":
-        paused = !paused;
+        rounds.pause();
         break;
       case "auto":
         auto = !auto;
         break;
       case "reset":
-        game.reset();
+        rounds.start();
+        break;
+      case "newRound":
+        rounds.start();
+        break;
+      case "roundConfig":
+        rounds.configure(p.config);
+        break;
+      case "demoCycle":
+        if (tiktok.mode !== "demo") throw Error("Demo required");
+        speed = 1;
+        rounds.configure({
+          ...league.data.config,
+          duration: 12,
+          prepare: 2,
+          final: 3,
+          results: 3,
+          countdown: 1,
+        });
+        rounds.start();
+        break;
+      case "newLiveSession":
+        rounds.finish("new_live_session", true);
+        league.data.sessionId = randomBytes(16).toString("hex");
+        league.dirty = true;
+        rounds.start();
         break;
       case "rules": {
         const rules = validate(p.rules);
@@ -160,7 +206,13 @@ app.post("/api/control", auth, async (req, res) => {
           p.count > 50
         )
           throw Error("Invalid troop request");
-        game.spawn(p.team, p.type, p.count, p.name || "Demo");
+        game.spawn(
+          p.team,
+          p.type,
+          p.count,
+          p.name || "Demo",
+          "demo:" + p.team + ":" + String(p.userId || p.name || "Demo"),
+        );
         break;
       case "demo":
         await tiktok.disconnect();
@@ -173,59 +225,81 @@ app.post("/api/control", auth, async (req, res) => {
       default:
         throw Error("Unknown action");
     }
+    rounds.settle();
+    league.flush();
     res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
 });
-io.on("connection", (s) => {
-  s.emit("state", {
+function state() {
+  return {
     ...game.snapshot(),
-    paused,
+    roundState: rounds.snapshot(),
+    paused: rounds.paused,
     auto,
     speed,
     mode: tiktok.mode,
     liveStatus: tiktok.status,
+    serverNow: Date.now(),
+  };
+}
+app.get("/api/history", auth, (req, res) => {
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+  res.json({
+    total: league.data.history.length,
+    rounds: league.data.history
+      .slice()
+      .reverse()
+      .slice(offset, offset + 20)
+      .map(({ players, ...r }) => ({
+        ...r,
+        top10: Object.values(players)
+          .sort((a, b) => b.points - a.points)
+          .slice(0, 10),
+      })),
   });
 });
+io.on("connection", (socket) => socket.emit("state", state()));
+let previous = performance.now();
 setInterval(() => {
-  if (!paused) {
-    for (let i = 0; i < speed; i++) game.tick(0.05);
-    if (
-      auto &&
-      tiktok.mode === "demo" &&
-      game.winner === null &&
-      Math.random() < 0.1
-    ) {
-      const team = Math.random() < 0.5 ? 0 : 1;
-      const name = [
-        "pixel.ninja",
-        "Luna",
-        "Minh Anh",
-        "blueberry",
-        "Kai",
-        "Ruby",
-      ][Math.floor(Math.random() * 6)];
-      game.choose(name, team);
-      game.gift({
-        id: name,
-        name,
-        coins: [1, 10, 50, 100, 200, 1000][Math.floor(Math.random() * 6)],
-      });
-    }
+  const now = performance.now(),
+    dt = (now - previous) / 1000;
+  previous = now;
+  rounds.advance(dt * speed);
+  if (
+    !rounds.paused &&
+    auto &&
+    tiktok.mode === "demo" &&
+    game.inputOpen &&
+    Math.random() < 0.1
+  ) {
+    const team = Math.random() < 0.5 ? 0 : 1,
+      name = ["pixel.ninja", "Luna", "Minh Anh", "blueberry", "Kai", "Ruby"][
+        Math.floor(Math.random() * 6)
+      ];
+    const id = "demo:auto:" + team + ":" + name;
+    game.choose(id, team, name);
+    game.gift({
+      id,
+      name,
+      coins: [1, 10, 50, 100, 200, 1000][Math.floor(Math.random() * 6)],
+    });
   }
-  io.emit("state", {
-    ...game.snapshot(),
-    paused,
-    auto,
-    speed,
-    mode: tiktok.mode,
-    liveStatus: tiktok.status,
-  });
+  rounds.settle();
+  league.flush();
+  io.emit("state", state());
 }, 50);
-for (let t = 0; t < 2; t++)
+for (let team = 0; team < 2; team++)
   for (const type of ["sword", "archer", "cavalry", "mage"])
-    game.spawn(t, type, 3, "Founders");
+    game.spawn(team, type, 3, "Founders", null);
+league.flush();
+for (const signal of ["SIGTERM", "SIGINT"])
+  process.on(signal, () => {
+    league.flush();
+    http.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 1500).unref();
+  });
 http.listen(process.env.PORT || 3000, "0.0.0.0", () =>
   console.log(
     `PIXEL WAR http://localhost:${process.env.PORT || 3000}\nAdmin token: ${token}`,

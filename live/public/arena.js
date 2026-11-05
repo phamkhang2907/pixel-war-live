@@ -281,7 +281,10 @@ export class Arena extends Phaser.Scene {
             ? "death"
             : state.paused
               ? "idle"
-              : state.winner !== null
+              : state.winner !== null ||
+                  ["prepare", "results", "countdown"].includes(
+                    state.roundState?.phase,
+                  )
                 ? "idle"
                 : u.state,
         key = `${u.team === 0 ? "red" : "blue"}-${u.type}-${animation}`;
