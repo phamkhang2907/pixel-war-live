@@ -57,8 +57,10 @@ export class KaykitUnits {
     const animationPacks = Promise.all(["Rig_Medium_General", "Rig_Medium_MovementBasic"].map(async (name) => {
       const path = findModel(await manifest, name);
       if (!path) return;
-      const data = await loader.loadAsync(root + path);
-      for (const clip of data.animations) this.clips.set(clip.name, clip);
+      try {
+        const data = await loader.loadAsync(root + path);
+        for (const clip of data.animations) this.clips.set(clip.name, clip);
+      } catch (error) { console.warn("Optional KayKit animations unavailable", error); }
     }));
     Promise.all([characters, animationPacks]).then(() => {
       this.loaded = true;
