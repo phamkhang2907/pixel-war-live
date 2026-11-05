@@ -80,6 +80,8 @@ export class BattlefieldCamera {
     return {
       mode: this.mode,
       x: this.focus.x,
+      targetX: this.desiredFocus.x,
+      targetDistance: this.desiredDistance,
       distance: this.distance,
       elevation: 52,
     };

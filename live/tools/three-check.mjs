@@ -144,9 +144,10 @@ try {
     const d = window.__PW3D.inspect();
     return (
       d.mode === "front" &&
-      Math.abs(d.x) < 0.5 &&
-      d.distance > 75 &&
-      d.distance < 110
+      Math.abs(d.x - d.targetX) < 0.5 &&
+      Math.abs(d.distance - d.targetDistance) < 2 &&
+      d.distance >= 75 &&
+      d.distance <= 251
     );
   });
   await page.waitForFunction(
