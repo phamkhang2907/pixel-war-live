@@ -1,5 +1,7 @@
 # PIXEL WAR — RED VS BLUE
 
+[Battlefield redesign: broad lanes, distant scenery, modular fortresses, validation and performance report](live/BATTLEFIELD-REDESIGN.md).
+
 **KayKit rendering repair:** real textured/skinned characters, RED/BLUE materials,
 model gallery at `/3d/gallery.html`, and per-model diagnostics.
 [Diagnosis, verified assets, remaining substitutes and preview version checks](live/KAYKIT-RENDER-FIX.md).

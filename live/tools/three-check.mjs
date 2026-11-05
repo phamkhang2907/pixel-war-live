@@ -71,6 +71,8 @@ try {
     window.__PW3D.inspect().assets.models.every((m) => m.status === "ready"),
   );
   assert.equal(await page.locator("#error").isVisible(), false);
+  await page.locator('[data-camera="overview"]').click();
+  await page.waitForFunction(() => window.__PW3D.inspect().distance > 255);
   const initial = await page.evaluate(() => window.__PW3D.inspect());
   assert.equal(initial.elevation, 52);
   assert.ok(
@@ -108,8 +110,14 @@ try {
   });
   await page.locator('[data-camera="front"]').click();
   await page.waitForFunction(() => Math.abs(window.__PW3D.inspect().x) < 0.5);
+  const beforeZoom = await page.evaluate(
+    () => window.__PW3D.inspect().distance,
+  );
   await page.locator("#zoomIn").click();
-  await page.waitForFunction(() => window.__PW3D.inspect().distance < 65);
+  await page.waitForFunction(
+    (before) => window.__PW3D.inspect().distance < before * 0.9,
+    beforeZoom,
+  );
   box = await canvas.boundingBox();
   await page.mouse.move(box.x + box.width * 0.65, box.y + box.height * 0.55);
   await page.mouse.down();
@@ -138,7 +146,7 @@ try {
       d.mode === "front" &&
       Math.abs(d.x) < 0.5 &&
       d.distance > 75 &&
-      d.distance < 77
+      d.distance < 110
     );
   });
   await page.waitForFunction(

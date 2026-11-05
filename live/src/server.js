@@ -48,7 +48,10 @@ app.use(express.json({ limit: "16kb" }));
 // The 3D renderer is the primary game. Keep the former dashboard isolated
 // at /legacy/ for administrative operations until those controls are migrated.
 app.get(["/", "/index.html"], (_req, res) => res.redirect(302, "/3d/"));
-app.use("/legacy", express.static(root + "dist/public", { index: "index.html" }));
+app.use(
+  "/legacy",
+  express.static(root + "dist/public", { index: "index.html" }),
+);
 app.use(express.static(root + "dist/public"));
 
 app.get("/health", (_, r) =>
@@ -155,7 +158,8 @@ app.post("/api/control", auth, async (req, res) => {
       case "cameraScenario": {
         if (
           tiktok.mode !== "demo" ||
-          !["balanced", "red", "blue", "boss"].includes(p.scenario)
+          !["balanced", "red", "blue", "boss"].includes(p.scenario) ||
+          (p.count !== undefined && ![50, 100, 300].includes(p.count))
         )
           throw Error("Choose a valid Demo camera scenario");
         rounds.start();
@@ -174,7 +178,7 @@ app.post("/api/control", auth, async (req, res) => {
               ? [36, 120]
               : p.scenario === "boss"
                 ? [75, 75]
-                : [150, 150];
+                : [(p.count ?? 300) / 2, (p.count ?? 300) / 2];
         const fronts =
           p.scenario === "red"
             ? [4190, 4360]
@@ -200,7 +204,8 @@ app.post("/api/control", auth, async (req, res) => {
             );
             const u = game.units.at(-1);
             u.x =
-              fronts[team] + (team === 0 ? -1 : 1) * Math.floor(i / 15) * 42;
+              fronts[team] +
+              (team === 0 ? -1 : 1) * Math.floor(i / WORLD.rows) * 84;
             const event = game.cameraEvents.at(-1);
             if (event) event.x = u.x;
           }

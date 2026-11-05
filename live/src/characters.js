@@ -21,16 +21,16 @@ export const WORLD = {
   height: 2400,
   castles: [180, 4620],
   ground: 1100,
-  laneMin: 760,
-  laneMax: 1480,
+  laneMin: 540,
+  laneMax: 1660,
   rows: 15,
-  rowGap: 48,
+  rowGap: 80,
 };
 export const projectY = (y) => WORLD.ground + (y - WORLD.ground) * 0.78;
 export const formation = (team, slot, type = "sword") => {
   const row = slot % WORLD.rows,
     column = Math.floor(slot / WORLD.rows) % 20;
-  const x = WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + column * 48);
+  const x = WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + column * 84);
   return {
     x,
     y: WORLD.laneMin + row * WORLD.rowGap,

@@ -103,7 +103,16 @@ try {
     assert.ok(red.height > 1.4 && red.height < 2.5);
     assert.ok(red.minY > -0.2);
   }
-  await page.waitForTimeout(300);
+  await page.waitForFunction((previous) => {
+    const current = window.__PW_GALLERY.inspect().entries;
+    return (
+      current.length === previous.length &&
+      current.every(
+        (entry, i) =>
+          JSON.stringify(entry.sample) !== JSON.stringify(previous[i].sample),
+      )
+    );
+  }, before.entries);
   const after = await page.evaluate(() => window.__PW_GALLERY.inspect());
   for (let i = 0; i < 12; i++)
     assert.notDeepEqual(
@@ -164,8 +173,10 @@ try {
     { timeout: 30000 },
   );
   await control("pause");
-  await page.waitForFunction(() => window.__PW3D.inspect().distance < 77);
+  await page.waitForFunction(() => window.__PW3D.inspect().distance < 120);
   await page.waitForTimeout(200);
+  await page.locator("#zoomIn").click();
+  await page.locator("#zoomIn").click();
   await page.locator("#zoomIn").click();
   await page.locator("#zoomIn").click();
   await page.locator("#zoomIn").click();
