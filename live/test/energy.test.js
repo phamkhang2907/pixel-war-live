@@ -1,3 +1,4 @@
+import { WORLD } from "../src/characters.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Battle } from "../src/game.js";
@@ -30,7 +31,12 @@ test("all milestones grant guardian, rain projectiles and 20% haste for 15 simul
   assert.equal(b.boostUntil[0], 15);
   b.spawn(0, "sword", 1);
   const u = b.units.at(-1);
-  Object.assign(u, { x: 1640, y: 650, windup: 0, cd: 0 });
+  Object.assign(u, {
+    x: WORLD.castles[1] - 60,
+    y: WORLD.ground, lane:WORLD.ground,
+    windup: 0,
+    cd: 0,
+  });
   b.tick(0.05);
   assert.ok(Math.abs(u.cd - 0.85 / 1.2) < 0.001);
   for (let i = 0; i < 310; i++) b.tick(0.05);

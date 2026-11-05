@@ -1,3 +1,4 @@
+import { WORLD } from "../src/characters.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -107,8 +108,8 @@ test("projectile owner survives shooter death; splash and like powers retain use
   game.spawn(0, "archer", 1, "A", "a");
   game.spawn(1, "sword", 1, "B", "b");
   const [a, b] = game.units;
-  Object.assign(a, { x: 700, y: 650 });
-  Object.assign(b, { x: 760, y: 650, windup: 100 });
+  Object.assign(a, { x: 700, y: WORLD.ground });
+  Object.assign(b, { x: 760, y: WORLD.ground, windup: 100 });
   game.addProjectile(a, b, 100);
   a.hp = 0;
   for (let i = 0; i < 10; i++) game.tick(0.05);

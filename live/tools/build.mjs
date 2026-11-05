@@ -8,6 +8,7 @@ for (const file of [
   "league.js",
   "rounds.js",
   "characters.js",
+  "camera-director.js",
   "server.js",
   "tiktok.js",
   "tiktok-connection.js",
@@ -26,6 +27,11 @@ for (const team of ["red", "blue"])
     if (png.readUInt32BE(16) !== 512 || png.readUInt32BE(20) !== 512)
       throw Error("Invalid sprite sheet");
   }
+const atlas = JSON.parse(
+  await readFile(root + "public/assets/army-atlas.json", "utf8"),
+);
+if (Object.keys(atlas.frames).length !== 768 || atlas.meta.size.w !== 2048)
+  throw Error("Invalid army atlas");
 await rm(root + "dist", { recursive: true, force: true });
 await mkdir(root + "dist/public", { recursive: true });
 await cp(root + "public", root + "dist/public", {
@@ -49,6 +55,8 @@ await writeFile(
     builtAt: new Date().toISOString(),
     target: "Safari 15+",
     sprites: 12,
+    canvas: [1080, 1920],
+    atlasFrames: 768,
   }),
 );
 console.log(

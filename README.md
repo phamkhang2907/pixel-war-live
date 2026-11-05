@@ -13,7 +13,7 @@ Mở http://localhost:3000, chọn **Stream setup**, nhập admin token được
 
 ## GitHub Codespaces / iPad Safari
 
-Chọn branch `feature/pixel-war-live` → **Code → Codespaces → Create codespace on feature/pixel-war-live**. Devcontainer tự cài dependencies và cấu hình port 3000. Chạy `npm start`, mở **Ports → 3000 → Open in Browser**. Trên iPad mở URL HTTPS `https://<codespace-name>-3000.app.github.dev`; đăng nhập GitHub nếu port private. Không dùng localhost của iPad để truy cập Codespace. Canvas OBS 540×960 hoặc 1080×1920.
+Chọn branch `feature/pixel-war-live` → **Code → Codespaces → Create codespace on feature/pixel-war-live**. Devcontainer tự cài dependencies và cấu hình port 3000. Chạy `npm start`, mở **Ports → 3000 → Open in Browser**. Trên iPad mở URL HTTPS `https://<codespace-name>-3000.app.github.dev`; đăng nhập GitHub nếu port private. Không dùng localhost của iPad để truy cập Codespace. Canvas OBS **1080×1920**.
 
 [Hướng dẫn chi tiết, Admin và TikTok](live/README.md) · [Giấy phép/artwork audit](live/THIRD_PARTY.md) · [Kết quả kiểm thử](live/VERIFICATION.md).
 
@@ -22,3 +22,5 @@ Mã mới được viết độc lập sau khi kiểm tra island-defense-demo kh
 Bản cập nhật character/combat: sáu lớp quân, air/anti-air, charge, shield/stomp/rage, projectile thực, năng lượng Like và Fury. Chi tiết luật/cấu hình, bảng stats, frame metadata và giới hạn: [live/README.md](live/README.md).
 
 Vòng đấu tự động và BXH: mặc định 300s (30 chuẩn bị / 240 combat / 30 Final), kết quả Top 10 trong 15s, đếm 5s rồi tự chơi tiếp. Điểm chiến công gắn user ID, BXH trận/LIVE/mùa và lịch sử lưu bền vững. [Luật điểm, Admin và lưu trữ](live/ROUNDS.md).
+
+Thiết kế LIVE dọc đã cập nhật: stage thật 1080×1920, thế giới ngang 4800×2400, đội hình 15 hàng, Camera Director 4 chế độ và pool/atlas cho 300 quân. [Camera và hướng dẫn OBS/iPad](live/CAMERA.md).

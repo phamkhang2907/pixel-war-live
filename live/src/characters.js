@@ -9,11 +9,33 @@ export const ANIMATIONS = [
   "rage",
 ];
 export const SPRITE = { width: 64, height: 64, frames: 8, rows: 8 };
+export const LIVE_VIEW = {
+  width: 1080,
+  height: 1920,
+  viewport: { x: 48, y: 360, width: 924, height: 1040 },
+  minZoom: 0.58,
+  maxZoom: 1.18,
+};
 export const WORLD = {
-  width: 1800,
-  height: 960,
-  castles: [100, 1700],
-  ground: 650,
+  width: 4800,
+  height: 2400,
+  castles: [180, 4620],
+  ground: 1100,
+  laneMin: 760,
+  laneMax: 1480,
+  rows: 15,
+  rowGap: 48,
+};
+export const projectY = (y) => WORLD.ground + (y - WORLD.ground) * 0.78;
+export const formation = (team, slot, type = "sword") => {
+  const row = slot % WORLD.rows,
+    column = Math.floor(slot / WORLD.rows) % 20;
+  const x = WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + column * 48);
+  return {
+    x,
+    y: WORLD.laneMin + row * WORLD.rowGap,
+    lane: WORLD.laneMin + row * WORLD.rowGap,
+  };
 };
 export const TYPES = {
   sword: {
@@ -74,7 +96,7 @@ export const TYPES = {
     range: 65,
     speed: 36,
     cooldown: 1.6,
-    radius: 34,
+    radius: 52,
     scale: 2.5,
     air: false,
     antiAir: false,
@@ -86,7 +108,7 @@ export const TYPES = {
     range: 100,
     speed: 38,
     cooldown: 2.2,
-    radius: 45,
+    radius: 70,
     scale: 3.4,
     air: false,
     antiAir: false,

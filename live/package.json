@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js",
+    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/camera.test.js",
     "assets": "python3 tools/sprites.py",
     "test:browser": "node tools/browser-check.mjs",
     "build": "node tools/build.mjs",
@@ -14,7 +14,8 @@
     "predev": "npm run build",
     "pretest:browser": "npm run build",
     "assets:check": "python3 tools/check-art.py",
-    "test:round-ui": "npm run build && node tools/round-ui-check.mjs"
+    "test:round-ui": "npm run build && node tools/round-ui-check.mjs",
+    "test:vertical": "npm run build && node tools/vertical-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

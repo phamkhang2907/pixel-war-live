@@ -1,7 +1,12 @@
 import Phaser from "phaser";
 import { io } from "socket.io-client";
 import { Arena, setBattleState, moveCamera } from "./arena.js";
-import { TYPES, DEFAULT_RULES, LIKE_REWARDS } from "../src/characters.js";
+import {
+  TYPES,
+  DEFAULT_RULES,
+  LIKE_REWARDS,
+  LIVE_VIEW,
+} from "../src/characters.js";
 const $ = (id) => document.getElementById(id),
   types = Object.keys(TYPES),
   costs = DEFAULT_RULES.map((r) => r.min);
@@ -20,6 +25,8 @@ const esc = (s) =>
         c
       ],
   );
+if (new URLSearchParams(location.search).get("guides") === "0")
+  document.body.classList.add("hide-guides");
 if (new URLSearchParams(location.search).has("overlay"))
   document.body.classList.add("overlay");
 function toast(message) {
@@ -192,6 +199,13 @@ for (const b of document.querySelectorAll("[data-likes]"))
     )
       toast(`+${b.dataset.likes} team energy`);
   };
+for (const b of document.querySelectorAll("[data-scenario]"))
+  b.onclick = async () => {
+    if (await control("cameraScenario", { scenario: b.dataset.scenario })) {
+      moveCamera("auto");
+      toast("Demo battlefield ready");
+    }
+  };
 $("pause").onclick = () => control("pause");
 $("reset").onclick = () => control("reset");
 $("auto").onclick = () => control("auto");
@@ -220,14 +234,12 @@ for (const b of document.querySelectorAll("[data-camera]"))
       .querySelectorAll("[data-camera]")
       .forEach((x) => x.classList.toggle("selected", x === b));
   };
-$("minimap").onclick = (e) =>
-  moveCamera(
-    e.offsetX < e.currentTarget.clientWidth / 3
-      ? "red"
-      : e.offsetX > (e.currentTarget.clientWidth * 2) / 3
-        ? "blue"
-        : "auto",
-  );
+$("minimap").onclick = (e) => {
+  const t =
+    (e.clientX - e.currentTarget.getBoundingClientRect().left) /
+    e.currentTarget.clientWidth;
+  moveCamera(t < 0.33 ? "red" : t > 0.67 ? "blue" : "auto");
+};
 $("sound").onclick = () => {
   sound = !sound;
   if (sound && !audio)
@@ -236,18 +248,44 @@ $("sound").onclick = () => {
   $("sound").style.color = sound ? "#8dd9bc" : "";
   toast(sound ? "Battle sounds on" : "Battle sounds off");
 };
+// Prefer Canvas on software WebGL; retain batched WebGL on real GPUs.
+let renderer = Phaser.AUTO;
+const rendererOption = new URLSearchParams(location.search).get("renderer");
+if (rendererOption === "canvas") renderer = Phaser.CANVAS;
+else if (rendererOption === "webgl") renderer = Phaser.WEBGL;
+else
+  try {
+    const probe = document.createElement("canvas");
+    const gl = probe.getContext("webgl");
+    if (gl) {
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      const name = ext
+        ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)
+        : gl.getParameter(gl.RENDERER);
+      if (
+        /swiftshader|llvmpipe|software/i.test(name) ||
+        (/Linux/.test(navigator.platform) && /Apple GPU/.test(name))
+      )
+        renderer = Phaser.CANVAS;
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    }
+  } catch {}
 const game = new Phaser.Game({
-  type: Phaser.AUTO,
+  type: renderer,
   parent: "game",
-  width: 540,
-  height: 960,
+  width: LIVE_VIEW.width,
+  height: LIVE_VIEW.height,
   pixelArt: true,
   antialias: false,
-  backgroundColor: "#202b45",
+  backgroundColor: "#c8dfb6",
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   scene: Arena,
   audio: { noAudio: true },
-  render: { powerPreference: "high-performance" },
+  render: {
+    powerPreference: "high-performance",
+    batchSize: 2048,
+    roundPixels: true,
+  },
 });
 const socket = io();
 let lastRender = 0;
@@ -324,6 +362,12 @@ socket.on("state", (data) => {
       `<div class="result-title">${title}</div><small>${esc(result.reason)} · ${round.phase === "countdown" ? "New round in" : "Results remaining"} ${Math.ceil(round.phaseRemaining)}s</small><div class="result-metrics">RED / BLUE<br>Damage: ${result.damage.map((n) => Math.round(n).toLocaleString()).join(" / ")}<br>Summoned: ${result.summoned.join(" / ")}<br>Castle HP: ${result.castles.join(" / ")}</div><h3>TOP 10 · ROUND MERIT</h3><div class="result-table">${result.top10.map((p, i) => `<div><b>${i + 1}. ${esc(p.name)}</b><span>${p.points} XP · ${p.kills} K · ${p.wins} W</span></div>`).join("") || "<p>No players this round</p>"}</div>`;
   }
   renderBoards(data);
+  const notice = data.events[0];
+  $("battleTicker").textContent = notice
+    ? (notice.kind === "gift"
+        ? `${notice.name} → ${notice.count} ${TYPES[notice.type]?.name || notice.type}`
+        : notice.name) + (notice.team === 0 ? " · RED" : " · BLUE")
+    : "Gift & Like combos appear here";
   $("events").innerHTML =
     data.events
       .slice(0, 10)

@@ -137,3 +137,36 @@ for name,w,h in [('sky',540,960),('mountains',900,500),('forest',900,400)]:
 manifest={'frameWidth':64,'frameHeight':64,'columns':8,'rows':rows,'teams':['red','blue'],'types':['sword','archer','cavalry','mage','guardian','boss'],'license':'Original artwork, MIT; see live/LICENSE'}
 open(out+'/sprites.json','w').write(json.dumps(manifest,indent=2))
 print('Generated 12 original 512x512 sheets, projectile textures and parallax layers')
+# Bright original terrain tiles for the inclined, deep-rank battlefield.
+random.seed(31)
+im=Image.new('RGBA',(256,256),'#91b96b');d=ImageDraw.Draw(im)
+for i in range(1400):
+ x=random.randrange(256)//2*2;y=random.randrange(256)//2*2
+ d.rectangle((x,y,x+random.choice([2,4,6]),y+2),fill=random.choice(['#9fc879','#82aa60','#a4c47a','#7ea55b','#b2ce88']))
+for i in range(28):
+ x=random.randrange(256);y=random.randrange(256);d.line((x,y,x+1,y-4),fill='#5c9258');d.point((x,y-5),fill=random.choice(['#f8e5ac','#e5bdce','#f5f0c7']))
+im.save(out+'/meadow.png')
+im=Image.new('RGBA',(256,128),'#cbb78a');d=ImageDraw.Draw(im)
+for i in range(300):
+ x=random.randrange(256);y=random.randrange(128);d.rectangle((x,y,x+3,y+1),fill=random.choice(['#c0ac81','#d8c79a','#b6a178']))
+for x in range(12,256,38):
+ d.rounded_rectangle((x,40+(x%3)*9,x+18,49+(x%3)*9),radius=2,fill='#b9ad85');d.line((x+2,41,x+16,41),fill='#e0d0a2')
+im.save(out+'/road.png')
+for name,colors in [('sun-mountains',['#93b9a5','#afd1bb','#c5d9c1']),('sun-forest',['#4d8b64','#62986a','#76ab71'])]:
+ im=Image.new('RGBA',(1024,512));d=ImageDraw.Draw(im)
+ for i in range(26):
+  x=i*43;peak=random.randrange(70,260)
+  if name=='sun-mountains':
+   d.polygon([(x-120,512),(x+38,peak),(x+190,512)],fill=colors[i%3]);d.polygon([(x+17,peak+40),(x+38,peak),(x+69,peak+60),(x+41,peak+32)],fill='#dfebcf')
+  else:
+   d.rectangle((x-3,peak+60,x+4,512),fill='#6d8255')
+   for j in range(3):d.polygon([(x-38+j*4,peak+90+j*50),(x,peak+j*28),(x+40-j*4,peak+90+j*50)],fill=colors[(i+j)%3])
+ im.save(out+'/'+name+'.png')
+# One texture atlas batches all 768 character frames on WebGL (max dimension 2048).
+atlas=Image.new('RGBA',(2048,1536));frames={}
+for i,(team,kind) in enumerate((t,k) for t in ['red','blue'] for k in ['sword','archer','cavalry','mage','guardian','boss']):
+ x=(i%4)*512;y=(i//4)*512;atlas.alpha_composite(Image.open(out+f'/{team}-{kind}.png'),(x,y))
+ for frame in range(64):frames[f'{team}-{kind}-{frame}']={'frame':{'x':x+frame%8*64,'y':y+frame//8*64,'w':64,'h':64},'rotated':False,'trimmed':False,'spriteSourceSize':{'x':0,'y':0,'w':64,'h':64},'sourceSize':{'w':64,'h':64}}
+atlas.save(out+'/army-atlas.png')
+open(out+'/army-atlas.json','w').write(json.dumps({'frames':frames,'meta':{'image':'army-atlas.png','size':{'w':2048,'h':1536},'scale':'1'}}))
+im=Image.new('RGBA',(64,24));d=ImageDraw.Draw(im);d.ellipse((2,2,61,21),fill=(49,82,52,24));d.ellipse((8,5,55,19),fill=(49,82,52,40));im.save(out+'/unit-shadow.png')

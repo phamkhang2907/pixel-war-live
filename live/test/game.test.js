@@ -1,3 +1,4 @@
+import { WORLD } from "../src/characters.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Battle, TYPES, DEFAULT_RULES } from "../src/game.js";
@@ -8,10 +9,10 @@ function pair(a = "sword", b = "sword", distance = 25) {
   const g = new Battle();
   g.spawn(0, a, 1);
   g.spawn(1, b, 1);
-  Object.assign(g.units[0], { x: 700, y: 650, cd: 0, windup: 0 });
+  Object.assign(g.units[0], { x: 700, y: WORLD.ground, cd: 0, windup: 0 });
   Object.assign(g.units[1], {
     x: 700 + distance,
-    y: 650,
+    y: WORLD.ground,
     cd: 100,
     windup: 100,
   });
@@ -71,7 +72,7 @@ test("flying mage immune to ground melee; archer can hit air", () => {
 test("fireball real flight and splash damage", () => {
   const g = pair("mage", "sword", 180);
   g.spawn(1, "sword", 1);
-  Object.assign(g.units[2], { x: 890, y: 650, windup: 100 });
+  Object.assign(g.units[2], { x: 890, y: WORLD.ground, windup: 100 });
   g.tick(0.05);
   assert.equal(g.units[1].hp, 100);
   assert.equal(g.projectiles[0].kind, "fireball");
@@ -113,7 +114,7 @@ test("soft collisions separate overlapping ground troops but leave air free", ()
   const g = new Battle();
   g.spawn(0, "sword", 2);
   g.units.forEach((u, i) =>
-    Object.assign(u, { x: 700 + i, y: 650, windup: 0 }),
+    Object.assign(u, { x: 700 + i, y: WORLD.ground, windup: 0 }),
   );
   g.tick(0.05);
   assert.ok(Math.abs(g.units[0].x - g.units[1].x) > 1);
@@ -132,7 +133,7 @@ test("300 cap, invalid inputs and no recycled IDs", () => {
 test("full siege destroys castle and freezes winner; reset clears powers", () => {
   const g = new Battle();
   g.spawn(0, "boss", 30);
-  run(g, 110);
+  run(g, 180);
   assert.equal(g.winner, 0);
   assert.equal(g.castles[1], 0);
   g.reset();

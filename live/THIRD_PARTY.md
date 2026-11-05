@@ -21,3 +21,5 @@
 License của từng dependency và dependencies chuyển tiếp có trong node_modules khi `npm ci`; lockfile ghi phiên bản. MIT của mã mới không thay thế license dependency, reference repo, hoặc điều khoản TikTok/signing service.
 
 Bản phát hành standalone chỉ bao gồm mã/artwork mới và thông báo license dependency. Không đưa bundle hoặc artwork của repository tham khảo vào repository mới.
+
+Bản cập nhật camera tạo thêm meadow/road, sun-mountains/sun-forest, unit-shadow và atlas nhân vật bằng tools/sprites.py. Tất cả là artwork gốc theo cùng MIT; không tải/tái sử dụng asset mới bên ngoài. Atlas chỉ sắp xếp lại 768 frame gốc, có kiểm thử so khớp pixel.

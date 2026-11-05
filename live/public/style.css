@@ -1498,3 +1498,321 @@ body.overlay {
     font-size: 32px;
   }
 }
+/* Canonical portrait LIVE composition. The Phaser world camera occupies only the middle. */
+.arena-wrap {
+  background: #e2e9cd;
+  border-color: #a8ba8b;
+  container-type: inline-size;
+  box-shadow: 0 10px 45px #0003;
+}
+.arena-wrap:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    170deg,
+    #fff7d8 0%,
+    #dfe8c6 20%,
+    #d8e6c4 75%,
+    #e9e7cf 100%
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+#game {
+  z-index: 0;
+}
+.arena-top {
+  top: 7.5%;
+  left: 35%;
+  right: 11%;
+  font-size: 8px;
+  color: #4f644d;
+}
+.live-label,
+#timer {
+  background: #536c5de0;
+  color: #fff6d8;
+}
+.castle-ui {
+  top: 2.2%;
+  left: 4.5%;
+  right: auto;
+  width: 40%;
+  color: #b93e5a;
+  font-size: 8px;
+}
+.castle-ui > div {
+  height: 6px;
+  border-radius: 3px;
+  background: #97ac8c55;
+}
+.castle-ui b {
+  color: #415d4c;
+}
+.blue-ui {
+  left: auto;
+  right: 11%;
+  color: #366ea4;
+}
+.arena-heading {
+  top: 11%;
+  left: 34%;
+  width: 54%;
+  font-size: clamp(18px, 2.2vw, 26px);
+  color: #3b634c;
+  text-shadow: 1px 2px #fff9dd;
+  letter-spacing: 2px;
+}
+.arena-heading span {
+  color: #c5843e;
+}
+.arena-heading small {
+  font-size: 6px;
+  color: #b94f5f;
+  letter-spacing: 3px;
+}
+.arena-heading em {
+  color: #6c8871;
+}
+.webcam-safe {
+  position: absolute;
+  left: 4.5%;
+  top: 7.5%;
+  width: 27%;
+  height: 9%;
+  border: 1px dashed #6c8e6a99;
+  border-radius: 6px;
+  background: #c5d8b344;
+  pointer-events: none;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+.webcam-safe span {
+  font: 5px monospace;
+  letter-spacing: 0.5px;
+  color: #5d7a63;
+  padding-bottom: 4px;
+}
+.phase-banner {
+  top: 17.1%;
+  left: 4.5%;
+  right: 11%;
+  background: #628565dd;
+  color: #fff7d4;
+  padding: 4px;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.camera-controls {
+  top: 19.4%;
+  left: 5%;
+  right: 12%;
+  gap: 3px;
+}
+.camera-controls button {
+  font-size: 7px;
+  padding: 5px;
+  background: #e8edd6e8;
+  border-color: #8da585;
+  color: #45684f;
+}
+.camera-controls .selected {
+  background: #587f63;
+  color: #fff6d8;
+}
+.director-status {
+  position: absolute;
+  top: 73.4%;
+  left: 4.5%;
+  right: 11%;
+  font: 7px monospace;
+  color: #45604d;
+  letter-spacing: 0.4px;
+  padding: 4px 0;
+}
+.battle-ticker {
+  position: absolute;
+  top: 75.2%;
+  left: 4.5%;
+  right: 11%;
+  background: #fff5d7d9;
+  border: 1px solid #b7be92;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 9px;
+  color: #6a6145;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.energy-hud {
+  top: 78%;
+  bottom: auto;
+  left: 4.5%;
+  right: 11%;
+  gap: 8px;
+}
+.energy-hud > div {
+  padding: 5px;
+  background: #f5f4d9d9;
+  border-color: #b0bb94;
+  font-size: 7px;
+}
+.energy-hud b {
+  font-size: 7px;
+  color: #bb4d62;
+}
+.energy-hud .blue-energy b {
+  color: #3d77ae;
+}
+.energy-hud small {
+  font-size: 6px;
+  color: #567157;
+  line-height: 1.5;
+}
+.energy-hud span {
+  color: #516a4d;
+}
+.stream-leaders {
+  top: 83.5%;
+  bottom: auto;
+  left: 4.5%;
+  right: 11%;
+  padding: 4px;
+  background: #6f8c62db;
+  border-color: #93a77b;
+  color: #fff7d9;
+  font-size: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 20px;
+}
+.minimap {
+  top: 70.3%;
+  bottom: auto;
+  left: 4.5%;
+  right: 11%;
+  height: 2.1%;
+  background: #4f7856bf;
+  border-color: #5f80545c;
+}
+.minimap > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.minimap i {
+  background: #e6efb62b;
+  border-color: #fff7be;
+}
+.join-bar {
+  top: 14.7%;
+  bottom: auto;
+  left: 35%;
+  right: 11%;
+  padding: 4px 2px;
+  background: #f2efccbf;
+  border: 0;
+  font-size: 6px;
+  color: #b2465c;
+}
+.join-bar span:last-child {
+  color: #3b72a7;
+}
+.join-bar b {
+  padding: 2px 4px;
+  background: #cedcc1;
+}
+.join-bar i {
+  display: none;
+}
+.tiktok-safe {
+  position: absolute;
+  inset: 86.5% 0 0 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, #d3dec133, transparent);
+  border-top: 1px dashed #8ca08166;
+  font: 6px monospace;
+  letter-spacing: 1px;
+  color: #71896b;
+  padding: 10px 4.5%;
+  z-index: 1;
+}
+.tiktok-safe:after {
+  content: "HEARTS / GIFTS";
+  position: absolute;
+  right: 5%;
+  bottom: 4px;
+  writing-mode: vertical-rl;
+  font-size: 5px;
+  opacity: 0.65;
+}
+.scenario-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.scenario-buttons button {
+  font-size: 10px;
+}
+.overlay .battle-column {
+  width: min(100vw, 56.25vh);
+  max-width: 1080px;
+}
+.overlay .camera-controls {
+  display: none;
+}
+.overlay .arena-wrap {
+  box-shadow: none;
+}
+.final-battle {
+  box-shadow: 0 0 30px #e78e4255;
+}
+.final-battle .phase-banner {
+  color: #fff3c7;
+  background: #c4793edd;
+}
+#winner {
+  inset: 20% 11% 14% 4.5%;
+  background: #294f45f5;
+  border-color: #b5caa0;
+}
+.result-title {
+  color: #fff0b6;
+}
+.result-metrics {
+  color: #e5f0d2;
+}
+.panel,
+.troop-info {
+  min-width: 0;
+}
+.troop-info strong {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .left-column {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+@media (max-width: 550px) {
+  .left-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tip {
+    max-width: calc(100% - 20px);
+  }
+}
+#arenaUnits {
+  color: #41654b;
+  font-weight: 700;
+}
+.hide-guides .webcam-safe,
+.hide-guides .tiktok-safe {
+  visibility: hidden;
+}

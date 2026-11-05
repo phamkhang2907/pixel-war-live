@@ -1,4 +1,10 @@
-import { TYPES, DEFAULT_RULES, WORLD, LIKE_REWARDS } from "./characters.js";
+import {
+  TYPES,
+  DEFAULT_RULES,
+  WORLD,
+  LIKE_REWARDS,
+  formation,
+} from "./characters.js";
 export { TYPES, DEFAULT_RULES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export class Battle {
@@ -20,6 +26,9 @@ export class Battle {
     this.combatOpen = true;
     this.pendingPowers = [];
     this.committedTeams = new Map();
+    this.spawnSlots = [0, 0];
+    this.cameraEvents = [];
+    this.cameraEventId ??= 1;
     this.units = [];
     this.projectiles = [];
     this.effects = [];
@@ -59,14 +68,14 @@ export class Battle {
     count = clamp(Math.floor(count), 0, 300 - this.units.length);
     for (let i = 0; i < count; i++) {
       const unitId = this.nextId++;
+      const position = formation(team, this.spawnSlots[team]++, type);
       this.units.push({
         id: unitId,
         team,
         type,
         name: String(name).slice(0, 24),
         userId,
-        x: team === 0 ? 210 + Math.random() * 90 : 1500 + Math.random() * 90,
-        y: 565 + Math.random() * 170,
+        ...position,
         hp: t.hp,
         maxHp: t.hp,
         cd: Math.random() * 0.5,
@@ -79,10 +88,25 @@ export class Battle {
         chargeUntil: 0,
         rage: false,
       });
+      this.cameraEvent({
+        kind: "spawn",
+        type,
+        team,
+        x: position.x,
+        y: position.y,
+      });
       if (userId !== null) this.committedTeams.set(String(userId), team);
       this.onCombat({ kind: "spawn", unitId, source: { userId, name, team } });
     }
     return count;
+  }
+  cameraEvent(data) {
+    this.cameraEvents.push({
+      ...data,
+      id: this.cameraEventId++,
+      time: this.time,
+    });
+    if (this.cameraEvents.length > 256) this.cameraEvents.shift();
   }
   event(data) {
     this.events.unshift({ ...data, at: Date.now() });
@@ -172,7 +196,7 @@ export class Battle {
           break;
         case 500:
           this.castles[team] = Math.min(10000, this.castles[team] + 100);
-          this.effect("heal", WORLD.castles[team], 550, { team });
+          this.effect("heal", WORLD.castles[team], WORLD.ground, { team });
           break;
         case 1000:
           this.spawn(team, "guardian", 1, name, id);
@@ -216,7 +240,7 @@ export class Battle {
         this.effect(kind, u.x, u.y, { team });
       }
     this.damageCastle(1 - team, 120, source);
-    this.effect(kind, WORLD.castles[1 - team], 600, { team });
+    this.effect(kind, WORLD.castles[1 - team], WORLD.ground, { team });
     this.event({
       name: team === 0 ? "Red Fury · Meteor shower" : "Blue Fury · Ice storm",
       team,
@@ -236,7 +260,7 @@ export class Battle {
     for (let i = 0; i < 24; i++) {
       const t = enemies[i % Math.max(1, enemies.length)];
       const tx = t?.x ?? WORLD.castles[1 - team],
-        ty = t?.y ?? 650;
+        ty = t?.y ?? WORLD.ground;
       this.addProjectile(
         { ...source, team, type: "archer", x: tx - 80, y: ty - 350 },
         t ? { ...t } : this.castle(1 - team),
@@ -245,15 +269,15 @@ export class Battle {
         55,
       );
     }
-    this.effect("rain", 900, 450, { team });
+    this.effect("rain", WORLD.width / 2, WORLD.ground, { team });
   }
-  castle(team) {
+  castle(team, lane = WORLD.ground) {
     return {
       id: "castle" + team,
       castle: true,
       team,
       x: WORLD.castles[team],
-      y: 650,
+      y: clamp(lane, WORLD.ground - 140, WORLD.ground + 140),
       hp: this.castles[team],
     };
   }
@@ -262,6 +286,13 @@ export class Battle {
     const actual = Math.min(this.castles[team], Math.round(amount));
     if (actual <= 0) return 0;
     this.castles[team] -= actual;
+    this.cameraEvent({
+      kind: "castle",
+      x: WORLD.castles[team],
+      y: WORLD.ground,
+      team: source.team,
+      amount: actual,
+    });
     this.onCombat({
       kind: "castle",
       eventId: this.combatEventId++,
@@ -284,6 +315,13 @@ export class Battle {
     }
     amount = Math.min(target.hp, Math.round(amount));
     target.hp = Math.max(0, target.hp - amount);
+    this.cameraEvent({
+      kind: "damage",
+      x: target.x,
+      y: target.y,
+      team: source.team,
+      amount,
+    });
     target.hurt = 0.24;
     target.contributors ??= new Map();
     if (source.userId !== null && source.userId !== undefined)
@@ -336,6 +374,14 @@ export class Battle {
       ty: target.y - (target.type && TYPES[target.type].air ? 85 : 25),
       target: target.id,
       damage,
+      startLift: TYPES[u.type]?.air ? 84 : 10.5,
+      endLift: target.type && TYPES[target.type].air ? 84 : 10.5,
+      lift: TYPES[u.type]?.air ? 84 : 10.5,
+      flightTime: Math.max(
+        0.1,
+        Math.hypot(target.x - u.x, target.y - u.y) /
+          (kind === "fireball" ? 360 : 560),
+      ),
       splash,
       speed: kind === "fireball" ? 360 : 560,
       age: 0,
@@ -360,7 +406,11 @@ export class Battle {
       )
         continue;
       this.damage(v, amount, { ...source, team, x }, true);
-      v.x = clamp(v.x + (team === 0 ? knock : -knock), 150, 1650);
+      v.x = clamp(
+        v.x + (team === 0 ? knock : -knock),
+        WORLD.castles[0] + 60,
+        WORLD.castles[1] - 60,
+      );
     }
   }
   tick(dt) {
@@ -432,7 +482,7 @@ export class Battle {
         !target ||
         (u.type === "boss" && best > t.range + TYPES[target.type].radius)
       ) {
-        target = this.castle(1 - u.team);
+        target = this.castle(1 - u.team, u.lane ?? u.y);
         best = Math.hypot(u.x - target.x, (u.y - target.y) * 1.2);
       }
       const reach =
@@ -511,17 +561,20 @@ export class Battle {
         u.x += (sx / n) * dt * 3;
         u.y += (sy / n) * dt * 4;
       }
-      u.x = clamp(u.x, 145, 1655);
-      u.y = clamp(u.y, 535, 755);
+      u.x = clamp(u.x, WORLD.castles[0] + 60, WORLD.castles[1] - 60);
+      u.y = clamp(u.y, WORLD.laneMin, WORLD.laneMax);
     }
     const alive = new Map(this.units.map((u) => [u.id, u]));
     const pending = [];
     for (const p of this.projectiles) {
       if (this.winner !== null) break;
       p.age += dt;
+      p.lift =
+        p.startLift +
+        (p.endLift - p.startLift) * Math.min(1, p.age / p.flightTime);
       const t =
         typeof p.target === "string"
-          ? this.castle(Number(p.target.at(-1)))
+          ? this.castle(Number(p.target.at(-1)), p.ty + 25)
           : alive.get(p.target);
       if (t && t.hp > 0 && p.kind !== "rain") {
         p.tx = t.x;
@@ -577,6 +630,7 @@ export class Battle {
           rage,
         }),
       ),
+      cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),
       projectiles: this.projectiles,
       effects: this.effects.filter((e) => this.time - e.time < 1),
       castles: this.castles,

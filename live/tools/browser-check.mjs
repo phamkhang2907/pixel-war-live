@@ -108,7 +108,7 @@ try {
     ),
   );
   await page.getByText("iPad Commander", { exact: true }).first().waitFor();
-  await page.locator("#speed").selectOption("1");
+  await page.locator("#speed").selectOption("2");
   await wait(
     () => seen.has("attack") && seen.has("hurt") && seen.has("death"),
     30000,

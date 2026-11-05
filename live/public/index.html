@@ -151,6 +151,23 @@
                 ⚡ Stress test <span>Mixed army</span>
               </button>
             </div>
+            <div class="panel camera-demo">
+              <div class="panel-title"><h2>Battle camera scenarios</h2></div>
+              <p class="muted">
+                Starts a Demo round at the frontline. No TikTok required.
+              </p>
+              <div class="scenario-buttons">
+                <button class="outline" data-scenario="balanced">
+                  Balanced armies</button
+                ><button class="outline" data-scenario="red">
+                  Red pushes castle</button
+                ><button class="outline" data-scenario="blue">
+                  Blue counterattack</button
+                ><button class="outline" data-scenario="boss">
+                  Boss arrival
+                </button>
+              </div>
+            </div>
             <div class="panel like-panel">
               <div class="panel-title">
                 <h2>Like Energy</h2>
@@ -215,6 +232,13 @@
             </div>
             <div class="arena-wrap" id="arenaWrap">
               <div id="game"></div>
+              <div
+                class="webcam-safe"
+                aria-label="Reserved streamer webcam area"
+              >
+                <span>STREAMER CAM · SAFE AREA</span>
+              </div>
+              <div class="tiktok-safe" aria-hidden="true">LIVE UI SAFE</div>
               <div class="arena-top">
                 <div class="live-label">
                   ● <span id="modeLabel">DEMO LIVE</span>
@@ -249,14 +273,22 @@
               <div class="camera-controls">
                 <button data-camera="red">← Red castle</button
                 ><button data-camera="auto" class="selected">
-                  Follow battle</button
+                  Auto director</button
+                ><button data-camera="overview">Overview</button
                 ><button data-camera="blue">Blue castle →</button>
+              </div>
+              <div id="directorStatus" class="director-status">
+                OVERVIEW · AUTO DIRECTOR
+              </div>
+              <div id="battleTicker" class="battle-ticker">
+                Choose a side. Build your army.
               </div>
               <div class="stream-leaders" id="streamLeaders">
                 TOP COMMANDERS · send gifts or likes to join
               </div>
               <div class="minimap" id="minimap">
-                <i id="cameraView"></i><span class="red-dot"></span
+                <canvas id="mapDots" width="900" height="80"></canvas
+                ><i id="cameraView"></i><span class="red-dot"></span
                 ><span class="blue-dot"></span>
               </div>
               <div class="join-bar">
@@ -418,7 +450,7 @@
       ><button class="button full" id="saveRules">Save gift mapping</button>
       <p class="muted">
         OBS Browser Source: <a href="/?overlay=1" target="_blank">/?overlay=1</a
-        ><br />Canvas: 540 × 960. In Codespaces, forward port 3000. Open the
+        ><br />Canvas: 1080 × 1920. In Codespaces, forward port 3000. Open the
         HTTPS forwarded URL on iPad Safari.
       </p>
     </dialog>

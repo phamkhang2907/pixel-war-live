@@ -1,6 +1,6 @@
 # PIXEL WAR — RED VS BLUE
 
-Node.js 20+, Phaser 3, Socket.IO. **Đã có chu kỳ vòng đấu 300 giây tự động và BXH chiến công bền vững** — xem [ROUNDS.md](ROUNDS.md) cho luật điểm, pha trận, phục hồi và lưu trữ. Bản hiện tại tiếp tục repo/branch `feature/pixel-war-live`, không tạo repo mới. Viewport livestream **540×960 (9:16)** nhìn vào chiến trường side-scrolling rộng **1800×960**. Hai thành ở x=100 và x=1700; kéo ngang, cuộn chuột hoặc dùng Red castle / Follow battle / Blue castle để xem.
+Node.js 20+, Phaser 3, Socket.IO. **Đã có chu kỳ vòng đấu 300 giây tự động và BXH chiến công bền vững** — xem [ROUNDS.md](ROUNDS.md) cho luật điểm, pha trận, phục hồi và lưu trữ. Bản hiện tại tiếp tục repo/branch `feature/pixel-war-live`, không tạo repo mới. Viewport livestream thật **1080×1920 (9:16)** nhìn vào thế giới **4800×2400**, Đỏ từ trái sang phải và Xanh từ phải sang trái. Camera Director chọn vùng giao tranh theo hai phe, DPS và công thành, pan/zoom mượt. Đội hình 15 hàng có chiều sâu Y, phối cảnh nghiêng nhẹ. [Thiết kế camera/HUD, safe area và giới hạn hiệu năng](CAMERA.md).
 
 ## Chạy và chơi Demo
 
@@ -18,11 +18,11 @@ Mở http://localhost:3000. Terminal in **Admin token**; chọn **Stream setup**
 1. Chọn Team Red hoặc Team Blue, chọn 1/5/10 quân mỗi lần và bấm `+` cạnh một trong **sáu** loại quân. Đây là direct spawn, không phụ thuộc mapping quà.
 2. **Simulate a gift**: tên người tặng, coin **mỗi quà**, số lần lặp; **Send demo gift** dùng mapping Admin hiện tại.
 3. **Like Energy**: các nút +100/+300/+500/+1000/+3000/+5000 tim tính cho phe đang chọn. Bảng mốc thưởng trong panel và HUD hiển thị năng lượng, mốc tiếp theo, Fury cooldown, Haste.
-4. **Auto Battle** tự gửi quà cho hai phe. **Stress test** chọn 100/200/300 quân hỗn hợp. Tổng quân đang sống + corpse chưa xóa không vượt 300; khi đầy, các lần spawn dư bị bỏ qua, không xếp hàng. Coin/like vẫn được ghi nhận, mốc vẫn được đánh dấu nhận.
+4. **Auto Battle** tự gửi quà cho hai phe. **Stress test** chọn 100/200/300 quân hỗn hợp. **Battle camera scenarios** mở ngay trận cân bằng 300 quân, Đỏ áp thành, Xanh phản công hoặc Boss giữa trận; không phải chờ quân đi từ đầu bản đồ. Tổng quân đang sống + corpse chưa xóa không vượt 300; khi đầy, các lần spawn dư bị bỏ qua, không xếp hàng. Coin/like vẫn được ghi nhận, mốc vẫn được đánh dấu nhận.
 5. **Pause / Resume**, **Reset Battle**, âm thanh bật theo thao tác người dùng, tốc độ Demo 1×/2×/4×/8×. Quân chết phát death trước khi xóa; client giữ animation khi server chạy nhanh.
 6. Khi một thành còn 0 HP hoặc hết 300 giây, server xét kết quả, hiện bảng Top 10 trong 15 giây rồi đếm 5 giây và tự mở vòng mới. Reset mở vòng mới, xóa năng lượng/cooldown/buff/BXH trận; BXH LIVE và mùa giải được giữ.
 
-OBS Browser Source: http://localhost:3000/?overlay=1, kích thước 540×960 hoặc 1080×1920. Overlay có HP/điểm hai phe, đồng hồ server, pha trận, số quân, năng lượng, top chiến công và màn hình kết quả Top 10. Dashboard chọn BXH trận/LIVE/mùa và có lịch sử vòng.
+OBS Browser Source: http://localhost:3000/?overlay=1&guides=0, kích thước 1080×1920. Overlay có HP/điểm hai phe, đồng hồ server, pha trận, số quân, năng lượng, top chiến công và màn hình kết quả Top 10. Dashboard chọn BXH trận/LIVE/mùa và có lịch sử vòng.
 
 ## Sáu lớp quân
 
@@ -56,7 +56,7 @@ Bộ art mới tự tạo, không dùng Tiny Swords hoặc bundle của island-d
 
 Death 10 FPS, repeat=0; stomp/rage 12 FPS, repeat=0; các state khác 12 FPS, loop. Chỉ lớp phù hợp dùng fly/stomp/rage. `public/assets/sprites.json` khai báo metadata, `src/characters.js` là cấu hình dùng chung server/client. Horse có gait, Mage có cánh/staff, Guardian có khiên lớn, Titan có sừng/giáp/axe. Animation thay đổi silhouette, chân, vũ khí và phản ứng trúng đòn; không dùng emoji/hình khối làm lính.
 
-Background sky / mountain / forest là PNG riêng với parallax; terrain raster/graphics tĩnh, bụi, tia lửa, projectile, meteor/ice và damage text có giới hạn số lượng. `npm run assets` tái tạo art bằng Python + Pillow; `npm run assets:check` xác nhận cả 96 hàng animation không phải frame tĩnh lặp. Hai thành nguyên bản của game standalone vẫn được giữ.
+Background sky / mountain / forest là PNG riêng với parallax; terrain raster/graphics tĩnh, bụi, tia lửa, projectile, meteor/ice và damage text có giới hạn số lượng. Tất cả 768 frame nhân vật được đóng gói một atlas 2048×1536 để batching; renderer dùng pool và culling. `npm run assets` tái tạo art bằng Python + Pillow; `npm run assets:check` xác nhận cả 96 hàng animation không phải frame tĩnh lặp. Hai thành nguyên bản của game standalone vẫn được giữ.
 
 ## Gift mặc định / Admin
 
@@ -122,3 +122,5 @@ Cài browser test nếu cần: `npx playwright install --with-deps chromium webk
 Single process / single room. Mapping và bảng chiến công/lịch sử/season/receipt/config round được lưu đĩa; trạng thái vật lý quân không được phục hồi giữa trận. Vòng mặc định: 30s chuẩn bị + 240s combat + 30s Final Battle; Admin chỉnh timing cho vòng sau, tạm dừng, Reset/start new round, hoặc Demo full cycle. Server 20 Hz, spatial hash 160px và va chạm mềm; không có rigid-body/obstacle pathfinding. Hard cap 300 unit kể cả corpse; cap 600 projectile và 140 effect event. Client ẩn nhãn tên trên 90 quân, giới hạn particle/damage text, parallax/scenery dựng một lần, chỉ gửi các field unit cần render. Chưa có auth nhiều quản trị viên, replay vật lý trận, nhiều phòng hoặc load test hàng nghìn người xem. JSON storage dành cho một process; cần volume bền vững/backup khi deploy. Không tạo hoặc đẩy repository mới trong lần cập nhật này; repo hiện tại chưa cấu hình remote được cấp quyền.
 
 License mã/art mới MIT trong `LICENSE`; dependency connector có AGPL-3.0 kèm ngoại lệ. Xem `THIRD_PARTY.md`.
+
+Kiểm tra camera chuyên biệt: `npm run test:vertical --prefix live`. Mục tiêu được kiểm chứng ở 300 quân; chưa bật 1000 quân. Mẫu Chromium ~57 FPS, WebKit Linux Canvas ~19 FPS, không đại diện cho Safari iPad vật lý. Xem CAMERA.md / VERIFICATION.md.

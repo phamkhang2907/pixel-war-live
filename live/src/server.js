@@ -1,3 +1,4 @@
+import { WORLD } from "./characters.js";
 import { League } from "./league.js";
 import { RoundManager } from "./rounds.js";
 import { TikTokService } from "./tiktok-connection.js";
@@ -147,6 +148,68 @@ app.post("/api/control", auth, async (req, res) => {
             "demo:army:" + (i % 2) + ":" + (i % 12),
           );
         break;
+      case "cameraScenario": {
+        if (
+          tiktok.mode !== "demo" ||
+          !["balanced", "red", "blue", "boss"].includes(p.scenario)
+        )
+          throw Error("Choose a valid Demo camera scenario");
+        rounds.start();
+        rounds.config.prepare = 0;
+        rounds.config.duration = Math.max(120, rounds.config.duration);
+        rounds.phase = "combat";
+        rounds.elapsed = 0;
+        rounds.paused = false;
+        rounds.gates();
+        speed = 1;
+        auto = false;
+        const counts =
+          p.scenario === "red"
+            ? [120, 36]
+            : p.scenario === "blue"
+              ? [36, 120]
+              : p.scenario === "boss"
+                ? [75, 75]
+                : [150, 150];
+        const fronts =
+          p.scenario === "red"
+            ? [4190, 4360]
+            : p.scenario === "blue"
+              ? [440, 610]
+              : [2260, 2500];
+        for (let team = 0; team < 2; team++)
+          for (let i = 0; i < counts[team]; i++) {
+            const type =
+              i % 12 === 0
+                ? "guardian"
+                : i % 8 === 0
+                  ? "mage"
+                  : i % 4 === 0
+                    ? "archer"
+                    : "sword";
+            game.spawn(
+              team,
+              type,
+              1,
+              "Demo " + (team === 0 ? "Red" : "Blue"),
+              "demo:scenario:" + team + ":" + (i % 12),
+            );
+            const u = game.units.at(-1);
+            u.x =
+              fronts[team] + (team === 0 ? -1 : 1) * Math.floor(i / 15) * 42;
+            const event = game.cameraEvents.at(-1);
+            if (event) event.x = u.x;
+          }
+        if (p.scenario === "boss") {
+          game.spawn(0, "boss", 1, "Titan Commander", "demo:titan");
+          const u = game.units.at(-1);
+          u.x = 2380;
+          u.y = WORLD.ground;
+          u.lane = u.y;
+          Object.assign(game.cameraEvents.at(-1), { x: u.x, y: u.y });
+        }
+        break;
+      }
       case "speed":
         if (tiktok.mode !== "demo" || ![1, 2, 4, 8].includes(p.value))
           throw Error("Demo speed must be 1, 2, 4 or 8");
