@@ -61,6 +61,14 @@ I inspected the full and closer browser captures: the grass has fine surface tex
 - [390×844 mobile viewport](docs/grass/grass-textured-390.png)
 
 
+### WebKit and preservation checks
+
+The optional command `TERRAIN_ENGINE=webkit node tools/terrain-check.mjs` uses Playwright WebKit instead of Chromium (install with `npx playwright install --with-deps webkit`). It writes separate `grass-webkit-*` artifacts. Linux WebKit **27.2**, touch emulation, successfully loaded the four maps, 50 real units and both fortress groups, rendered the portrait/closer/mobile views and finished with **no console, page or HTTP errors**. See the [WebKit screenshot](docs/grass/grass-webkit-textured-1080x1920.png) and [raw report](docs/grass/grass-webkit-report.json). This is not physical Safari.
+
+One initial local WebKit attempt logged a driver `TextureGL.cpp setImageHelper` upload error and context loss; the game restored the context. A baseline control and two subsequent runs of the new terrain completed without those errors. The [initial failure log](docs/grass/webkit-initial-error.txt) is retained; its cause is not established, and this intermittent software-driver result is an additional reason to check a physical iPad. It is not represented as a clean first attempt or proof that every Safari device works.
+
+The existing WebKit audio preservation check also passes with all 16 buffers, touch unlock and mute/volume controls. Its CI assertion initially read mute state before the existing asynchronous `AudioContext.resume()` returned. `tools/audio-check.mjs` now waits for the intended mute/unmute state after each tap; no sound implementation or sound asset changed.
+
 ## Run in Codespaces and check on iPad
 
 From the repository root:

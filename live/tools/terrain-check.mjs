@@ -1,4 +1,4 @@
-import { chromium } from "@playwright/test";
+import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -21,20 +21,26 @@ for (const asset of manifest.assets) {
     );
   }
 }
-const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROMIUM_PATH ||
-    (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined),
-  args: [
-    "--no-sandbox",
-    "--use-angle=swiftshader",
-    "--enable-unsafe-swiftshader",
-  ],
-});
+const useWebKit = process.env.TERRAIN_ENGINE === "webkit";
+const browser = useWebKit
+  ? await webkit.launch()
+  : await chromium.launch({
+      executablePath:
+        process.env.CHROMIUM_PATH ||
+        (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined),
+      args: [
+        "--no-sandbox",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+      ],
+    });
+const artifactPrefix = useWebKit ? "grass-webkit" : "grass";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const report = {
   browser: await browser.version(),
-  platform: "Linux headless Chromium / SwiftShader; no physical iPad test",
+  platform: useWebKit
+    ? "Linux headless WebKit / touch emulation; no physical iPad test"
+    : "Linux headless Chromium / SwiftShader; no physical iPad test",
   runs: [],
 };
 async function run(label, directory, port) {
@@ -163,7 +169,9 @@ async function run(label, directory, port) {
     await sleep(1000);
     const d = await page.evaluate(() => window.__PW3D.inspect());
     await mkdir("artifacts", { recursive: true });
-    await page.screenshot({ path: `artifacts/grass-${label}-1080x1920.png` });
+    await page.screenshot({
+      path: `artifacts/${artifactPrefix}-${label}-1080x1920.png`,
+    });
     // Current camera controls provide the detail view; production camera code is unchanged.
     for (let i = 0; i < 4; i++)
       await page.evaluate(() => document.querySelector("#zoomIn").click());
@@ -171,7 +179,9 @@ async function run(label, directory, port) {
       const d = window.__PW3D.inspect();
       return Math.abs(d.distance - d.targetDistance) < 0.2;
     });
-    await page.screenshot({ path: `artifacts/grass-${label}-detail.png` });
+    await page.screenshot({
+      path: `artifacts/${artifactPrefix}-${label}-detail.png`,
+    });
     await page.evaluate(() =>
       document.querySelector("[data-camera=front]").click(),
     );
@@ -207,7 +217,9 @@ async function run(label, directory, port) {
         ),
       );
     const mobile = await page.evaluate(() => window.__PW3D.inspect());
-    await page.screenshot({ path: `artifacts/grass-${label}-390.png` });
+    await page.screenshot({
+      path: `artifacts/${artifactPrefix}-${label}-390.png`,
+    });
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,
@@ -257,7 +269,7 @@ try {
     await run("before", process.env.TERRAIN_BASELINE_DIR, 3176);
   await run("textured", process.cwd(), 3177);
   await writeFile(
-    "artifacts/grass-report.json",
+    `artifacts/${artifactPrefix}-report.json`,
     JSON.stringify(report, null, 2),
   );
   console.log(JSON.stringify(report, null, 2));

@@ -49,11 +49,14 @@ try {
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).played > 0,
   );
   await page.locator("#soundToggle").tap();
+  // The existing handler awaits AudioContext.resume(), even when already running.
+  await page.waitForFunction(() => window.__PW_AUDIO.inspect().muted === true);
   assert.equal(
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).muted,
     true,
   );
   await page.locator("#soundToggle").tap();
+  await page.waitForFunction(() => window.__PW_AUDIO.inspect().muted === false);
   assert.equal(
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).muted,
     false,
