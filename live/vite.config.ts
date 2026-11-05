@@ -11,12 +11,21 @@ export default defineConfig({
     proxy: {
       "/socket.io": { target: "http://127.0.0.1:3000", ws: true },
       "/api": "http://127.0.0.1:3000",
+      "/kaykit": "http://127.0.0.1:3000",
     },
   },
   build: {
     outDir: "../dist/public/3d",
     emptyOutDir: true,
     target: "safari15.4",
-    rollupOptions: { output: { manualChunks: { three: ["three"] } } },
+    rollupOptions: {
+      input: {
+        game: fileURLToPath(new URL("./client3d/index.html", import.meta.url)),
+        gallery: fileURLToPath(
+          new URL("./client3d/gallery.html", import.meta.url),
+        ),
+      },
+      output: { manualChunks: { three: ["three"] } },
+    },
   },
 });

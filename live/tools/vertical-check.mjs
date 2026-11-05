@@ -71,7 +71,7 @@ try {
   });
   socket = io(base);
   socket.on("state", (s) => (latest = s));
-  await page.goto(base + "/?overlay=1");
+  await page.goto(base + "/legacy/?overlay=1");
   await page.waitForSelector("#game canvas");
   assert.deepEqual(
     await page.locator("#game canvas").evaluate((c) => [c.width, c.height]),
@@ -144,7 +144,7 @@ try {
   await page.screenshot({ path: `artifacts/${engine}-vertical-boss.png` });
   // HUD stays in exactly the same screen position while the world changes pose.
   const hp = await page.locator(".red-ui").boundingBox();
-  await page.goto(base);
+  await page.goto(base + "/legacy/");
   await page.getByText("Stream setup").click();
   await page.locator("#token").fill(token);
   await page.locator("#unlock").click();
@@ -167,7 +167,7 @@ try {
     path: `artifacts/${engine}-vertical-phone-dashboard.png`,
     fullPage: true,
   });
-  await page.goto(base + "/?overlay=1");
+  await page.goto(base + "/legacy/?overlay=1");
   await page.waitForSelector("#game canvas");
   await wait(async () => (await pose()).pool > 0);
   const fixed = await page.locator(".red-ui").boundingBox();

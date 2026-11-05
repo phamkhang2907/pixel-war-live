@@ -1,5 +1,9 @@
 # PIXEL WAR — RED VS BLUE
 
+**KayKit rendering repair:** real textured/skinned characters, RED/BLUE materials,
+model gallery at `/3d/gallery.html`, and per-model diagnostics.
+[Diagnosis, verified assets, remaining substitutes and preview version checks](live/KAYKIT-RENDER-FIX.md).
+
 **Three.js migration — Phase 1:** the new TypeScript/WebGL battlefield is at
 `/3d/`, with portrait capture at `/3d/?overlay=1`. The working Phaser game and
 backend remain intact at `/`. Build and run commands below build both renderers.

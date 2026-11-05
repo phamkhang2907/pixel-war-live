@@ -19,3 +19,4 @@ jobs:
       - run: npm run test:browser --prefix live
       - run: npm run test:vertical --prefix live
       - run: npm run test:3d --prefix live
+      - run: npm run test:models --prefix live
