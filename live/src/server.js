@@ -45,6 +45,10 @@ function validate(r) {
   return r;
 }
 app.use(express.json({ limit: "16kb" }));
+// The 3D renderer is the primary game. Keep the former dashboard isolated
+// at /legacy/ for administrative operations until those controls are migrated.
+app.get(["/", "/index.html"], (_req, res) => res.redirect(302, "/3d/"));
+app.use("/legacy", express.static(root + "dist/public", { index: "index.html" }));
 app.use(express.static(root + "dist/public"));
 
 app.get("/health", (_, r) =>
