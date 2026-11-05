@@ -67,6 +67,9 @@ try {
   await page.goto(base + "/3d/?debug=1");
   await page.waitForFunction(() => window.__PW3D?.inspect().connectedState);
   await page.waitForFunction(() => window.__PW3D.inspect().drawCalls > 0);
+  await page.waitForFunction(() =>
+    window.__PW3D.inspect().assets.models.every((m) => m.status === "ready"),
+  );
   assert.equal(await page.locator("#error").isVisible(), false);
   const initial = await page.evaluate(() => window.__PW3D.inspect());
   assert.equal(initial.elevation, 52);
@@ -124,6 +127,8 @@ try {
   await page.locator("#token").fill(token);
   await page.locator("#auth button").click();
   await page.locator("#demoActions").waitFor({ state: "visible" });
+  // Software WebGL acceptance uses the supported low preset for the 300-unit scene.
+  await page.locator("#quality").selectOption("low");
   await page.locator('[data-scenario="balanced"]').click();
   await page.waitForFunction(() => window.__PW3D.inspect().units >= 290);
   await control("pause");
@@ -136,6 +141,12 @@ try {
       d.distance < 77
     );
   });
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().assets.rendered === 300,
+  );
+  const army = await page.evaluate(
+    () => window.__PW3D.inspect().assets.rendered,
+  );
   await page.screenshot({
     path: "artifacts/three-formations.png",
     fullPage: true,
@@ -152,6 +163,15 @@ try {
   await page.waitForFunction(() => !window.__PW3D.inspect().contextLost);
   await page.waitForFunction(() => window.__PW3D.inspect().drawCalls > 0);
 
+  // Keep responsiveness/touch checks separate from the heavy software-rendered army.
+  // The 300 real models and their context recovery were verified above.
+  await control("reset");
+  for (const team of [0, 1])
+    for (const type of ["sword", "archer", "mage"])
+      await control("troop", { team, type, count: 1 });
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().assets.rendered === 6,
+  );
   for (const viewport of [
     { width: 820, height: 1180 },
     { width: 390, height: 844 },
@@ -180,6 +200,7 @@ try {
   assert.equal(await page.locator(".controls").isVisible(), false);
   await page.screenshot({ path: "artifacts/three-1080x1920.png" });
 
+  await page.close();
   // Chromium touch emulation exercises the mobile path; this is not Safari.
   const touchContext = await browser.newContext({
     viewport: { width: 820, height: 1180 },
@@ -243,13 +264,14 @@ try {
     body: '{"action":"reset"}',
   });
   assert.equal(denied.status, 401);
-  assert.match(await fetch(base).then((r) => r.text()), /app.js/);
+  assert.match(await fetch(base + "/legacy/").then((r) => r.text()), /app.js/);
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
   const report = {
     browser: await browser.version(),
     environment: "Linux headless Chromium / SwiftShader, not a physical iPad",
     initial,
+    army,
     mobile,
     webgl: pixels,
     checks: [
@@ -259,7 +281,7 @@ try {
       "overview bounds",
       "camera presets / zoom / drag",
       "admin authorization",
-      "300 snapshot markers",
+      "300 real KayKit characters",
       "context loss / recovery",
       "820 and 390 CSS widths",
       "1080x1920 capture",

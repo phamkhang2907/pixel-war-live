@@ -163,6 +163,16 @@ if (battlefield) {
           String(d.mode === button.dataset.camera),
         ),
       );
+    const readyModels = d.assets.models.filter((m) => m.status === "ready");
+    const failedModels = d.assets.models.filter((m) => m.status === "failed");
+    element("assetStatus").textContent =
+      `${d.assets.revision} · ${readyModels.length}/6 models loaded · ${d.assets.rendered} real character instances` +
+      (failedModels.length
+        ? ` · FAILED: ${failedModels.map((m) => m.model + ": " + m.error).join("; ")}`
+        : "") +
+      (d.assets.errors.length
+        ? ` · Asset warnings: ${d.assets.errors.join("; ")}`
+        : "");
     if (query.has("debug"))
       element("debug").textContent =
         `FPS ${d.fps.toFixed(1)} · ${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · context ${d.contextLost ? "lost" : "ready"}\nDevelopment measurements only; no device benchmark claim.`;

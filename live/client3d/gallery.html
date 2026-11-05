@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PIXEL WAR — KayKit Model Gallery</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #13251f;
+        color: #e7efdf;
+        font: 14px system-ui;
+      }
+      header,
+      section {
+        padding: 16px 24px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+      h1 {
+        font-size: 21px;
+        margin: 0;
+      }
+      a {
+        color: #cfe3b2;
+      }
+      #viewport {
+        position: relative;
+        width: 100%;
+        height: 70vh;
+        min-height: 420px;
+        background: #c8dddd;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      #labels {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .label {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        background: #10251dd9;
+        padding: 4px 8px;
+        border-radius: 5px;
+        white-space: nowrap;
+        font-size: 11px;
+      }
+      .red {
+        border-bottom: 3px solid #ff6868;
+      }
+      .blue {
+        border-bottom: 3px solid #6fbbff;
+      }
+      .controls {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      select,
+      button {
+        min-height: 44px;
+        background: #294337;
+        border: 1px solid #6b856f;
+        color: inherit;
+        border-radius: 4px;
+        padding: 6px 10px;
+      }
+      p {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      #report {
+        white-space: pre-wrap;
+        font: 12px/1.7 monospace;
+      }
+      #error {
+        color: #ffc19e;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>KayKit · Model Gallery</h1>
+      <a href="/3d/">Back to battlefield</a>
+    </header>
+    <div id="viewport"><div id="labels"></div></div>
+    <section>
+      <div class="controls">
+        <label
+          >Model
+          <select id="model">
+            <option value="all">All six · RED + BLUE</option>
+          </select></label
+        ><label
+          >Animation
+          <select id="clip"></select></label
+        ><button id="pause">Pause animation</button
+        ><button id="reset">Reset camera</button
+        ><label><input id="wireframe" type="checkbox" /> Wireframe</label>
+      </div>
+      <p>
+        Drag to orbit · Pinch / wheel to zoom · Right-drag to pan. Each
+        character is a separate skinned clone with embedded textures. Select a
+        model for close inspection.
+      </p>
+      <p id="status">Loading KayKit GLBs, textures and animation packs…</p>
+      <p id="error" role="alert"></p>
+      <output id="report"></output>
+      <p>
+        Cavalry: horse/rider missing. Guardian and Titan: dedicated models
+        missing; enlarged Knight/Barbarian are temporary battlefield
+        substitutes. Free animation packs provide Idle/Walk/Run/Hit/Death and
+        generic Use_Item/Throw; dedicated sword, bow and spell clips are
+        missing.
+      </p>
+    </section>
+    <script type="module" src="./gallery.ts"></script>
+  </body>
+</html>

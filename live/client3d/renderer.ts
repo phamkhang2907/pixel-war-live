@@ -1,7 +1,6 @@
 import * as T from "three";
 import { BattlefieldCamera, type CameraMode } from "./camera";
 import { buildWorld } from "./world";
-import { DevelopmentUnits } from "./development-units";
 import { KaykitUnits } from "./kaykit-units";
 import { CombatEffects } from "./combat-effects";
 import { loadKaykitWorld } from "./kaykit-world";
@@ -11,9 +10,8 @@ export class BattlefieldRenderer {
   readonly scene = new T.Scene();
   readonly director = new BattlefieldCamera();
   readonly renderer: T.WebGLRenderer;
-  private units = new DevelopmentUnits();
   private effects = new CombatEffects();
-  private kaykit = new KaykitUnits(() => { this.units.group.visible = false; });
+  private kaykit = new KaykitUnits(() => {});
   private state: BattleState | null = null;
   private resizeObserver: ResizeObserver;
   private frame = 0;
@@ -52,7 +50,7 @@ export class BattlefieldRenderer {
     this.renderer.domElement.tabIndex = 0;
     this.host.append(this.renderer.domElement);
     this.sun = buildWorld(this.scene).sun;
-    this.scene.add(this.units.group, this.kaykit.group, this.effects.group);
+    this.scene.add(this.kaykit.group, this.effects.group);
     void loadKaykitWorld(this.scene);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
@@ -103,8 +101,7 @@ export class BattlefieldRenderer {
     const dt = Math.min(wallDt, 0.1);
     this.last = now;
     if (!document.hidden) {
-      this.director.update(dt);
-      this.units.update(this.state, dt);
+      this.director.update(Math.min(wallDt, 1));
       this.kaykit.update(this.state, dt);
       this.effects.update(this.state, dt);
       this.renderer.render(this.scene, this.director.camera);
@@ -176,6 +173,7 @@ export class BattlefieldRenderer {
       new T.Vector3(x, 0, 0).project(this.director.camera).toArray();
     return {
       ...this.director.diagnostics(),
+      assets: this.kaykit.diagnostics(),
       fps: this.fps,
       contextLost: this.lost,
       drawCalls: this.renderer.info.render.calls,

@@ -16,11 +16,12 @@
     "assets:check": "python3 tools/check-art.py",
     "test:round-ui": "npm run build && node tools/round-ui-check.mjs",
     "test:vertical": "npm run build && node tools/vertical-check.mjs",
-    "build:legacy": "node tools/build.mjs && python3 tools/extract-kaykit.py",
+    "build:legacy": "node tools/build.mjs && python3 tools/extract-kaykit.py && python3 tools/validate-kaykit.py",
     "build:3d": "tsc -p tsconfig.json && vite build",
     "dev:3d": "vite",
     "typecheck": "tsc -p tsconfig.json",
-    "test:3d": "npm run build && node tools/three-check.mjs"
+    "test:3d": "npm run build && node tools/three-check.mjs",
+    "test:models": "npm run build && node tools/model-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",
