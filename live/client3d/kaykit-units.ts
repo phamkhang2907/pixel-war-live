@@ -55,7 +55,7 @@ export class KaykitUnits {
       this.templates.set(name, normalized);
     }));
     const animationPacks = Promise.all(["Rig_Medium_General", "Rig_Medium_MovementBasic"].map(async (name) => {
-      const path = findModel(manifest, name);
+      const path = findModel(await manifest, name);
       if (!path) return;
       const data = await loader.loadAsync(root + path);
       for (const clip of data.animations) this.clips.set(clip.name, clip);
