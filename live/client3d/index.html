@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#17251e" />
+    <title>PIXEL WAR 3D — Battlefield foundation</title>
+  </head>
+  <body>
+    <main>
+      <div class="page-heading">
+        <a href="/">← Existing game & admin</a
+        ><span>PHASE 1 · ENGINE PREVIEW</span>
+      </div>
+      <section id="stage" aria-label="Portrait livestream preview">
+        <div id="world"></div>
+        <div class="hud-top">
+          <div class="wordmark">PIXEL WAR <span>3D</span></div>
+          <div class="match">
+            <span id="round">ROUND —</span><b id="timer">05:00</b
+            ><span id="phase">CONNECTING</span>
+          </div>
+          <div class="kingdoms">
+            <div class="kingdom red">
+              <b>RED KINGDOM</b><span id="redHp">10,000 HP</span
+              ><meter id="redBar" min="0" max="10000" value="10000"></meter
+              ><small id="redCount">0 units</small>
+            </div>
+            <div class="vs">VS</div>
+            <div class="kingdom blue">
+              <b>BLUE KINGDOM</b><span id="blueHp">10,000 HP</span
+              ><meter id="blueBar" min="0" max="10000" value="10000"></meter
+              ><small id="blueCount">0 units</small>
+            </div>
+          </div>
+        </div>
+        <div id="error" role="alert" hidden></div>
+        <div class="hud-bottom">
+          <div id="result" hidden></div>
+          <div class="compass">
+            <span>← RED</span><span id="cameraLabel">WIDE OVERVIEW</span
+            ><span>BLUE →</span>
+          </div>
+          <p class="development">
+            DEVELOPMENT ASSETS · Unrigged unit markers<br />Final GLB models and
+            3D combat presentation pending
+          </p>
+          <div class="connection">
+            <i id="connectionDot"></i
+            ><span id="connection">Connecting to battle server…</span>
+          </div>
+        </div>
+      </section>
+      <section class="controls" aria-label="Preview controls">
+        <div class="camera-buttons">
+          <button data-camera="overview" aria-pressed="true">Overview</button
+          ><button data-camera="red" aria-pressed="false">RED castle</button
+          ><button data-camera="front" aria-pressed="false">Battlefield</button
+          ><button data-camera="blue" aria-pressed="false">BLUE castle</button>
+        </div>
+        <div class="options">
+          <button id="zoomIn" aria-label="Zoom in">＋</button
+          ><button id="zoomOut" aria-label="Zoom out">−</button
+          ><label
+            >Quality
+            <select id="quality">
+              <option value="balanced">Balanced</option>
+              <option value="low">Mobile / low</option>
+            </select></label
+          ><a id="capture" href="?overlay=1">Stream view ↗</a>
+        </div>
+        <p>
+          Drag to pan · Pinch or scroll to zoom · Arrow keys to move<br />Camera
+          stays at 52° elevation. This preview shares the existing server
+          battle.
+        </p>
+        <details id="admin">
+          <summary>Demo controls · admin token required</summary>
+          <form id="auth">
+            <label
+              >Admin token
+              <input
+                id="token"
+                type="password"
+                autocomplete="off"
+                required /></label
+            ><button>Unlock</button>
+          </form>
+          <p id="adminStatus" role="status">
+            Use the token printed in the server terminal. Demo commands change
+            the shared battle.
+          </p>
+          <div id="demoActions" hidden>
+            <button data-scenario="balanced">300-unit demo</button
+            ><button data-scenario="boss">Titan size preview</button
+            ><button data-scenario="red">RED siege preview</button
+            ><button data-scenario="blue">BLUE siege preview</button
+            ><button id="pause">Pause / resume</button
+            ><button id="reset">Reset round</button>
+          </div>
+        </details>
+        <output id="debug" hidden></output>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

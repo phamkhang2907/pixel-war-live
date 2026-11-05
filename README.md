@@ -1,5 +1,12 @@
 # PIXEL WAR — RED VS BLUE
 
+**Three.js migration — Phase 1:** the new TypeScript/WebGL battlefield is at
+`/3d/`, with portrait capture at `/3d/?overlay=1`. The working Phaser game and
+backend remain intact at `/`. Build and run commands below build both renderers.
+The 3D preview uses explicitly temporary unrigged markers; final models and
+3D combat presentation are pending. [Repository audit, migration/rollback,
+Codespaces setup and iPad checklist](live/MIGRATION-3D.md).
+
 Game livestream tương tác độc lập, Node.js 20+, Phaser 3 và Socket.IO. Hai phe chiến đấu tự động trên canvas 9:16; 6 lớp quân dùng sprite sheets pixel art gốc với idle/run/attack/hurt/death. Demo chơi được ngay, không cần TikTok LIVE.
 
 ```bash
