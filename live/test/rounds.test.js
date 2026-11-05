@@ -15,7 +15,7 @@ const setup = (config = {}, dir = null) => {
   const rounds = new RoundManager(game, league);
   return { game, league, rounds };
 };
-test("default 300s: prepare30 / combat240 / final30 / result15 / countdown5", () => {
+test("default 300s: prepare30 / combat240 / final30 / result7 / immediate next round", () => {
   const { game, rounds } = setup();
   game.choose("a", 0, "A");
   game.spawn(0, "sword", 1, "A", "a");
@@ -32,10 +32,7 @@ test("default 300s: prepare30 / combat240 / final30 / result15 / countdown5", ()
   assert.equal(rounds.phase, "results");
   assert.equal(rounds.result.reason, "timeout");
   const old = rounds.snapshot().id;
-  rounds.advance(15);
-  assert.equal(rounds.phase, "countdown");
-  assert.equal(Math.ceil(rounds.snapshot().phaseRemaining), 5);
-  rounds.advance(5);
+  rounds.advance(7);
   assert.equal(rounds.phase, "prepare");
   assert.notEqual(rounds.snapshot().id, old);
 });
@@ -160,7 +157,7 @@ test("durable season/session/history and gift receipts survive restart", () => {
     adapter.chat({ user, comment: "1" });
     const gift = {
       user,
-      giftDetails: { diamondCount: 1000, giftType: 0 },
+      giftDetails: { giftName:"Rose",diamondCount: 1000, giftType: 0 },
       repeatCount: 1,
       common: { msgId: "persistent" },
     };

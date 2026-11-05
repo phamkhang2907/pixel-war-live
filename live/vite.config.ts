@@ -11,6 +11,7 @@ export default defineConfig({
     proxy: {
       "/socket.io": { target: "http://127.0.0.1:3000", ws: true },
       "/api": "http://127.0.0.1:3000",
+      "/assets": "http://127.0.0.1:3000",
       "/kaykit": "http://127.0.0.1:3000",
     },
   },

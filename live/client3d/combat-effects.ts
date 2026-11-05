@@ -45,7 +45,7 @@ export class CombatEffects {
   }
   update(state: BattleState | null, dt: number) {
     this.elapsed += dt;
-    if (state) {
+    if (state && !state.paused && ["combat","final"].includes(state.roundState.phase)) {
       const units = state.units.filter(u => u.hp > 0).slice(0, 300);
       const ids = new Set(state.units.map(u => u.id));
       for (const id of this.previous.keys()) if (!ids.has(id)) this.previous.delete(id);

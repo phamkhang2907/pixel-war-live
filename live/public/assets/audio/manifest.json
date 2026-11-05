@@ -1,0 +1,23 @@
+{
+  "format": "PCM WAV mono 22050Hz",
+  "license": "MIT",
+  "source": "Original deterministic synthesis by tools/make-audio.py; no external recordings",
+  "sounds": [
+    "sword",
+    "arrow-shot",
+    "arrow-impact",
+    "spell",
+    "magic-impact",
+    "giant-step",
+    "giant-attack",
+    "castle-hit",
+    "death",
+    "gift",
+    "special",
+    "victory",
+    "defeat",
+    "countdown",
+    "next-round",
+    "music"
+  ]
+}

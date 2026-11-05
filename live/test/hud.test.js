@@ -75,18 +75,19 @@ test("native TikTok avatar metadata persists without awarding contribution twice
     ingest.chat({ user, comment: "1" });
     ingest.gift({
       user,
-      giftDetails: { diamondCount: 1, giftType: 1 },
+      giftDetails: { giftName:"Rose",diamondCount: 1, giftType: 1 },
       repeatEnd: true,
       repeatCount: 1,
       msgId: "same",
     });
     ingest.gift({
       user,
-      giftDetails: { diamondCount: 1, giftType: 1 },
+      giftDetails: { giftName:"Rose",diamondCount: 1, giftType: 1 },
       repeatEnd: true,
       repeatCount: 1,
       msgId: "same",
     });
+    battle.drainSummons();
     assert.equal(league.board()[0].points, 5);
     league.flush();
     const restored = new League(dir);

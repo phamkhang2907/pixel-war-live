@@ -1,3 +1,4 @@
+import { ArmyLOD } from "./army-lod";
 import * as T from "three";
 import { TYPES } from "../src/characters.js";
 import { worldX, worldZ, type BattleState } from "./state";
@@ -19,25 +20,54 @@ export class KaykitUnits {
   readonly assets = new CharacterAssets();
   private instances = new Map<number, UnitVisual>();
   private loaded = false;
+  private lod = new ArmyLOD();
+  private tick = 0;
+  private lowQuality = matchMedia("(pointer: coarse)").matches;
+  setQuality(low: boolean) {
+    this.lowQuality = low;
+  }
   private disposed = false;
   constructor(onReady: () => void) {
     this.group.name = "KayKit skinned units (no procedural soldiers)";
-    void this.assets.ready.then(() => {
+    this.group.add(this.lod.group);
+    void this.assets.ready.then(async () => {
+      await this.lod.prepare(this.assets);
       if (!this.disposed) {
         this.loaded = true;
         onReady();
       }
     });
   }
-  update(state: BattleState | null, dt: number) {
+  update(state: BattleState | null, dt: number, camera?: T.Vector3) {
     if (!this.loaded || this.disposed) return;
-    const units = state?.units.slice(0, 300) ?? [];
+    const all = state?.units.slice(0, 300) ?? [];
+    const order = [...all].sort((a, b) => {
+      const distance = (u: typeof a) =>
+        Math.hypot(
+          worldX(u.x) - (camera?.x ?? 0),
+          worldZ(u.y) - (camera?.z ?? 0),
+        ) - (u.type === "boss" ? 10 : 0);
+      return distance(a) - distance(b);
+    });
+    const units =
+      all.length > 40 ? order.slice(0, this.lowQuality ? 12 : 24) : all;
+    const nearIds = new Set(units.map((u) => u.id));
+    this.lod.update(
+      all.filter((u) => !nearIds.has(u.id)),
+      dt,
+      state?.time ?? 0,
+    );
     const ids = new Set(units.map((u) => u.id));
     for (const [id, visual] of this.instances)
       if (!ids.has(id)) {
         this.assets.release(visual.instance);
         this.instances.delete(id);
       }
+    let created = 0;
+    this.tick++;
+    const resultPhase = ["results", "countdown"].includes(
+      state?.roundState.phase ?? "",
+    );
     for (const unit of units) {
       let visual = this.instances.get(unit.id);
       const target = new T.Vector3(
@@ -46,6 +76,7 @@ export class KaykitUnits {
         worldZ(unit.y),
       );
       if (!visual) {
+        if (created++ >= 2) continue;
         const asset = unitAssets[unit.type];
         const instance = this.assets.create(
           asset.model,
@@ -70,17 +101,19 @@ export class KaykitUnits {
       instance.root.scale.setScalar(TYPES[unit.type].scale);
       instance.root.rotation.y = unit.team === 0 ? Math.PI / 2 : -Math.PI / 2;
       const desired =
-        unit.hp <= 0 || /dead|death/.test(unit.state)
-          ? "Death_A"
-          : /hurt/.test(unit.state)
-            ? "Hit_A"
-            : /attack|fight|cast|shoot/.test(unit.state)
-              ? unit.type === "mage" || unit.type === "archer"
-                ? "Throw"
-                : "Use_Item"
-              : moving || /run|walk|move/.test(unit.state)
-                ? "Running_A"
-                : "Idle_A";
+        resultPhase && unit.hp > 0
+          ? "Idle_A"
+          : unit.hp <= 0 || /dead|death/.test(unit.state)
+            ? "Death_A"
+            : /hurt/.test(unit.state)
+              ? "Hit_A"
+              : /attack|fight|cast|shoot/.test(unit.state)
+                ? unit.type === "mage" || unit.type === "archer"
+                  ? "Throw"
+                  : "Use_Item"
+                : moving || /run|walk|move/.test(unit.state)
+                  ? "Running_A"
+                  : "Idle_A";
       const clip = this.assets.clips.get(desired);
       if (
         clip &&
@@ -93,26 +126,28 @@ export class KaykitUnits {
         visual.action = playClip(instance, clip, visual.action);
         visual.clip = desired;
       }
-      instance.mixer.update(state?.paused ? 0 : dt);
+      const stride = units.length > 200 ? 4 : units.length > 100 ? 2 : 1;
+      if (this.tick % stride === unit.id % stride)
+        instance.mixer.update(state?.paused && !resultPhase ? 0 : dt * stride);
     }
   }
   diagnostics() {
     return {
       ...this.assets.diagnostics(),
       ready: this.loaded,
-      rendered: this.instances.size,
+      rendered: this.instances.size + this.lod.rendered,
+      independentSkeletons: this.instances.size,
+      bakedLod: this.lod.rendered,
       proceduralSoldiers: 0,
-      instances: [...this.instances.entries()]
-        .slice(0, 12)
-        .map(([id, v]) => ({
-          id,
-          model: v.instance.root.name,
-          position: v.instance.root.position.toArray(),
-          scale: v.instance.root.scale.x,
-          normalizedScale: v.instance.model.scale.x,
-          clip: v.clip,
-          time: v.action?.time,
-        })),
+      instances: [...this.instances.entries()].slice(0, 12).map(([id, v]) => ({
+        id,
+        model: v.instance.root.name,
+        position: v.instance.root.position.toArray(),
+        scale: v.instance.root.scale.x,
+        normalizedScale: v.instance.model.scale.x,
+        clip: v.clip,
+        time: v.action?.time,
+      })),
     };
   }
   dispose() {
@@ -120,6 +155,7 @@ export class KaykitUnits {
     for (const visual of this.instances.values())
       this.assets.release(visual.instance);
     this.instances.clear();
+    this.lod.dispose();
     this.assets.dispose();
     this.group.clear();
   }

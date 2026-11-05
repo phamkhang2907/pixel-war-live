@@ -10,7 +10,7 @@ test("native nested TikTok chat and completed streak; deduplicate message", () =
   const gift = {
     user,
     common: { msgId: "gift-1" },
-    giftDetails: { giftType: 1, diamondCount: 5 },
+    giftDetails: { giftName:"Rose",giftType: 1, diamondCount: 5 },
     repeatCount: 10,
     repeatEnd: false,
   };
@@ -19,6 +19,7 @@ test("native nested TikTok chat and completed streak; deduplicate message", () =
   gift.repeatEnd = true;
   a.gift(gift);
   a.gift(gift);
+  b.drainSummons(20);
   assert.equal(b.units.length, 10);
   assert.equal(b.units[0].team, 1);
   assert.equal(b.units[0].name, "Minh");

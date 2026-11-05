@@ -273,7 +273,7 @@ try {
     body: '{"action":"reset"}',
   });
   assert.equal(denied.status, 401);
-  assert.match(await fetch(base + "/legacy/").then((r) => r.text()), /app.js/);
+  assert.equal((await fetch(base + "/legacy/")).status,410);
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
   const report = {
@@ -296,7 +296,7 @@ try {
       "1080x1920 capture",
       "touch drag and pinch",
       "mobile DPR cap",
-      "legacy route",
+      "retired legacy route returns 410",
       "no page errors or failed HTTP responses",
     ],
   };

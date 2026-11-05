@@ -1,12 +1,22 @@
 // TikTok-Live-Connector 2.5 native events use nested user/giftDetails/common.
 export class TikTokIngest {
-  constructor(battle) {
+  constructor(battle, { source = "live" } = {}) {
+    this.source = source;
     this.battle = battle;
     this.seen = new Set();
+    this.streakRounds = new Map();
   }
   profile(data) {
-    const user=data?.user;
-    if(user?.userId) this.battle.profile?.(user.userId,user.nickname || user.uniqueId,user.avatarThumb?.urlList?.[0] || user.avatarMedium?.urlList?.[0] || user.profilePictureUrl || data.profilePictureUrl);
+    const user = data?.user;
+    if (user?.userId)
+      this.battle.profile?.(
+        user.userId,
+        user.nickname || user.uniqueId,
+        user.avatarThumb?.urlList?.[0] ||
+          user.avatarMedium?.urlList?.[0] ||
+          user.profilePictureUrl ||
+          data.profilePictureUrl,
+      );
   }
   chat(data) {
     this.profile(data);
@@ -40,24 +50,79 @@ export class TikTokIngest {
   }
   gift(data) {
     this.profile(data);
-    const id = data.user?.userId,
-      details = data.giftDetails;
-    if (!id || !details || !(Number(details.diamondCount) > 0)) return;
-    if (Number(details.giftType) === 1 && !data.repeatEnd) return;
-    const key = String(
-      data.common?.msgId ||
-        data.msgId ||
-        `${id}-${data.giftId}-${data.repeatCount}-${data.common?.createTime}`,
-    );
-    if (this.seen.has(key) || !this.battle.acceptReceipt("gift:" + key)) return;
-    this.seen.add(key);
+    const user = data?.user,
+      id = user?.userId,
+      details = data?.giftDetails;
+    if (!id || !details) return { error: "Missing gift/user metadata" };
+    const rawId = String(data.giftId || details.id || "");
+    const giftId = rawId === "0" ? "" : rawId,
+      giftName = String(
+        details.giftName || data.giftName || details.name || "",
+      );
+    const coins = Number(details.diamondCount);
+    if (giftId || giftName) {
+      const key = giftId || giftName;
+      this.battle.giftCatalog?.set(key, {
+        giftId,
+        giftName,
+        coins: Number.isFinite(coins) && coins > 0 ? coins : null,
+        source: this.source,
+      });
+      if (this.battle.giftCatalog?.size > 200)
+        this.battle.giftCatalog.delete(
+          this.battle.giftCatalog.keys().next().value,
+        );
+    }
+    const groupValue = String(data.groupId || data.streakId || "");
+    const group =
+      Number(details.giftType) === 1 && groupValue !== "0" ? groupValue : "";
+    const message = data.common?.msgId || data.msgId;
+    const createTime = Number(data.common?.createTime || 0);
+    const identity = group
+      ? `group:${id}:${giftId}:${group}`
+      : message
+        ? String(message)
+        : "";
+    if (!identity) return { error: "Gift without stable event ID rejected" };
+    const streakKey = group ? identity : `${id}:${giftId}`;
+    if (
+      Number(details.giftType) === 1 &&
+      !(data.repeatEnd === true || Number(data.repeatEnd) === 1)
+    ) {
+      if (!this.streakRounds.has(streakKey))
+        this.streakRounds.set(streakKey, this.battle.roundId);
+      if (this.streakRounds.size > 1000)
+        this.streakRounds.delete(this.streakRounds.keys().next().value);
+      return { pending: true };
+    }
+    const roundId = this.streakRounds.get(streakKey);
+    this.streakRounds.delete(streakKey);
+    if (
+      this.seen.has(identity) ||
+      !this.battle.acceptReceipt("gift:" + identity)
+    )
+      return { duplicate: true };
+    if (group && message && !this.battle.acceptReceipt("gift:" + message))
+      return { duplicate: true };
+    this.seen.add(identity);
     if (this.seen.size > 5000)
       this.seen.delete(this.seen.values().next().value);
     return this.battle.gift({
       id,
-      name: data.user.nickname || data.user.uniqueId || "Viewer",
-      coins: details.diamondCount,
-      count: data.repeatCount,
+      name: user.nickname || user.uniqueId || "Viewer",
+      coins,
+      count:
+        Number(details.giftType) !== 1 && !Number(data.repeatCount)
+          ? 1
+          : (data.repeatCount ?? 1),
+      giftId,
+      giftName,
+      roundId,
+      eventAt: createTime
+        ? createTime < 1e12
+          ? createTime * 1000
+          : createTime
+        : undefined,
     });
   }
 }

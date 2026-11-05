@@ -1,3 +1,10 @@
+import {
+  DEFAULT_GIFT_MAPPINGS,
+  validateGiftMappings,
+  SUMMONABLE,
+  CASTLE_GUARDIAN,
+} from "./gifts.js";
+import { TikTokIngest } from "./tiktok.js";
 import { hudSnapshot } from "./hud-data.js";
 import { WORLD } from "./characters.js";
 import { League } from "./league.js";
@@ -6,52 +13,40 @@ import { TikTokService } from "./tiktok-connection.js";
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { randomBytes, timingSafeEqual } from "node:crypto";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { readFile, writeFile, mkdir, rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { Battle, TYPES, DEFAULT_RULES } from "./game.js";
+import { Battle, TYPES } from "./game.js";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = express(),
   http = createServer(app),
   io = new Server(http, { maxHttpBufferSize: 16000 });
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
-const league = new League(dataDir);
+const league = new League(dataDir, { asyncPersistence: true });
 const rounds = new RoundManager(game, league);
 const tiktok = new TikTokService(game);
 let auto = true,
   speed = 1;
 const token = process.env.ADMIN_TOKEN || randomBytes(18).toString("hex");
 try {
-  game.rules = validate(
-    JSON.parse(await readFile(dataDir + "/rules.json", "utf8")),
+  game.giftMappings = validateGiftMappings(
+    JSON.parse(await readFile(dataDir + "/gift-mappings.json", "utf8")),
   );
-} catch {}
-function validate(r) {
-  if (
-    !Array.isArray(r) ||
-    !r.length ||
-    r.length > 20 ||
-    r.some(
-      (x) =>
-        !Object.hasOwn(TYPES, x.type) ||
-        !Number.isInteger(x.min) ||
-        x.min < 1 ||
-        !Number.isInteger(x.count) ||
-        x.count < 1 ||
-        x.count > 50,
-    )
-  )
-    throw Error("Invalid rules");
-  return r;
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
 }
+const demoIngest = new TikTokIngest(game, { source: "demo" });
+const adminRates = new Map();
 app.use(express.json({ limit: "16kb" }));
-// The 3D renderer is the primary game. Keep the former dashboard isolated
-// at /legacy/ for administrative operations until those controls are migrated.
+// Retired routes do not serve the old renderer or its administrative surface.
 app.get(["/", "/index.html"], (_req, res) => res.redirect(302, "/3d/"));
-app.use(
-  "/legacy",
-  express.static(root + "dist/public", { index: "index.html" }),
+app.get("/admin", (_req, res) => res.redirect(302, "/3d/?admin=1"));
+app.use("/legacy", (_req, res) =>
+  res
+    .status(410)
+    .type("text/plain")
+    .send("The 2D game is retired. Open /3d/ for the game and admin controls."),
 );
 app.use(express.static(root + "dist/public"));
 
@@ -61,6 +56,8 @@ app.get("/health", (_, r) =>
     units: game.units.length,
     mode: tiktok.mode,
     phase: rounds.phase,
+    persistenceError: league.persistenceError,
+    performance: { tickMs, maxTickMs, eventLoopDelayMs },
     roundId: league.data.active.id,
   }),
 );
@@ -74,11 +71,25 @@ function auth(req, res, next) {
     !timingSafeEqual(provided, expected)
   )
     return res.status(401).json({ error: "Admin token required" });
+  if (req.method !== "GET") {
+    const now = Date.now(),
+      ip = req.ip;
+    let rate = adminRates.get(ip);
+    if (!rate || now - rate.at > 1000) {
+      rate = { at: now, count: 0 };
+      adminRates.set(ip, rate);
+    }
+    if (++rate.count > 40)
+      return res.status(429).json({ error: "Admin rate limit: retry shortly" });
+  }
   next();
 }
 app.get("/api/config", auth, (_, r) =>
   r.json({
-    rules: game.rules,
+    giftMappings: game.giftMappings,
+    giftCatalog: [...game.giftCatalog.values()],
+    summonable: SUMMONABLE,
+    guardian: CASTLE_GUARDIAN,
     roundConfig: league.data.config,
     mode: tiktok.mode,
     auto,
@@ -90,31 +101,56 @@ app.post("/api/control", auth, async (req, res) => {
   try {
     const { action, ...p } = req.body;
     switch (action) {
-      case "spawn":
+      case "demoGift": {
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
         if (
           ![0, 1].includes(p.team) ||
-          !Number.isFinite(p.coins) ||
-          p.coins < 1 ||
           !Number.isInteger(p.count ?? 1) ||
           (p.count ?? 1) < 1 ||
-          (p.count ?? 1) > 100
+          (p.count ?? 1) > 10000 ||
+          String(p.giftName || "").length > 80 ||
+          String(p.giftId || "").length > 24 ||
+          !Number.isFinite(Number(p.coins ?? 0)) ||
+          Number(p.coins ?? 0) < 0 ||
+          Number(p.coins ?? 0) > 100000
         )
-          throw Error("Invalid gift request");
-        const demoId =
-          "demo:" +
-          p.team +
-          ":" +
-          String(p.userId || p.name || "You").slice(0, 64);
-        game.profile(demoId,p.name || "You",p.avatar);
-        game.choose(demoId, p.team, p.name || "You");
-        game.gift({
-          id: demoId,
-          name: p.name || "You",
-          coins: p.coins,
-          count: p.count || 1,
+          throw Error("Invalid demo gift");
+        const id =
+            "demo:" +
+            p.team +
+            ":" +
+            String(p.userId || p.name || "You").slice(0, 64),
+          name = String(p.name || "You").slice(0, 64);
+        game.choose(id, p.team, name);
+        const result = demoIngest.gift({
+          user: { userId: id, nickname: name, profilePictureUrl: p.avatar },
+          giftId: String(p.giftId || ""),
+          giftDetails: {
+            giftName: p.giftName || "Rose",
+            diamondCount: Number(p.coins ?? 0),
+            giftType: p.streak ? 1 : 0,
+          },
+          repeatCount: p.count ?? 1,
+          repeatEnd: p.repeatEnd ?? true,
+          groupId: p.groupId,
+          common: {
+            msgId: String(p.eventId || randomUUID()),
+            createTime: p.eventAt || Date.now(),
+          },
         });
+        if (result?.error) return res.status(409).json(result);
+        res.json({ ok: true, ...result });
+        return;
+      }
+      case "giftMappings": {
+        const mappings = validateGiftMappings(p.mappings);
+        await mkdir(dataDir, { recursive: true });
+        const tmp = dataDir + "/gift-mappings." + randomUUID() + ".tmp";
+        await writeFile(tmp, JSON.stringify(mappings, null, 2));
+        await rename(tmp, dataDir + "/gift-mappings.json");
+        game.giftMappings = mappings;
         break;
+      }
       case "likes":
         if (
           tiktok.mode !== "demo" ||
@@ -136,14 +172,6 @@ app.post("/api/control", auth, async (req, res) => {
           count: p.count,
         });
         break;
-      case "defaultRules":
-        game.rules = structuredClone(DEFAULT_RULES);
-        await mkdir(dataDir, { recursive: true });
-        await writeFile(
-          dataDir + "/rules.json",
-          JSON.stringify(game.rules, null, 2),
-        );
-        break;
       case "burst":
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
         if (![100, 200, 300].includes(p.count ?? 200))
@@ -151,7 +179,7 @@ app.post("/api/control", auth, async (req, res) => {
         for (let i = 0; i < (p.count ?? 200); i++)
           game.spawn(
             i % 2,
-            Object.keys(TYPES)[Math.floor(i / 2) % 6],
+            SUMMONABLE[Math.floor(i / 2) % SUMMONABLE.length],
             1,
             "Demo army",
             "demo:army:" + (i % 2) + ":" + (i % 12),
@@ -191,7 +219,7 @@ app.post("/api/control", auth, async (req, res) => {
           for (let i = 0; i < counts[team]; i++) {
             const type =
               i % 12 === 0
-                ? "guardian"
+                ? "cavalry"
                 : i % 8 === 0
                   ? "mage"
                   : i % 4 === 0
@@ -249,8 +277,8 @@ app.post("/api/control", auth, async (req, res) => {
           duration: 12,
           prepare: 2,
           final: 3,
-          results: 3,
-          countdown: 1,
+          results: 7,
+          countdown: 0,
         });
         rounds.start();
         break;
@@ -260,21 +288,11 @@ app.post("/api/control", auth, async (req, res) => {
         league.dirty = true;
         rounds.start();
         break;
-      case "rules": {
-        const rules = validate(p.rules);
-        await mkdir(dataDir, { recursive: true });
-        await writeFile(
-          dataDir + "/rules.json",
-          JSON.stringify(rules, null, 2),
-        );
-        game.rules = rules;
-        break;
-      }
       case "troop":
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
         if (
           ![0, 1].includes(p.team) ||
-          !Object.hasOwn(TYPES, p.type) ||
+          !SUMMONABLE.includes(p.type) ||
           !Number.isInteger(p.count) ||
           p.count < 1 ||
           p.count > 50
@@ -300,18 +318,32 @@ app.post("/api/control", auth, async (req, res) => {
         throw Error("Unknown action");
     }
     rounds.settle();
-    league.flush();
+    league.checkpoint();
+    lastHud = null;
     res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
 });
-let lastHud = null, lastHudAt = 0;
+let lastHud = null,
+  lastHudAt = 0,
+  lastHudRound = "",
+  lastHudFinished = false;
 function state() {
-  if(!lastHud || Date.now()-lastHudAt>=250){lastHud=hudSnapshot(game,league);lastHudAt=Date.now();}
+  if (
+    !lastHud ||
+    lastHudRound !== league.data.active.id ||
+    lastHudFinished !== league.data.active.finished ||
+    Date.now() - lastHudAt >= 250
+  ) {
+    lastHud = hudSnapshot(game, league);
+    lastHudAt = Date.now();
+    lastHudRound = league.data.active.id;
+    lastHudFinished = league.data.active.finished;
+  }
   return {
     ...game.snapshot(),
-    hud:lastHud,
+    hud: lastHud,
     roundState: rounds.snapshot(),
     paused: rounds.paused,
     auto,
@@ -321,6 +353,9 @@ function state() {
     serverNow: Date.now(),
   };
 }
+app.get("/api/leaderboards", auth, (_req, res) =>
+  res.json({ live: league.board("live"), season: league.board("season") }),
+);
 app.get("/api/history", auth, (req, res) => {
   const offset = Math.max(0, Number(req.query.offset) || 0);
   res.json({
@@ -339,11 +374,17 @@ app.get("/api/history", auth, (req, res) => {
 });
 io.on("connection", (socket) => socket.emit("state", state()));
 let previous = performance.now();
-setInterval(() => {
+let tickMs = 0,
+  maxTickMs = 0,
+  eventLoopDelayMs = 0;
+const tickTimer = setInterval(() => {
   const now = performance.now(),
     dt = (now - previous) / 1000;
   previous = now;
-  rounds.advance(dt * speed);
+  eventLoopDelayMs = Math.max(0, dt * 1000 - 50);
+  rounds.advance(dt, speed);
+  if (game.inputOpen && (rounds.phase === "prepare" || rounds.paused))
+    game.drainSummons();
   if (
     !rounds.paused &&
     auto &&
@@ -360,20 +401,26 @@ setInterval(() => {
     game.gift({
       id,
       name,
-      coins: [1, 10, 50, 100, 200, 1000][Math.floor(Math.random() * 6)],
+      giftName: ["Rose", "Finger Heart", "Doughnut", "Perfume"][
+        Math.floor(Math.random() * 4)
+      ],
     });
   }
   rounds.settle();
-  league.flush();
+  league.checkpoint();
   io.emit("state", state());
+  tickMs = performance.now() - now;
+  maxTickMs = Math.max(maxTickMs, tickMs);
 }, 50);
 for (let team = 0; team < 2; team++)
   for (const type of ["sword", "archer", "cavalry", "mage"])
     game.spawn(team, type, 3, "Founders", null);
-league.flush();
+league.checkpoint();
 for (const signal of ["SIGTERM", "SIGINT"])
-  process.on(signal, () => {
-    league.flush();
+  process.on(signal, async () => {
+    clearInterval(tickTimer);
+    await league.close();
+    io.disconnectSockets(true);
     http.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 1500).unref();
   });

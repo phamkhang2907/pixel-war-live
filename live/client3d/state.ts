@@ -26,10 +26,28 @@ export interface BattleState {
   paused: boolean;
   castles: [number, number];
   units: UnitState[];
+  serverNow?: number;
   roundState: {
+    id: string;
+    state?: string;
     phase: string;
     remaining: number;
     phaseRemaining: number;
-    result?: { winner: Team | null; aborted: boolean } | null;
+    result?: {
+      id: string;
+      number: number;
+      winner: Team | null;
+      aborted: boolean;
+      scores: number[];
+      castles: number[];
+      damage: number[];
+      top10: {
+        id: string;
+        name: string;
+        team: number;
+        points: number;
+        avatar?: string;
+      }[];
+    } | null;
   };
 }

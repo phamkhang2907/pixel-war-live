@@ -113,8 +113,8 @@ function castle(team: number) {
 export function buildWorld(scene: T.Scene) {
   scene.background = new T.Color(0xc9e5e5);
   scene.fog = new T.Fog(0xc9e5e5, 180, 540);
-  scene.add(new T.HemisphereLight(0xeaf8ff, 0x728652, 1.5));
-  const sun = new T.DirectionalLight(0xffedce, 2.0);
+  scene.add(new T.HemisphereLight(0xe2efff, 0x345c36, 1.05));
+  const sun = new T.DirectionalLight(0xfff7eb, 1.55);
   sun.position.set(-35, 75, 35);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
@@ -146,11 +146,13 @@ export function buildWorld(scene: T.Scene) {
       hills *
       (2 + Math.sin(x * 0.07 + z * 0.04) * 2 + Math.cos(z * 0.12) * 1.2);
     positions.setY(i, height - 0.18);
-    green.setHSL(
-      0.245 + Math.sin(x * 0.2 + z * 0.1) * 0.014,
-      0.42,
-      0.36 + Math.sin(x * 0.09) * 0.025,
-    );
+    const variation =
+      (Math.sin(x * 0.09 + z * 0.13) + Math.cos(z * 0.19 - x * 0.05) + 2) / 4;
+    green
+      .set(0x345c36)
+      .lerp(new T.Color(0x477a45), Math.min(1, variation * 1.5));
+    if (variation > 0.65)
+      green.lerp(new T.Color(0x63915a), (variation - 0.65) * 1.5);
     colors.push(green.r, green.g, green.b);
   }
   terrain.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
@@ -163,17 +165,17 @@ export function buildWorld(scene: T.Scene) {
   ground.castShadow = false;
 
   // Wide dirt battle corridor: X is movement; Z holds all fifteen formation rows.
-  const road = new T.PlaneGeometry(102, 30, 34, 6);
+  const road = new T.PlaneGeometry(102, 3.2, 34, 6);
   road.rotateX(-Math.PI / 2);
   const roadPos = road.getAttribute("position");
   for (let i = 0; i < roadPos.count; i++) {
     const z = roadPos.getZ(i);
-    if (Math.abs(z) > 14)
+    if (Math.abs(z) > 1.5)
       roadPos.setZ(i, z + Math.sin(roadPos.getX(i) * 0.6) * 1.1);
   }
-  mesh(scene, road, material(0xc5b583), 0, -0.08, 0);
-  const verge = material(0xd5c69b);
-  for (const z of [-14.5, 14.5]) {
+  mesh(scene, road, material(0x74664c), 0, -0.08, 0);
+  const verge = material(0x526b42);
+  for (const z of [-1.6, 1.6]) {
     const strip = mesh(
       scene,
       new T.PlaneGeometry(100, 0.32),
@@ -186,8 +188,8 @@ export function buildWorld(scene: T.Scene) {
   }
   const centerLine = mesh(
     scene,
-    new T.PlaneGeometry(0.14, 27),
-    material(0xebdcb3),
+    new T.PlaneGeometry(0.1, 3.0),
+    material(0x7b8151),
     0,
     -0.04,
     0,
@@ -254,7 +256,7 @@ export function buildWorld(scene: T.Scene) {
     stone.rotation.set(random(), random() * 6, random());
   }
   // Sparse grass clumps remain outside the traversable corridor.
-  const grass = material(0x799b50, { side: T.DoubleSide });
+  const grass = material(0x477a45, { side: T.DoubleSide });
   const blade = new T.ConeGeometry(0.2, 0.65, 3);
   for (let i = 0; i < 100; i++)
     mesh(

@@ -19,7 +19,12 @@ export class BattlefieldRenderer {
   private elapsed = 0;
   private frames = 0;
   private fps = 0;
+  private totalFrames = 0;
+  private maxFrameMs = 0;
   private lost = false;
+  private adaptiveScale = 1;
+  private lastBufferScale = -1;
+  private lowQuality = matchMedia("(pointer: coarse)").matches;
   private disposed = false;
   private sun: T.DirectionalLight;
   private fortresses: T.Group[] = [];
@@ -81,6 +86,10 @@ export class BattlefieldRenderer {
     this.director.select(mode);
   }
   setQuality(low: boolean) {
+    this.lowQuality = low;
+    this.kaykit.setQuality(low);
+    this.adaptiveScale = 1;
+    this.lastBufferScale = -1;
     this.renderer.setPixelRatio(
       Math.min(window.devicePixelRatio, low ? 1 : 1.5),
     );
@@ -111,13 +120,30 @@ export class BattlefieldRenderer {
     if (!document.hidden) {
       this.director.follow(this.state);
       this.director.update(Math.min(wallDt, 1));
-      this.kaykit.update(this.state, dt);
+      const resultPhase = ["results", "countdown"].includes(
+        this.state?.roundState.phase ?? "",
+      );
+      const bufferScale =
+        Math.min(window.devicePixelRatio, this.lowQuality ? 1 : 1.5) *
+        Math.min(this.adaptiveScale, resultPhase ? 0.6 : 1);
+      if (Math.abs(bufferScale - this.lastBufferScale) > 0.02) {
+        this.renderer.setPixelRatio(bufferScale);
+        this.lastBufferScale = bufferScale;
+        this.resize();
+      }
+      this.kaykit.update(this.state, dt, this.director.camera.position);
       this.effects.update(this.state, dt);
       this.renderer.render(this.scene, this.director.camera);
       this.frames++;
+      this.totalFrames++;
+      this.maxFrameMs = Math.max(this.maxFrameMs, wallDt * 1000);
       this.elapsed += wallDt;
       if (this.elapsed > 0.75) {
         this.fps = this.frames / this.elapsed;
+        if (this.fps < 22)
+          this.adaptiveScale = Math.max(0.5, this.adaptiveScale * 0.8);
+        else if (this.fps > 50)
+          this.adaptiveScale = Math.min(1, this.adaptiveScale + 0.02);
         this.frames = 0;
         this.elapsed = 0;
       }
@@ -202,11 +228,16 @@ export class BattlefieldRenderer {
       })),
       assets: this.kaykit.diagnostics(),
       fps: this.fps,
+      totalFrames: this.totalFrames,
+      maxFrameMs: this.maxFrameMs,
+      listenerX: this.director.camera.position.x,
+      adaptiveScale: this.adaptiveScale,
       contextLost: this.lost,
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
       units: this.state?.units.length ?? 0,
       connectedState: this.state !== null,
+      roundState: this.state?.roundState,
       drawingBuffer: this.renderer
         .getDrawingBufferSize(new T.Vector2())
         .toArray(),

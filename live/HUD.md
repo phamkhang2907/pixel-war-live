@@ -1,3 +1,5 @@
+> Historical HUD assembly report. Current routes, results, unit names and tests are documented in [FULL-3D-MIGRATION.md](FULL-3D-MIGRATION.md). The 2D fallback below is retired.
+
 # Grok battle HUD
 
 The `/3d/` dashboard uses the supplied `assets/ui/UI KIT.zip`, not replacement CSS frames. The existing battlefield, character renderer, camera, fortresses, combat rules and `/legacy/` client are unchanged by the HUD implementation.
