@@ -4,6 +4,7 @@ import type { TerrainSurface } from "./grass-material";
 import { buildWorld } from "./world";
 import { KaykitUnits } from "./kaykit-units";
 import { CombatEffects } from "./combat-effects";
+import { GroundContacts } from "./ground-contacts";
 import { loadKaykitWorld } from "./kaykit-world";
 import { CASTLE_X, type BattleState } from "./state";
 
@@ -12,6 +13,7 @@ export class BattlefieldRenderer {
   readonly director = new BattlefieldCamera();
   readonly renderer: T.WebGLRenderer;
   private effects = new CombatEffects();
+  private contacts = new GroundContacts();
   private kaykit = new KaykitUnits(() => {});
   private state: BattleState | null = null;
   private resizeObserver: ResizeObserver;
@@ -57,17 +59,11 @@ export class BattlefieldRenderer {
     );
     this.renderer.domElement.tabIndex = 0;
     this.host.append(this.renderer.domElement);
-    const world = buildWorld(this.scene, {
-      anisotropy: Math.min(
-        matchMedia("(pointer: coarse)").matches ? 2 : 4,
-        this.renderer.capabilities.getMaxAnisotropy(),
-      ),
-      onTerrainError: (message) => this.status(message),
-    });
+    const world = buildWorld(this.scene);
     this.sun = world.sun;
     this.terrain = world.terrain;
-    this.scene.add(this.kaykit.group, this.effects.group);
-    void loadKaykitWorld(this.scene)
+    this.scene.add(this.kaykit.group, this.effects.group, this.contacts.group);
+    void loadKaykitWorld(this.scene, this.contacts)
       .then((forts) => {
         this.fortresses = forts;
       })
@@ -143,6 +139,7 @@ export class BattlefieldRenderer {
       }
       this.kaykit.update(this.state, dt, this.director.camera.position);
       this.effects.update(this.state, dt);
+      this.contacts.update(this.state, dt);
       this.renderer.render(this.scene, this.director.camera);
       this.frames++;
       this.totalFrames++;
@@ -237,6 +234,10 @@ export class BattlefieldRenderer {
         visible: f.visible,
       })),
       terrain: this.terrain.inspect(),
+      environment:
+        this.scene.getObjectByName("Instanced KayKit fantasy environment")
+          ?.userData ?? null,
+      contacts: this.contacts.inspect(),
       assets: this.kaykit.diagnostics(),
       fps: this.fps,
       totalFrames: this.totalFrames,
@@ -272,6 +273,7 @@ export class BattlefieldRenderer {
       materials = new Set<T.Material>();
     this.scene.traverse((o) => {
       if (o instanceof T.Mesh) {
+        if (o instanceof T.InstancedMesh) o.dispose();
         geometries.add(o.geometry);
         for (const m of Array.isArray(o.material) ? o.material : [o.material])
           materials.add(m);
@@ -280,6 +282,13 @@ export class BattlefieldRenderer {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     this.terrain.dispose();
+    this.contacts.dispose();
+    const textures = new Set<T.Texture>();
+    for (const m of materials) {
+      const map = (m as T.MeshStandardMaterial).map;
+      if (map) textures.add(map);
+    }
+    for (const texture of textures) texture.dispose();
     this.sun.shadow.dispose();
     this.effects.dispose();
     this.kaykit.dispose();

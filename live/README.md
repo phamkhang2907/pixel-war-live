@@ -2,7 +2,7 @@
 
 See [FULL-3D-MIGRATION.md](FULL-3D-MIGRATION.md) for current gameplay, admin controls, gifting, audio, testing and limitations. This replaces the retired 2D setup instructions.
 
-See [TEXTURED-GRASS.md](TEXTURED-GRASS.md) for the licensed PBR terrain maps, before/after screenshots and measured rendering costs.
+See [STYLIZED-ENVIRONMENT.md](STYLIZED-ENVIRONMENT.md) for the current moss-green low-poly terrain, instanced KayKit scenery, screenshots and measured rendering costs. This supersedes the earlier photorealistic grass treatment.
 
 From the repository root:
 
