@@ -1,3 +1,4 @@
+import { showBuildVersion, clientBuild } from "./build-version";
 import { BattleAudio } from "./audio";
 import { openAdmin } from "./admin";
 import "./style.css";
@@ -11,6 +12,7 @@ const element = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const hud = new BattleHud(element("stage"));
 const audio = new BattleAudio();
+const stopVersionCheck = showBuildVersion();
 const query = new URLSearchParams(location.search);
 if (query.has("debug"))
   Object.defineProperty(window, "__PW_AUDIO", {
@@ -164,7 +166,11 @@ if (battlefield) {
     // Read-only diagnostic hook for acceptance tests; no admin commands or token.
     Object.defineProperty(window, "__PW3D", {
       value: {
-        inspect: () => ({ ...view.diagnostics(), audio: audio.diagnostics() }),
+        inspect: () => ({
+          ...view.diagnostics(),
+          audio: audio.diagnostics(),
+          build: clientBuild,
+        }),
       },
       configurable: true,
     });
@@ -201,6 +207,7 @@ if (battlefield) {
   }, 500);
 }
 function cleanup() {
+  stopVersionCheck();
   clearInterval(timer);
   socket.disconnect();
   battlefield?.dispose();

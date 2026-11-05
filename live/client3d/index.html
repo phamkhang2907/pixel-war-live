@@ -13,7 +13,8 @@
   <body>
     <main>
       <div class="page-heading">
-        <a href="/3d/?admin=1">3D Admin</a><span>3D BATTLEFIELD · LIVE</span>
+        <a href="/3d/?admin=1">3D Admin</a
+        ><span id="buildVersion">3D BATTLEFIELD · LIVE</span>
       </div>
       <section id="stage" aria-label="Portrait livestream preview">
         <div id="world"></div>
@@ -37,6 +38,8 @@
         </div>
       </section>
       <section class="controls" aria-label="Preview controls">
+        <p id="buildStatus" role="status"></p>
+        <button id="refreshBuild" type="button" hidden>Tải lại bản game</button>
         <div class="camera-buttons">
           <button data-camera="overview" aria-pressed="true">Overview</button
           ><button data-camera="red" aria-pressed="false">RED castle</button
