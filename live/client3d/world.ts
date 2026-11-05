@@ -1,3 +1,4 @@
+import { terrainMaterials, worldDirtUV } from "./grass-material";
 import * as T from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { CASTLE_X } from "./state";
@@ -110,7 +111,14 @@ function castle(team: number) {
   return group;
 }
 
-export function buildWorld(scene: T.Scene) {
+export function buildWorld(
+  scene: T.Scene,
+  options: {
+    anisotropy?: number;
+    onTerrainError?: (message: string) => void;
+  } = {},
+) {
+  const surfaces = terrainMaterials(options.anisotropy, options.onTerrainError);
   scene.background = new T.Color(0xc9e5e5);
   scene.fog = new T.Fog(0xc9e5e5, 180, 540);
   scene.add(new T.HemisphereLight(0xe2efff, 0x345c36, 1.05));
@@ -148,23 +156,17 @@ export function buildWorld(scene: T.Scene) {
     positions.setY(i, height - 0.18);
     const variation =
       (Math.sin(x * 0.09 + z * 0.13) + Math.cos(z * 0.19 - x * 0.05) + 2) / 4;
-    green
-      .set(0x345c36)
-      .lerp(new T.Color(0x477a45), Math.min(1, variation * 1.5));
-    if (variation > 0.65)
-      green.lerp(new T.Color(0x63915a), (variation - 0.65) * 1.5);
+    // Cool modulation balances the warm photo albedo; the PBR result stays dark green.
+    green.set(0x7eb8bd).lerp(new T.Color(0x9bdae0), variation);
     colors.push(green.r, green.g, green.b);
   }
   terrain.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
   terrain.computeVertexNormals();
-  const ground = mesh(
-    scene,
-    terrain,
-    material(0xffffff, { vertexColors: true, flatShading: true }),
-  );
+  const ground = mesh(scene, terrain, surfaces.grass);
+  ground.name = "Textured grass terrain";
   ground.castShadow = false;
 
-  // Wide dirt battle corridor: X is movement; Z holds all fifteen formation rows.
+  // Existing narrow dirt path; preserve the surrounding formation space.
   const road = new T.PlaneGeometry(102, 3.2, 34, 6);
   road.rotateX(-Math.PI / 2);
   const roadPos = road.getAttribute("position");
@@ -173,29 +175,17 @@ export function buildWorld(scene: T.Scene) {
     if (Math.abs(z) > 1.5)
       roadPos.setZ(i, z + Math.sin(roadPos.getX(i) * 0.6) * 1.1);
   }
-  mesh(scene, road, material(0x74664c), 0, -0.08, 0);
-  const verge = material(0x526b42);
-  for (const z of [-1.6, 1.6]) {
-    const strip = mesh(
-      scene,
-      new T.PlaneGeometry(100, 0.32),
-      verge,
-      0,
-      -0.055,
-      z,
-    );
-    strip.rotation.x = -Math.PI / 2;
+  worldDirtUV(road);
+  mesh(scene, road, surfaces.dirt, 0, -0.08, 0);
+  // Low, irregular worn patches immediately inside the two gates share one batch.
+  for (const team of [0, 1]) {
+    const x = CASTLE_X[team] + (team === 0 ? 2 : -2);
+    const patch = new T.CircleGeometry(3.3, 12);
+    patch.rotateX(-Math.PI / 2);
+    patch.scale(1.25, 1, 0.8);
+    worldDirtUV(patch, x, 0);
+    mesh(scene, patch, surfaces.dirt, x, -0.07, 0);
   }
-  const centerLine = mesh(
-    scene,
-    new T.PlaneGeometry(0.1, 3.0),
-    material(0x7b8151),
-    0,
-    -0.04,
-    0,
-  );
-  centerLine.rotation.x = -Math.PI / 2;
-
   const castles: T.Group[] = [];
   // Modular licensed fortresses are loaded separately.
   const rings: T.Mesh[] = [];
@@ -305,5 +295,5 @@ export function buildWorld(scene: T.Scene) {
       geometry.dispose();
   }
 
-  return { sun, castles, rings };
+  return { sun, castles, rings, terrain: surfaces };
 }

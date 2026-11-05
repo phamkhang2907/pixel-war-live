@@ -1,0 +1,14 @@
+Poly Haven: Leafy Grass / Grass Path 3
+License: CC0 1.0 Universal (public-domain dedication)
+https://creativecommons.org/publicdomain/zero/1.0/
+https://polyhaven.com/license
+
+Verified against the official site's license text:
+https://raw.githubusercontent.com/Poly-Haven/polyhaven.com/master/public/locales/en/license.json
+
+"Our assets are all licensed as CC0, which is effectively Public Domain even in jurisdictions that do not support the Public Domain."
+"You can use our assets for any purpose, including commercial work."
+"You can redistribute them, share them around, include them when sharing your own work, or even in a product you sell."
+
+The website/API returned Cloudflare error 1010 in this environment; the official download CDN served all four original 1K JPEGs successfully.
+Original file hashes, download URLs, dimensions and dates are recorded in sources.json. No texture pixels were modified.

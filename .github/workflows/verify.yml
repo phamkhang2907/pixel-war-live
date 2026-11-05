@@ -21,6 +21,8 @@ jobs:
       - run: npm run test:models --prefix live
       - run: python3 live/tools/audit-medieval-castles.py
       - run: npm run test:fortresses --prefix live
+      - run: node tools/terrain-check.mjs
+        working-directory: live
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -28,6 +30,8 @@ jobs:
           path: |
             live/artifacts/full3d-*.png
             live/artifacts/full3d-report.json
+            live/artifacts/grass-*.png
+            live/artifacts/grass-report.json
   hud-render:
     runs-on: ubuntu-latest
     timeout-minutes: 10
