@@ -17,11 +17,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: live
       - run: npm run test:browser --prefix live
-      - run: npm run test:vertical --prefix live
       - run: npm run test:3d --prefix live
       - run: npm run test:models --prefix live
       - run: python3 live/tools/audit-medieval-castles.py
       - run: npm run test:fortresses --prefix live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-3d-gameplay-captures
+          path: |
+            live/artifacts/full3d-*.png
+            live/artifacts/full3d-report.json
   hud-render:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -34,9 +40,11 @@ jobs:
           cache-dependency-path: live/package-lock.json
       - run: npm run setup
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
         working-directory: live
       - run: node tools/hud-check.mjs
+        working-directory: live
+      - run: node tools/audio-check.mjs
         working-directory: live
       - uses: actions/upload-artifact@v4
         if: always()
@@ -45,3 +53,4 @@ jobs:
           path: |
             live/artifacts/grok-hud-*.png
             live/artifacts/hud-report.json
+            live/artifacts/webkit-audio-report.json

@@ -1,0 +1,16 @@
+{
+  "engine": "Linux WebKit with iPad touch/user-agent emulation; not physical Safari",
+  "audio": {
+    "enabled": true,
+    "muted": false,
+    "context": "running",
+    "sfxVolume": 0.4,
+    "musicVolume": 0.25,
+    "activeVoices": 1,
+    "maxVoices": 12,
+    "played": 5,
+    "dropped": 8,
+    "buffers": 16
+  },
+  "errors": []
+}
