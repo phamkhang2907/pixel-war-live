@@ -12,7 +12,7 @@ const root = "/kaykit/adventurers/Characters/gltf/";
 export class KaykitUnits {
   readonly group = new T.Group();
   private templates = new Map<string, T.Group>();
-  private instances = new Map<number, T.Group>();
+  private instances = new Map<number, T.Object3D>();
   private lastPositions = new Map<number, T.Vector3>();
   private loaded = false;
   constructor(private onReady: () => void) {
