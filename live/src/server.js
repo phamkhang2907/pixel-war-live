@@ -40,15 +40,29 @@ const demoIngest = new TikTokIngest(game, { source: "demo" });
 const adminRates = new Map();
 app.use(express.json({ limit: "16kb" }));
 // Retired routes do not serve the old renderer or its administrative surface.
-app.get(["/", "/index.html"], (_req, res) => res.redirect(302, "/3d/"));
-app.get("/admin", (_req, res) => res.redirect(302, "/3d/?admin=1"));
+app.get(["/", "/index.html"], (_req, res) =>
+  res.set("Cache-Control", "no-store").redirect(302, "/3d/"),
+);
+app.get("/admin", (_req, res) =>
+  res.set("Cache-Control", "no-store").redirect(302, "/3d/?admin=1"),
+);
 app.use("/legacy", (_req, res) =>
   res
     .status(410)
     .type("text/plain")
     .send("The 2D game is retired. Open /3d/ for the game and admin controls."),
 );
-app.use(express.static(root + "dist/public"));
+app.use(
+  express.static(root + "dist/public", {
+    setHeaders(res, path) {
+      // Revalidate entry documents on Safari; hashed JS/CSS can still be reused.
+      if (path.endsWith(".html") || path.endsWith("/version.json"))
+        res.setHeader("Cache-Control", "no-store");
+      else if (/\/3d\/assets\/[^/]+-[A-Za-z0-9_-]+\.(js|css)$/.test(path))
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    },
+  }),
+);
 
 app.get("/health", (_, r) =>
   r.json({

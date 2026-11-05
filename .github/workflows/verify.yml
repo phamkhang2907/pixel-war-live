@@ -23,6 +23,8 @@ jobs:
       - run: npm run test:fortresses --prefix live
       - run: node tools/terrain-check.mjs
         working-directory: live
+      - run: node tools/version-check.mjs
+        working-directory: live
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -32,6 +34,8 @@ jobs:
             live/artifacts/full3d-report.json
             live/artifacts/environment-*.png
             live/artifacts/environment-report.json
+            live/artifacts/build-version-*.png
+            live/artifacts/build-version-report.json
   hud-render:
     runs-on: ubuntu-latest
     timeout-minutes: 10
