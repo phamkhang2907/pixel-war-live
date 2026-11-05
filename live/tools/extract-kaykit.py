@@ -7,6 +7,7 @@ FBX/OBJ exports. Files remain under their original relative paths.
 from pathlib import Path
 from zipfile import ZipFile
 import shutil
+import json
 
 root = Path(__file__).resolve().parents[1]
 source = root / "assets" / "3d"
@@ -39,4 +40,6 @@ for pack, archives in packs.items():
                 with z.open(entry) as src, out.open("wb") as dst:
                     shutil.copyfileobj(src, dst)
                 count += 1
-    print(pack, count, "assets")
+    models = [str(p.relative_to(target)).replace("\\\\", "/") for p in target.rglob("*") if p.suffix.lower() in {".gltf", ".glb"}]
+    (target / "manifest.json").write_text(json.dumps(models), encoding="utf8")
+    print(pack, count, "assets", "sample models:", models[:18])
