@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#10131a" />
+    <title>PIXEL WAR — RED VS BLUE</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="rail">
+      <a class="brand" href="/" aria-label="Pixel War">P<span>W</span></a
+      ><button class="nav active" title="Battlefield">⚔</button
+      ><button class="nav" id="settingsNav" title="Settings">⚙</button>
+      <div class="rail-bottom">
+        v1.0
+        <div class="online-dot"></div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header>
+        <div class="breadcrumb">LIVE GAMES <span>/</span> <b>PIXEL WAR</b></div>
+        <div class="header-right">
+          <span class="status-dot"></span> System online
+          <span class="avatar">PW</span>
+        </div>
+      </header>
+      <main>
+        <div class="page-title">
+          <div>
+            <div class="eyebrow">THE CHAT IS YOUR ARMY</div>
+            <h1>
+              PIXEL WAR <span>RED <i>vs</i> BLUE</span>
+            </h1>
+            <p>Two sides. One battlefield. Every gift changes the war.</p>
+          </div>
+          <button class="outline" id="help">↗ Stream setup</button>
+        </div>
+        <div class="dashboard">
+          <section class="left-column">
+            <div class="panel session">
+              <div class="panel-title">
+                <h2><span class="tiny-square"></span> Session control</h2>
+                <span class="badge">DEMO</span>
+              </div>
+              <label class="field-label" for="username">TIKTOK USERNAME</label>
+              <div class="input-wrap">
+                <span>@</span
+                ><input
+                  id="username"
+                  placeholder="your_username"
+                  autocomplete="off"
+                />
+              </div>
+              <button id="connect" class="button full">
+                Connect to TikTok <span>↗</span>
+              </button>
+              <div class="connection">
+                <span class="status-dot"></span
+                ><span id="liveStatus">Demo mode · no LIVE required</span>
+              </div>
+              <div class="divider"></div>
+              <div class="row">
+                <div>
+                  <strong>Demo mode</strong
+                  ><small>Try the battlefield before going LIVE</small>
+                </div>
+                <button
+                  class="toggle on"
+                  id="demoToggle"
+                  aria-label="Enable demo mode"
+                  aria-pressed="true"
+                ></button>
+              </div>
+              <div class="row auto-row">
+                <div>
+                  <strong>Auto reinforcements</strong
+                  ><small>Keep the battle moving</small>
+                </div>
+                <button
+                  class="toggle on"
+                  id="auto"
+                  aria-label="Toggle auto reinforcements"
+                  aria-pressed="true"
+                ></button>
+              </div>
+              <label class="field-label" for="speed">DEMO SPEED</label
+              ><select id="speed">
+                <option value="1">1× Normal</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+                <option value="8">8× Fast battle</option>
+              </select>
+              <div class="action-row">
+                <button class="outline" id="pause">Ⅱ Pause</button
+                ><button class="outline" id="reset">↻ Reset</button>
+              </div>
+            </div>
+            <div class="panel summon">
+              <div class="panel-title">
+                <h2>Summon troops</h2>
+                <span class="subtle">DEMO PLAYGROUND</span>
+              </div>
+              <p class="muted">Pick your side. Send a little chaos.</p>
+              <div class="team-select">
+                <button class="team red selected" data-team="0">
+                  ◆ Team Red</button
+                ><button class="team blue" data-team="1">◆ Team Blue</button>
+              </div>
+              <div class="troop-list" id="troops"></div>
+              <div class="gift-simulator">
+                <h3>Simulate a gift</h3>
+                <label for="giftName">Donor name</label
+                ><input id="giftName" value="You" maxlength="24" />
+                <div class="gift-values">
+                  <label
+                    >Coins per gift<input
+                      id="giftCoins"
+                      type="number"
+                      value="5"
+                      min="1"
+                      max="100000" /></label
+                  ><label
+                    >Repeat count<input
+                      id="giftCount"
+                      type="number"
+                      value="1"
+                      min="1"
+                      max="100"
+                  /></label>
+                </div>
+                <button id="sendGift" class="button full">
+                  Send demo gift
+                </button>
+              </div>
+              <button id="burst" class="outline full stress">
+                ⚡ Stress test <span>+200 troops</span>
+              </button>
+            </div>
+            <div class="tip">
+              <span>✦</span>
+              <div>
+                <strong>Built for your next big LIVE</strong>
+                <p>
+                  Viewers comment <b>1</b> for Red or <b>2</b> for Blue.<br />Gifts
+                  turn your community into an army.
+                </p>
+              </div>
+            </div>
+          </section>
+          <section class="battle-column">
+            <div class="battle-toolbar">
+              <span
+                ><span class="live-dot"></span> BATTLEFIELD
+                <b id="round">ROUND 01</b></span
+              >
+              <div>
+                <button
+                  id="sound"
+                  title="Toggle sound"
+                  aria-label="Toggle sound"
+                >
+                  ♫</button
+                ><button
+                  id="fullscreen"
+                  title="Fullscreen"
+                  aria-label="Fullscreen battlefield"
+                >
+                  ⛶
+                </button>
+              </div>
+            </div>
+            <div class="arena-wrap" id="arenaWrap">
+              <div id="game"></div>
+              <div class="arena-top">
+                <div class="live-label">
+                  ● <span id="modeLabel">DEMO LIVE</span>
+                </div>
+                <div id="timer">00:00</div>
+              </div>
+              <div class="arena-heading">
+                PIXEL <span>WAR</span><small>RED <em>VS</em> BLUE</small>
+              </div>
+              <div class="castle-ui red-ui">
+                <span>RED KINGDOM</span><b id="redHp">10,000</b>
+                <div><i id="redBar"></i></div>
+              </div>
+              <div class="castle-ui blue-ui">
+                <span>BLUE KINGDOM</span><b id="blueHp">10,000</b>
+                <div><i id="blueBar"></i></div>
+              </div>
+              <div class="center-mark">BATTLE LINE</div>
+              <div class="join-bar">
+                <span><b>1</b> JOIN RED</span><i>COMMENT TO CHOOSE YOUR SIDE</i
+                ><span>JOIN BLUE <b>2</b></span>
+              </div>
+              <div id="winner" hidden></div>
+              <div id="paused" hidden>Ⅱ BATTLE PAUSED</div>
+            </div>
+            <div class="arena-footer">
+              <span
+                ><i class="status-dot"></i><b id="unitCount">24</b> units on the
+                field</span
+              ><span>9:16 <i>•</i> STREAM READY</span
+              ><a href="/?overlay=1" target="_blank">Open overlay ↗</a>
+            </div>
+          </section>
+          <section class="right-column">
+            <div class="panel leaderboard">
+              <div class="panel-title">
+                <h2>Top commanders</h2>
+                <span>♕</span>
+              </div>
+              <p class="muted">Big gifts. Bigger impact.</p>
+              <div class="leader-head">
+                <span>COMMANDER</span><span>COINS</span>
+              </div>
+              <div id="scores"></div>
+              <div class="leader-foot">
+                Your community writes the leaderboard.
+              </div>
+            </div>
+            <div class="panel feed">
+              <div class="panel-title">
+                <h2>Battle activity</h2>
+                <span class="green-badge">● REALTIME</span>
+              </div>
+              <div id="events"></div>
+            </div>
+            <div class="panel guide">
+              <div class="panel-title">
+                <h2>How to play</h2>
+                <span>↗</span>
+              </div>
+              <div>
+                <b>01</b>
+                <p>
+                  <strong>Choose your kingdom</strong
+                  ><small>Comment 1 for Red, 2 for Blue.</small>
+                </p>
+              </div>
+              <div>
+                <b>02</b>
+                <p>
+                  <strong>Send a gift. Spawn an army.</strong
+                  ><small>Each gift summons a different troop.</small>
+                </p>
+              </div>
+              <div>
+                <b>03</b>
+                <p>
+                  <strong>Take down the castle</strong
+                  ><small>The last kingdom standing wins.</small>
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+        <footer>
+          <span
+            ><b>PIXEL WAR</b> <i>/</i> A battle powered by your community.</span
+          ><span>PHASER 3 <i>·</i> SOCKET.IO <i>·</i> TIKTOK LIVE</span>
+        </footer>
+      </main>
+    </div>
+    <dialog id="setup">
+      <form method="dialog">
+        <button class="dialog-close" aria-label="Close">×</button>
+      </form>
+      <div class="eyebrow">CONTROL ROOM</div>
+      <h2>Stream settings</h2>
+      <p>Admin token is printed in the server terminal.</p>
+      <label
+        >Admin token<input
+          id="token"
+          type="password"
+          placeholder="Paste your server token" /></label
+      ><button id="unlock" class="button full">Unlock controls</button>
+      <p id="authStatus"></p>
+      <h3>Gift rules</h3>
+      <p>Minimum total coins → troop type and quantity.</p>
+      <div id="rules"></div>
+      <button class="button full" id="saveRules">Save gift mapping</button>
+      <p class="muted">
+        OBS Browser Source: <a href="/?overlay=1" target="_blank">/?overlay=1</a
+        ><br />Canvas: 540 × 960. In Codespaces, forward port 3000. Open the
+        HTTPS forwarded URL on iPad Safari.
+      </p>
+    </dialog>
+    <div id="toast" role="status"></div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

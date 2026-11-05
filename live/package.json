@@ -1,0 +1,29 @@
+{
+  "name": "pixel-war-live",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/game.test.js && node test/tiktok.test.js && node test/connection.test.js",
+    "assets": "python3 tools/sprites.py",
+    "test:browser": "node tools/browser-check.mjs",
+    "build": "node tools/build.mjs",
+    "prestart": "npm run build",
+    "predev": "npm run build",
+    "pretest:browser": "npm run build"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "phaser": "^3.90.0",
+    "socket.io": "^4.8.1",
+    "tiktok-live-connector": "2.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "esbuild": "^0.28.2",
+    "prettier": "^3.9.10",
+    "socket.io-client": "^4.8.1"
+  }
+}

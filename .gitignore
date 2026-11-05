@@ -1,0 +1,9 @@
+node_modules/
+live/data/
+.env
+live/public/preview-*.png
+playwright-report/
+test-results/
+
+live/dist/
+live/artifacts/

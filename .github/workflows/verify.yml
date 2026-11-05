@@ -1,0 +1,19 @@
+name: Verify game
+on: [push, pull_request]
+jobs:
+  build-and-play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+        working-directory: live
+      - run: npm run test:browser --prefix live

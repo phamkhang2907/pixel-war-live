@@ -1,0 +1,1 @@
+{"name":"PIXEL WAR LIVE","image":"mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm","forwardPorts":[3000],"portsAttributes":{"3000":{"label":"PIXEL WAR preview","onAutoForward":"openBrowser"}},"postCreateCommand":"npm ci --prefix live"}

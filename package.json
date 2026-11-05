@@ -1,0 +1,11 @@
+{
+  "name": "pixel-war-workspace",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix live",
+    "dev": "npm run dev --prefix live",
+    "test": "npm test --prefix live",
+    "setup": "npm ci --prefix live",
+    "build": "npm run build --prefix live"
+  }
+}
