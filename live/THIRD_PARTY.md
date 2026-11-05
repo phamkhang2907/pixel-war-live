@@ -6,9 +6,13 @@ The repository's KayKit Adventurers, Forest Nature and Medieval ZIPs contain the
 
 Small Soldier uses Knight; Heavy Soldier uses Barbarian on foot; Archer uses Ranger; Mage uses Mage; Giant is a scaled version of the existing Barbarian. Far-distance LOD geometry is derived from those same licensed meshes, with original textures. No third-party dragon or approved castle Guardian model has been integrated.
 
-## Terrain textures
+## Terrain and environment
 
-Poly Haven **Leafy Grass** (albedo, OpenGL normal, roughness) and **Grass Path 3** (albedo), all original 1K JPEGs, are CC0-1.0. Sources: <https://polyhaven.com/a/leafy_grass>, <https://polyhaven.com/a/grass_path_3>. License: <https://polyhaven.com/license> and <https://creativecommons.org/publicdomain/zero/1.0/>. Commercial use and redistribution are allowed. Original downloads, dimensions and SHA-256 hashes are recorded in `assets/3d/terrain/leafy_grass/sources.json`, with the licensing evidence in the adjacent `LICENSE.txt`. The application serves these files locally; it does not hotlink Poly Haven at runtime. See [TEXTURED-GRASS.md](TEXTURED-GRASS.md) for rendering and measured costs.
+The current terrain uses original procedural vertex colors and feathered dirt geometry; no photographic grass maps. Repeated grass, shrubs, stones, cliffs and trees reuse the CC0 KayKit Forest Nature models and original palette texture already shipped in the repository. An original generated 64px contact-shadow disk adds shading without external artwork. See `STYLIZED-ENVIRONMENT.md` for exact models.
+
+### Archived photographic textures
+
+Poly Haven **Leafy Grass** (albedo, OpenGL normal, roughness) and **Grass Path 3** (albedo), all original 1K JPEGs, are CC0-1.0. Sources: <https://polyhaven.com/a/leafy_grass>, <https://polyhaven.com/a/grass_path_3>. License: <https://polyhaven.com/license> and <https://creativecommons.org/publicdomain/zero/1.0/>. Commercial use and redistribution are allowed. Original downloads, dimensions and SHA-256 hashes are recorded in `assets/3d/terrain/leafy_grass/sources.json`, with the licensing evidence in the adjacent `LICENSE.txt`. These files are archived in the source tree and are no longer copied into the runtime build or loaded. [TEXTURED-GRASS.md](TEXTURED-GRASS.md) records the superseded treatment.
 
 ## Grok UI KIT
 

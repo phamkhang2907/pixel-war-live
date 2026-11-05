@@ -30,8 +30,8 @@ jobs:
           path: |
             live/artifacts/full3d-*.png
             live/artifacts/full3d-report.json
-            live/artifacts/grass-*.png
-            live/artifacts/grass-report.json
+            live/artifacts/environment-*.png
+            live/artifacts/environment-report.json
   hud-render:
     runs-on: ubuntu-latest
     timeout-minutes: 10

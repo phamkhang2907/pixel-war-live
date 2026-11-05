@@ -8,7 +8,4 @@ for (const file of await readdir(root + "src"))
 await rm(root + "dist", { recursive: true, force: true });
 await mkdir(root + "dist/public", { recursive: true });
 await cp(root + "public", root + "dist/public", { recursive: true });
-await cp(root + "assets/3d/terrain", root + "dist/public/assets/3d/terrain", {
-  recursive: true,
-});
 console.log("Prepared 3D-only public assets; backend syntax checks passed.");

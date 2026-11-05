@@ -1,5 +1,7 @@
 # Dark green PBR battlefield grass
 
+> Historical report for PR #10. Superseded by [STYLIZED-ENVIRONMENT.md](STYLIZED-ENVIRONMENT.md) at the owner’s request. These photographic maps are retained as source archives and no longer copied into the game build or loaded at runtime. The commands below describe the older revision.
+
 This is a terrain-only change on top of `d44c867` (the completed 3D migration). The original game is retained at that commit on the default branch history. No simulation, gifts, networking, leaderboards, HUD, audio, camera behavior, character models/animations, fortresses or lighting settings were changed.
 
 ## Sources and license
