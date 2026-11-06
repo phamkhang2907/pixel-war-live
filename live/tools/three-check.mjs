@@ -64,7 +64,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(base + "/3d/?debug=1");
+  await page.goto(base + "/3d/?live=1&debug=1");
   await page.waitForFunction(() => window.__PW3D?.inspect().connectedState);
   await page.waitForFunction(() => window.__PW3D.inspect().drawCalls > 0);
   await page.waitForFunction(() =>
@@ -128,12 +128,11 @@ try {
   await page.waitForFunction(
     () =>
       window.__PW3D.inspect().mode === "manual" &&
-      window.__PW3D.inspect().x > 3,
+      Math.abs(window.__PW3D.inspect().yaw) > 10,
   );
   assert.equal(await page.locator("#demoActions").isVisible(), false);
-  await page.locator("#admin summary").click();
-  await page.locator("#token").fill(token);
-  await page.locator("#auth button").click();
+  await page.request.post(base + "/owner/login", { form: { password: token } });
+  await page.goto(base + "/3d/?live=1&admin=1&debug=1");
   await page.locator("#demoActions").waitFor({ state: "visible" });
   // Software WebGL acceptance uses the supported low preset for the 300-unit scene.
   await page.locator("#quality").selectOption("low");
@@ -174,7 +173,7 @@ try {
 
   // Keep responsiveness/touch checks separate from the heavy software-rendered army.
   // The 300 real models and their context recovery were verified above.
-  await control("reset");
+  await control("newRound");
   for (const team of [0, 1])
     for (const type of ["sword", "archer", "mage"])
       await control("troop", { team, type, count: 1 });
@@ -201,7 +200,7 @@ try {
     });
   }
   await page.setViewportSize({ width: 1080, height: 1920 });
-  await page.goto(base + "/3d/?overlay=1&debug=1");
+  await page.goto(base + "/3d/?live=1&overlay=1&debug=1");
   await page.waitForFunction(() => window.__PW3D?.inspect().connectedState);
   box = await page.locator("#stage").boundingBox();
   assert.equal(box.width, 1080);
@@ -219,7 +218,7 @@ try {
   });
   const touch = await touchContext.newPage();
   touch.on("pageerror", (e) => errors.push(e.message));
-  await touch.goto(base + "/3d/?debug=1");
+  await touch.goto(base + "/3d/?live=1&debug=1");
   await touch.waitForFunction(() => window.__PW3D?.inspect().connectedState);
   assert.equal(await touch.locator("#quality").inputValue(), "low");
   const touchBox = await touch.locator("#world canvas").boundingBox();
@@ -239,7 +238,7 @@ try {
   await touch.waitForFunction(
     () =>
       window.__PW3D.inspect().mode === "manual" &&
-      window.__PW3D.inspect().x > 3,
+      Math.abs(window.__PW3D.inspect().yaw) > 10,
   );
   const beforePinch = await touch.evaluate(
     () => window.__PW3D.inspect().distance,

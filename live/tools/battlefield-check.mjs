@@ -59,7 +59,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(base + "/3d/?debug=1&overlay=1");
+  await page.goto(base + "/3d/?live=1&debug=1&overlay=1");
   await page.waitForFunction(
     () => window.__PW3D?.inspect().fortresses.length === 2,
   );
@@ -89,8 +89,8 @@ try {
     });
     results.push({ count, span, diagnostics: d });
   }
-  await cmd("reset");
-  await page.goto(base + "/3d/?debug=1");
+  await cmd("newRound");
+  await page.goto(base + "/3d/?live=1&debug=1");
   await page.locator("#quality").selectOption("low");
   await page.waitForFunction(
     () => window.__PW3D?.inspect().fortresses.length === 2,

@@ -1,0 +1,97 @@
+{
+  "engine": "Linux Chromium SwiftShader + CDP touch",
+  "physicalIPad": false,
+  "publicDemo": {
+    "tokenRequired": false,
+    "isolated": true,
+    "contributorName": true,
+    "duplicateProtected": true,
+    "threeSpawnBands": true,
+    "rateLimited": true
+  },
+  "camera": {
+    "mouseOrbit": true,
+    "rightDragPan": true,
+    "wheel": true,
+    "oneFinger": true,
+    "twoFingerPanAndPinch": true,
+    "reset": true,
+    "follow": true
+  },
+  "terrain": {
+    "status": "ready",
+    "style": "photographic-pbr-grass",
+    "errors": [],
+    "maps": [
+      {
+        "name": "diff",
+        "width": 1024,
+        "height": 1024,
+        "repeat": [
+          228.57142857142858,
+          228.57142857142858
+        ],
+        "colorSpace": "srgb"
+      },
+      {
+        "name": "rough",
+        "width": 1024,
+        "height": 1024,
+        "repeat": [
+          228.57142857142858,
+          228.57142857142858
+        ],
+        "colorSpace": ""
+      },
+      {
+        "name": "nor_gl",
+        "width": 1024,
+        "height": 1024,
+        "repeat": [
+          228.57142857142858,
+          228.57142857142858
+        ],
+        "colorSpace": ""
+      }
+    ],
+    "palette": {
+      "main": 7441482,
+      "dark": 5140796,
+      "light": 9676890,
+      "dirt": 10787685
+    }
+  },
+  "owner": {
+    "httpOnly": true,
+    "sameSite": "Strict",
+    "csrfRejected": true,
+    "publicMutationsDenied": true
+  },
+  "lifecycle": {
+    "start": true,
+    "pause": true,
+    "resume": true,
+    "stopNoAutoRestart": true,
+    "resetReady": true,
+    "idempotentStart": true
+  },
+  "live": {
+    "attemptedUsername": "pixelwar_offline_probe_20261106",
+    "elapsedMs": 15637,
+    "connection": {
+      "state": "error",
+      "username": "pixelwar_offline_probe_20261106",
+      "message": "TikTok unavailable · Demo available separately",
+      "hint": "Check whether the stream is live, regional access, signing credentials (EULER_API_KEY), or TikTok rate limits. Connection timed out.",
+      "lastEventAt": null,
+      "received": {
+        "gifts": 0,
+        "comments": 0,
+        "likes": 0
+      },
+      "realBroadcastVerified": false
+    },
+    "realBroadcastTested": false
+  },
+  "errors": []
+}

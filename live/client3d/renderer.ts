@@ -32,7 +32,10 @@ export class BattlefieldRenderer {
   private sun: T.DirectionalLight;
   private terrain: TerrainSurface;
   private fortresses: T.Group[] = [];
-  private pointers = new Map<number, { x: number; y: number }>();
+  private pointers = new Map<
+    number,
+    { x: number; y: number; button: number }
+  >();
   private pinchDistance = 0;
   constructor(
     private host: HTMLElement,
@@ -68,7 +71,11 @@ export class BattlefieldRenderer {
         this.fortresses = forts;
       })
       .catch((error) => this.status("Environment load failed: " + error));
-    this.resizeObserver = new ResizeObserver(() => this.resize());
+    this.resizeObserver = new ResizeObserver(() => {
+      this.resize();
+      if (!this.lost && !this.disposed)
+        this.renderer.render(this.scene, this.director.camera);
+    });
     this.resizeObserver.observe(host);
     this.resize();
     const canvas = this.renderer.domElement;
@@ -80,6 +87,7 @@ export class BattlefieldRenderer {
     canvas.addEventListener("pointercancel", this.onPointerUp);
     canvas.addEventListener("wheel", this.onWheel, { passive: false });
     canvas.addEventListener("keydown", this.onKey);
+    canvas.addEventListener("contextmenu", this.onContextMenu);
     this.frame = requestAnimationFrame(this.animate);
   }
   setState(state: BattleState) {
@@ -175,31 +183,51 @@ export class BattlefieldRenderer {
   };
   private onPointerDown = (event: PointerEvent) => {
     this.renderer.domElement.setPointerCapture(event.pointerId);
-    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    this.pinchDistance = 0;
+    this.pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+      button: event.button,
+    });
   };
   private onPointerMove = (event: PointerEvent) => {
     const previous = this.pointers.get(event.pointerId);
     if (!previous) return;
-    const dx = event.clientX - previous.x;
-    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const before = [...this.pointers.values()],
+      dx = event.clientX - previous.x,
+      dy = event.clientY - previous.y;
+    this.pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+      button: previous.button,
+    });
     if (this.pointers.size === 2) {
-      const [a, b] = [...this.pointers.values()];
-      const distance = Math.hypot(a.x - b.x, a.y - b.y);
-      if (this.pinchDistance > 0 && distance > 0)
-        this.director.zoom(this.pinchDistance / distance);
-      this.pinchDistance = distance;
-    } else
-      this.director.pan(
-        (-dx / this.host.clientWidth) *
-          this.director.diagnostics().distance *
-          0.5,
+      const [a, b] = before,
+        [c, d] = [...this.pointers.values()];
+      const oldDistance = Math.hypot(a.x - b.x, a.y - b.y),
+        distance = Math.hypot(c.x - d.x, c.y - d.y);
+      this.director.panScreen(
+        dx / 2 / this.host.clientWidth,
+        dy / 2 / this.host.clientHeight,
       );
+      if (oldDistance > 2 && distance > 2)
+        this.director.zoom(oldDistance / distance);
+    } else if (this.pointers.size === 1) {
+      if (previous.button === 2)
+        this.director.panScreen(
+          dx / this.host.clientWidth,
+          dy / this.host.clientHeight,
+        );
+      else
+        this.director.orbit(
+          dx / this.host.clientWidth,
+          dy / this.host.clientHeight,
+        );
+    }
   };
   private onPointerUp = (event: PointerEvent) => {
     this.pointers.delete(event.pointerId);
-    this.pinchDistance = 0;
   };
+  private onContextMenu = (event: Event) => event.preventDefault();
   private onWheel = (event: WheelEvent) => {
     event.preventDefault();
     this.director.zoom(
@@ -290,6 +318,7 @@ export class BattlefieldRenderer {
     canvas.removeEventListener("pointercancel", this.onPointerUp);
     canvas.removeEventListener("wheel", this.onWheel);
     canvas.removeEventListener("keydown", this.onKey);
+    canvas.removeEventListener("contextmenu", this.onContextMenu);
     const geometries = new Set<T.BufferGeometry>(),
       materials = new Set<T.Material>();
     this.scene.traverse((o) => {

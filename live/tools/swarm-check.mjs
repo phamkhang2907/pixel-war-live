@@ -75,7 +75,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) errors.push(r.status() + " " + r.url());
   });
-  await page.goto(base + "/3d/?debug=1&overlay=1");
+  await page.goto(base + "/3d/?live=1&debug=1&overlay=1");
   await mkdir("artifacts", { recursive: true });
   const measurements = [];
   for (const count of counts) {

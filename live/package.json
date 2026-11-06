@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/formations.test.js && node test/hud.test.js && node test/gifts.test.js && node test/async-storage.test.js && node test/swarm.test.js",
+    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/formations.test.js && node test/hud.test.js && node test/gifts.test.js && node test/async-storage.test.js && node test/swarm.test.js && node test/upgrade.test.js",
     "build": "npm run build:assets && npm run build:3d",
     "prestart": "npm run build",
     "predev": "npm run build",
@@ -25,7 +25,8 @@
     "test:terrain": "npm run build && node tools/terrain-check.mjs",
     "test:version": "npm run build && node tools/version-check.mjs",
     "test:swarm": "npm run build && node tools/swarm-check.mjs",
-    "test:music": "npm run build && node tools/music-check.mjs"
+    "test:music": "npm run build && node tools/music-check.mjs",
+    "test:upgrade": "npm run build && node tools/upgrade-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

@@ -1,5 +1,7 @@
 # PIXEL WAR 3D
 
+Current public Demo, native owner login, free camera, PBR grass and fast spawning: [MAJOR-LIVE-UPGRADE.md](MAJOR-LIVE-UPGRADE.md). This supersedes the previous camera, terrain and browser-token instructions.
+
 See [SWARM-SYSTEM.md](SWARM-SYSTEM.md) for current organic armies, FIFO summons, GPU character animation, capacity limits and admin background-music uploads. Its behavior supersedes the older formation/capacity notes below.
 
 See [FULL-3D-MIGRATION.md](FULL-3D-MIGRATION.md) for current gameplay, admin controls, gifting, audio, testing and limitations. This replaces the retired 2D setup instructions.

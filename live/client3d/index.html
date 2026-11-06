@@ -13,7 +13,8 @@
   <body>
     <main>
       <div class="page-heading">
-        <a href="/3d/?admin=1">3D Admin</a
+        <a id="ownerLink" href="/owner/login">Owner sign in</a
+        ><a id="viewArena" href="/3d/?live=1">Watch LIVE</a
         ><span id="buildVersion">3D BATTLEFIELD · LIVE</span>
       </div>
       <section id="stage" aria-label="Portrait livestream preview">
@@ -36,7 +37,81 @@
             ><span id="connection">Connecting to battle server…</span>
           </div>
         </div>
+        <nav class="quick-controls" aria-label="Battle controls">
+          <div>
+            <button id="freeCamera">Free Camera</button
+            ><button id="resetCamera">Reset Camera</button
+            ><button id="followBattle">Follow Battle</button
+            ><button id="sendDemoGift">Send Demo Gift</button
+            ><button id="connectLive">Connect TikTok LIVE</button>
+          </div>
+          <div id="ownerBattleControls" hidden>
+            <button data-battle="startBattle">Start</button
+            ><button data-battle="pauseBattle">Pause</button
+            ><button data-battle="resumeBattle">Resume</button
+            ><button data-battle="stopBattle">Stop</button
+            ><button data-battle="resetBattle">Reset</button>
+          </div>
+          <small id="publicQueue">Connecting…</small>
+        </nav>
       </section>
+      <dialog id="demoGiftPanel">
+        <button
+          type="button"
+          data-close="demoGiftPanel"
+          aria-label="Close demo gifts"
+        >
+          ×
+        </button>
+        <h2>Send Demo Gift</h2>
+        <p>Simulated gifts · separate Demo battlefield and rankings</p>
+        <form id="publicGiftForm">
+          <label
+            >Team<select id="publicTeam">
+              <option value="0">RED</option>
+              <option value="1">BLUE</option>
+            </select></label
+          ><label
+            >Demo username<input
+              id="publicUsername"
+              value="Demo Viewer"
+              maxlength="24"
+              required /></label
+          ><label>Gift<select id="publicGift"></select></label
+          ><label
+            >Gift quantity<input
+              id="publicQuantity"
+              type="number"
+              min="1"
+              max="50"
+              value="1"
+              required /></label
+          ><button>Send Gift</button>
+        </form>
+        <p id="publicGiftStatus" role="status"></p>
+      </dialog>
+      <dialog id="livePanel">
+        <button
+          type="button"
+          data-close="livePanel"
+          aria-label="Close LIVE connection"
+        >
+          ×
+        </button>
+        <h2>TikTok LIVE · Owner</h2>
+        <form id="quickLiveConnect">
+          <label
+            >LIVE username<input
+              id="quickLiveName"
+              required
+              pattern="[\w.]{2,40}" /></label
+          ><button>Connect</button>
+        </form>
+        <button id="quickDisconnect">Disconnect</button
+        ><button id="quickReconnect">Reconnect</button>
+        <p id="liveConnectionStatus" role="status">Disconnected</p>
+        <p id="liveDiagnostic"></p>
+      </dialog>
       <section class="controls" aria-label="Preview controls">
         <p id="buildStatus" role="status"></p>
         <button id="refreshBuild" type="button" hidden>Tải lại bản game</button>
@@ -58,9 +133,9 @@
           ><a id="capture" href="?overlay=1">Stream view ↗</a>
         </div>
         <p>
-          Drag to pan · Pinch or scroll to zoom · Arrow keys to move<br />Camera
-          stays at 52° elevation. This preview shares the existing server
-          battle.
+          Left / one-finger drag: orbit · Right / two-finger drag: pan · Pinch
+          or wheel: zoom. Reset restores the portrait overview; Follow tracks
+          combat.
         </p>
         <div class="audio-settings">
           <label
@@ -90,29 +165,14 @@
             Sound stays off until you tap Enable sound.
           </p>
         </div>
-        <details id="admin">
-          <summary>Demo controls · admin token required</summary>
-          <form id="auth">
-            <label
-              >Admin token
-              <input
-                id="token"
-                type="password"
-                autocomplete="off"
-                required /></label
-            ><button>Unlock</button>
-          </form>
-          <p id="adminStatus" role="status">
-            Use the token printed in the server terminal. Demo commands change
-            the shared battle.
-          </p>
+        <details id="admin" hidden>
+          <summary>Owner controls</summary>
+          <p id="adminStatus" role="status">Authenticated owner session.</p>
           <div id="demoActions" hidden>
             <button data-scenario="balanced">300-unit demo</button
             ><button data-scenario="boss">Giant size preview</button
             ><button data-scenario="red">RED siege preview</button
-            ><button data-scenario="blue">BLUE siege preview</button
-            ><button id="pause">Pause / resume</button
-            ><button id="reset">Reset round</button>
+            ><button data-scenario="blue">BLUE siege preview</button>
           </div>
           <section id="adminWorkspace" hidden></section>
         </details>

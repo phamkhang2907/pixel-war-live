@@ -16,9 +16,15 @@ export const ARMY = Object.freeze({
   // 15% smaller normals; Heavy grows slightly and the existing Giant keeps its height.
   normalHeight: 1.53,
   normalSpeed: 110,
-  deploymentBatch: 8,
+  deploymentBatch: 64,
 });
-export const formation = (team, slot, type = "sword") => {
+export const formation = (
+  team,
+  slot,
+  type = "sword",
+  bands = 1,
+  selectedBand = slot % bands,
+) => {
   // Deterministic continuous samples, never a row/column layout.
   const a = seeded(slot + 1, team * 9137 + 37),
     b = seeded(slot + 1, team * 5723 + 71);
@@ -26,7 +32,10 @@ export const formation = (team, slot, type = "sword") => {
   const y =
     WORLD.laneMin + radius + b * (WORLD.laneMax - WORLD.laneMin - 2 * radius);
   return {
-    x: WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + a * 1020),
+    x:
+      WORLD.castles[team] +
+      (team === 0 ? 1 : -1) * (370 + selectedBand * 260 + (a - 0.5) * 220),
+    spawnBand: selectedBand,
     y,
     lane: y,
   };

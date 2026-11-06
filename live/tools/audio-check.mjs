@@ -33,7 +33,7 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(base + "/3d/?debug=1");
+  await page.goto(base + "/3d/?live=1&debug=1");
   await page.waitForFunction(() => window.__PW_AUDIO);
   assert.equal(
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).context,

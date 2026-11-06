@@ -21,11 +21,66 @@ export class RoundManager {
         castles: league.data.active.checkpoint?.castles || [...game.castles],
         aborted: true,
       });
+    const savedStatus = league.data.controlStatus;
+    if (savedStatus === "stopped" && league.data.active) {
+      this.config = { ...league.data.config };
+      this.elapsed = 0;
+      this.phaseElapsed = 0;
+      this.phase = "stopped";
+      game.round = league.data.active.number;
+      game.roundId = league.data.active.id;
+      this.gates();
+    } else {
+      this.start();
+      if (savedStatus === "ready") {
+        this.phase = "ready";
+        league.data.controlStatus = "ready";
+        this.gates();
+      }
+    }
+  }
+  setPaused(value) {
+    if (["ready", "stopped"].includes(this.phase)) return;
+    this.paused = !!value;
+    this.gates();
+  }
+  stop() {
+    if (this.phase === "stopped") return;
+    if (!this.league.data.active.finished) this.finish("owner_stop", true);
+    this.phase = "stopped";
+    this.result = null;
+    this.paused = false;
+    for (const u of this.game.units) if (u.hp > 0) u.state = "idle";
+    this.game.projectiles = [];
+    this.game.effects = [];
+    this.game.cameraEvents = [];
+    this.league.data.controlStatus = "stopped";
+    this.league.dirty = true;
+    this.gates();
+    this.league.checkpoint();
+  }
+  resetReady() {
     this.start();
+    this.phase = "ready";
+    this.gates();
+    this.league.data.controlStatus = "ready";
+    this.league.dirty = true;
+    this.league.checkpoint();
+  }
+  begin() {
+    if (this.phase === "ready") {
+      this.phase = this.config.prepare ? "prepare" : "combat";
+      this.paused = false;
+      this.gates();
+      this.league.data.controlStatus = "running";
+      this.league.dirty = true;
+      this.league.checkpoint();
+    } else if (this.phase === "stopped") this.start();
   }
   start() {
     if (this.league.data.active && !this.league.data.active.finished)
       this.finish("admin_restart", true);
+    this.league.data.controlStatus = "running";
     this.game.reset();
     const active = this.league.start();
     this.game.round = active.number;
@@ -52,8 +107,7 @@ export class RoundManager {
       !this.paused && ["combat", "final"].includes(this.phase);
   }
   pause() {
-    this.paused = !this.paused;
-    this.gates();
+    this.setPaused(!this.paused);
   }
   finish(reason, aborted = false) {
     if (this.phase === "results" || this.phase === "countdown") return;
@@ -108,8 +162,9 @@ export class RoundManager {
       this.finish("castle_destroyed");
   }
   advance(dt, speed = 1) {
-    if (this.paused) return;
+    if (this.paused || ["ready", "stopped"].includes(this.phase)) return;
     this.settle();
+    if (dt > 0 && this.game.inputOpen) this.game.drainSummons();
     let remaining = Math.max(0, dt),
       steps = 0;
     while (remaining > 1e-8) {
@@ -145,7 +200,7 @@ export class RoundManager {
       );
       if (step > 1e-8) {
         if (this.phase !== "prepare") {
-          if (steps++ < 400) this.game.tick(step);
+          if (steps++ < 400) this.game.tick(step, false);
         }
         this.elapsed += step;
         remaining -= step / speed;

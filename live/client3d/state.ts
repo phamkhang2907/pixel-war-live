@@ -26,6 +26,13 @@ export interface BattleState {
   round: number;
   time: number;
   mode: string;
+  arena?: string;
+  liveConnection?: {
+    state: string;
+    username: string;
+    message: string;
+    hint: string;
+  };
   paused: boolean;
   castles: [number, number];
   units: UnitState[];

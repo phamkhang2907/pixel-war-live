@@ -60,6 +60,11 @@ try {
         giftName:["Rose","Finger Heart","Doughnut","Perfume","Heavy Demo","Giant Demo"][i],
         avatar: "/assets/ui/kit/IMG_4974.PNG",
       });
+  // Pause now holds deployment too. Deploy accepted gifts before freezing the HUD fixture.
+  await cmd("resumeBattle");
+  for (let i = 0; i < 100 && !(latest?.units.length >= 90 && latest.summonQueue.pending === 0); i++) await sleep(50);
+  assert.ok(latest?.units.length >= 90);
+  await cmd("pauseBattle");
   browser = await chromium.launch({
     executablePath:
       process.env.CHROMIUM_PATH ||
@@ -80,7 +85,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(base + "/3d/?overlay=1&debug=1");
+  await page.goto(base + "/3d/?live=1&overlay=1&debug=1");
   await page.waitForFunction(
     () => window.__PW3D?.inspect().assets.rendered >= 90,
   );

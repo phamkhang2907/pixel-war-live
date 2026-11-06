@@ -63,7 +63,7 @@ try {
   page.setDefaultTimeout(90000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(base + "/3d/?debug=1");
+  await page.goto(base + "/3d/?live=1&debug=1");
   await page.waitForFunction(
     () => document.querySelector("#buildStatus").dataset.state === "current",
   );
@@ -126,7 +126,7 @@ try {
     bfcacheRestoreDetectsUpdate: true,
     userInitiatedCacheBustingReload: true,
     liveScene: {
-      environment: "stylized-low-poly",
+      environment: "pbr-grass-free-camera",
       decorations: 426,
       realCharacters: true,
     },
