@@ -1,5 +1,8 @@
 name: Verify game
 on: [push, pull_request]
+env:
+  # Bound Mesa software raster workers on CI; browsers still assert all GL errors.
+  LP_NUM_THREADS: 2
 jobs:
   build-and-play:
     runs-on: ubuntu-latest
