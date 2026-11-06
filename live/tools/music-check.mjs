@@ -82,9 +82,9 @@ try {
   });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(base + "/3d/?admin=1&debug=1");
-  await page.locator("#token").fill(token);
-  await page.locator("#auth button").click();
+  await page.goto(base + "/3d/?live=1&admin=1&debug=1");
+  await page.request.post(base + "/owner/login", { form: { password: token } });
+  await page.goto(base + "/3d/?live=1&admin=1&debug=1");
   await page.locator("#musicFile").waitFor({ state: "visible" });
   assert.equal(
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).enabled,

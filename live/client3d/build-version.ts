@@ -12,7 +12,7 @@ export const clientBuild = __PW_BUILD_INFO__;
 export function showBuildVersion() {
   const label = document.getElementById("buildVersion")!;
   const status = document.getElementById("buildStatus")!;
-  label.textContent = `LOW-POLY · ${clientBuild.shortRevision}${clientBuild.dirty ? " (dev)" : ""}`;
+  label.textContent = `LIVE UPGRADE · ${clientBuild.shortRevision}${clientBuild.dirty ? " (dev)" : ""}`;
   label.title = `Built ${clientBuild.builtAt}`;
   const refresh = document.getElementById("refreshBuild")!;
   refresh.addEventListener("click", () => {

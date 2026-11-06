@@ -1,0 +1,5 @@
+ambientCG Grass001 by ambientCG / Lennart Demes. CC0-1.0 Public Domain. Commercial use, modification and redistribution permitted.
+https://ambientcg.com/a/Grass001
+https://docs.ambientcg.com/license/
+https://creativecommons.org/publicdomain/zero/1.0/
+Maps downloaded from the official API-listed 2048px surface map URLs and reduced to 1K. Original ZIP endpoint was unavailable. No rendered sphere thumbnail is used.

@@ -1,0 +1,43 @@
+{
+  "node": "v24.22.1",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "note": "Same new band placement in all runs, isolating old/new batch limits. 20Hz time is derived tick cadence; CPU times measured. Excludes rendering/networking. Active cap1000.",
+  "runs": [
+    {
+      "batch": 8,
+      "softBudgetMs": 6,
+      "units": 1000,
+      "ticks": 125,
+      "at20HzSeconds": 6.25,
+      "deployedPerLogicalSecond": 160,
+      "cpuTotalMs": 39.824794999999966,
+      "cpuP95Ms": 0.4273730000000029,
+      "cpuMaxMs": 29.128115,
+      "pending": 0
+    },
+    {
+      "batch": 64,
+      "softBudgetMs": 6,
+      "units": 1000,
+      "ticks": 16,
+      "at20HzSeconds": 0.8,
+      "deployedPerLogicalSecond": 1250,
+      "cpuTotalMs": 6.665243000000018,
+      "cpuP95Ms": 1.4751380000000012,
+      "cpuMaxMs": 1.4751380000000012,
+      "pending": 0
+    },
+    {
+      "batch": 128,
+      "softBudgetMs": 6,
+      "units": 1000,
+      "ticks": 8,
+      "at20HzSeconds": 0.4,
+      "deployedPerLogicalSecond": 2500,
+      "cpuTotalMs": 5.091577000000015,
+      "cpuP95Ms": 1.3927350000000018,
+      "cpuMaxMs": 1.3927350000000018,
+      "pending": 0
+    }
+  ]
+}

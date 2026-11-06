@@ -18,6 +18,7 @@ type Config = {
   roundConfig: { duration: number; prepare: number; final: number };
   guardian: { reason: string };
   music: { track: MusicTrack | null };
+  army: { spawnBatch: number; spawnBudgetMs: number };
 };
 const labels: Record<string, string> = {
   sword: "Small Soldier · Knight",
@@ -31,7 +32,6 @@ export function openAdmin(
   send: Send,
   reload: () => Promise<Config>,
   media: {
-    token: () => string;
     setTrack: (t: MusicTrack | null) => void;
     preview: () => void;
     showArmy: () => void;
@@ -45,6 +45,7 @@ export function openAdmin(
   root.hidden = false;
   root.innerHTML = `<h2>3D LIVE controls</h2><form id="liveConnect"><label>TikTok username<input id="liveUsername" required pattern="[\\w.]{2,40}"></label><button>Connect LIVE</button><button type="button" id="demoMode">Demo mode</button></form><p id="liveStatus"></p>
  <h3>Nhạc nền</h3><p id="musicTrackName"></p><form id="musicUpload"><label>Tệp MP3 / WAV / M4A / OGG (tối đa 12 MiB)<input id="musicFile" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,.mp3,.wav,.m4a,.ogg" required></label><button>Tải nhạc nền lên</button></form><button id="musicPreview" type="button">Nghe thử / bật nhạc</button><button id="musicDefault" type="button">Dùng nhạc mặc định</button><p id="musicUploadStatus" role="status">Nhạc chỉ phát sau thao tác bật âm thanh. Điều chỉnh âm lượng tại Music.</p>
+ <h3>Spawn throughput</h3><form id="spawnSettings"><label>Units per tick (8–256)<input id="spawnBatch" type="number" min="8" max="256" value="64"></label><label>CPU budget ms (1–12)<input id="spawnBudget" type="number" min="1" max="12" value="6"></label><button>Save throughput</button></form>
  <h3>Round settings</h3><form id="roundSettings"><label>Round seconds<input id="roundDuration" type="number" min="1" max="7200"></label><label>Preparation<input id="roundPrepare" type="number" min="0"></label><label>Final battle<input id="roundFinal" type="number" min="0"></label><button>Save next round</button></form><p>Results: 7 seconds. The next round starts directly after results.</p>
  <div class="options"><label>Demo speed<select id="simSpeed"><option>1</option><option>2</option><option>4</option><option>8</option></select></label><button id="autoDemo">Toggle auto demo gifts</button><button id="shortRound">Test 12-second round + 7-second results</button></div>
  <h3>Spawn / gift simulator · Demo only</h3><p id="summonStatus" role="status">Đang đọc hàng đợi FIFO…</p><form id="spawnUnit"><label>Team<select id="unitTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Unit<select id="unitKind">${Object.entries(
@@ -118,6 +119,15 @@ export function openAdmin(
     );
     el("giftMappingRows").append(wrap);
   }
+  el<HTMLInputElement>("spawnBatch").value = String(config.army.spawnBatch);
+  el<HTMLInputElement>("spawnBudget").value = String(config.army.spawnBudgetMs);
+  el("spawnSettings").onsubmit = (e) => {
+    e.preventDefault();
+    void send("spawnConfig", {
+      batch: Number(el<HTMLInputElement>("spawnBatch").value),
+      budgetMs: Number(el<HTMLInputElement>("spawnBudget").value),
+    });
+  };
   const trackLabel = (track: MusicTrack | null) => {
     el("musicTrackName").textContent = track
       ? "Đang chọn: " + track.name
@@ -137,7 +147,6 @@ export function openAdmin(
       const r = await fetch("/api/admin/music", {
         method: "POST",
         headers: {
-          Authorization: "Bearer " + media.token(),
           "Content-Type": file.type || "application/octet-stream",
           "X-Filename": encodeURIComponent(file.name),
         },
@@ -158,7 +167,6 @@ export function openAdmin(
     try {
       const r = await fetch("/api/admin/music", {
         method: "DELETE",
-        headers: { Authorization: "Bearer " + media.token() },
       });
       const p = await r.json();
       if (!r.ok) throw Error(p.error);
@@ -172,8 +180,7 @@ export function openAdmin(
   for (const b of root.querySelectorAll<HTMLButtonElement>("[data-army]"))
     b.onclick = async () => {
       if (
-        await send("cameraScenario", {
-          scenario: "swarm",
+        await send("burst", {
           count: Number(b.dataset.army),
         })
       )

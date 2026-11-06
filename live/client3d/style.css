@@ -434,3 +434,83 @@ body.overlay {
 .audio-settings p {
   flex-basis: 100%;
 }
+.quick-controls {
+  position: absolute;
+  bottom: 35px;
+  left: 8px;
+  right: 8px;
+  z-index: 12;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: #102016bc;
+  border-radius: 10px;
+  padding: 5px;
+}
+.quick-controls div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.quick-controls button {
+  font-size: 10px;
+  padding: 8px 7px;
+  min-height: 36px;
+  margin: 0;
+}
+.quick-controls small {
+  font-size: 9px;
+  color: #d5e5c9;
+}
+.quick-controls [hidden] {
+  display: none;
+}
+.quick-controls #soundToggle {
+  position: static;
+}
+.sound-toggle {
+  bottom: 8px;
+  right: 8px;
+  z-index: 13;
+}
+dialog {
+  background: #18261f;
+  color: #f5e9cd;
+  border: 2px solid #a88c45;
+  border-radius: 14px;
+  width: min(94vw, 420px);
+  max-height: 85dvh;
+  overflow: auto;
+  padding: 22px;
+  font: 16px system-ui;
+}
+dialog::backdrop {
+  background: #030b08a8;
+}
+dialog label {
+  display: block;
+  margin: 12px 0;
+}
+dialog input,
+dialog select {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  font: inherit;
+}
+dialog button {
+  min-height: 42px;
+}
+dialog > button:first-child {
+  float: right;
+}
+.overlay .quick-controls {
+  display: none;
+}
+[hidden] {
+  display: none !important;
+}

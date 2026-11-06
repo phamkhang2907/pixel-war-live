@@ -6,6 +6,7 @@ import { BattleHud, type HudState } from "./hud";
 import { io } from "socket.io-client";
 import { BattlefieldRenderer } from "./renderer";
 import type { CameraMode } from "./camera";
+import { visitorControls } from "./visitor-controls";
 import type { BattleState } from "./state";
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) =>
@@ -38,7 +39,19 @@ try {
       (error instanceof Error ? error.message : ""),
   );
 }
-const socket = io({ autoConnect: false });
+const demoMode =
+  query.has("demo") || !["live", "admin", "overlay"].some((k) => query.has(k));
+const socket = io(demoMode ? "/demo" : "/", { autoConnect: false });
+const arenaLink = element<HTMLAnchorElement>("viewArena");
+arenaLink.href = demoMode ? "/3d/?live=1" : "/3d/?demo=1";
+arenaLink.textContent = demoMode ? "Watch LIVE" : "Public Demo";
+let isOwner = false;
+const visitors = visitorControls({
+  demoMode,
+  control,
+  isOwner: () => isOwner,
+  camera: (mode) => battlefield?.select(mode),
+});
 socket.on("music", (payload) => audio.setTrack(payload.track));
 socket.on("connect", () => {
   element("connectionDot").classList.add("online");
@@ -62,6 +75,7 @@ socket.on("state", (state: BattleState) => {
     liveStatus.textContent =
       (state as BattleState & { liveStatus?: string }).liveStatus ?? state.mode;
   battlefield?.setState(state);
+  visitors.state(state);
   const queueStatus = document.getElementById("summonStatus");
   if (queueStatus)
     queueStatus.textContent = `${state.units.length}/${state.armyCapacity ?? 1000} quân · Chờ triển khai: ${state.summonQueue?.pending ?? 0} · FIFO tiếp theo: ${state.summonQueue?.headSequence ?? "—"}`;
@@ -98,51 +112,46 @@ const quality = element<HTMLSelectElement>("quality");
 quality.value = matchMedia("(pointer: coarse)").matches ? "low" : "balanced";
 quality.onchange = () => battlefield?.setQuality(quality.value === "low");
 
-// Keep every mutation behind existing server authorization. No token in URLs.
-let token = "";
-element("auth").onsubmit = async (event) => {
-  event.preventDefault();
-  const candidate = element<HTMLInputElement>("token").value.trim();
-  try {
-    const response = await fetch("/api/config", {
-      headers: { Authorization: `Bearer ${candidate}` },
-    });
-    if (!response.ok) throw Error("Invalid admin token");
-    token = candidate;
+// HTTP-only session: browser JavaScript never receives the owner password or bearer secret.
+void fetch("/api/owner/session")
+  .then((r) => r.json())
+  .then(async (session) => {
+    isOwner = session.owner;
+    if (!isOwner || demoMode) return;
+    element("ownerBattleControls").hidden = false;
+    element("ownerLink").textContent = "Owner controls";
+    if (!query.has("admin")) return;
+    const response = await fetch("/api/config");
+    if (!response.ok) throw Error("Owner session expired");
+    element<HTMLDetailsElement>("admin").hidden = false;
+    element<HTMLDetailsElement>("admin").open = true;
     openAdmin(
       await response.json(),
       control,
       () =>
-        fetch("/api/config", {
-          headers: { Authorization: `Bearer ${token}` },
-        }).then((r) => {
-          if (!r.ok) throw Error("Unauthorized");
+        fetch("/api/config").then((r) => {
+          if (!r.ok) throw Error("Sign in again");
           return r.json();
         }),
       {
-        token: () => token,
         setTrack: (t) => audio.setTrack(t),
         preview: () => audio.previewMusic(),
         showArmy: () => battlefield?.select("front"),
       },
     );
     element("demoActions").hidden = false;
-    element<HTMLInputElement>("token").value = "";
-    element("adminStatus").textContent =
-      "Unlocked for this page. Commands change the shared server battle.";
-  } catch (error) {
+  })
+  .catch((error) => {
     element("adminStatus").textContent = String(error);
-  }
-};
+  });
 async function control(action: string, data: Record<string, unknown> = {}) {
   try {
     const response = await fetch("/api/control", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ action, ...data }),
+      body: JSON.stringify({ action, ...data, commandId: crypto.randomUUID() }),
     });
     const result = await response.json();
     if (!response.ok) throw Error(result.error || "Command failed");
@@ -169,13 +178,6 @@ document
         );
     };
   });
-element("pause").onclick = () => {
-  void control("pause");
-};
-element("reset").onclick = () => {
-  void control("reset");
-};
-
 if (battlefield) {
   const view = battlefield;
   if (query.has("debug")) {

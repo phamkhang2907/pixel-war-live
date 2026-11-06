@@ -33,9 +33,9 @@ export function buildWorld(scene: T.Scene) {
   geometry.rotateX(-Math.PI / 2);
   const p = geometry.getAttribute("position"),
     colors: number[] = [];
-  const main = new T.Color(TERRAIN_PALETTE.main),
-    dark = new T.Color(TERRAIN_PALETTE.dark),
-    light = new T.Color(TERRAIN_PALETTE.light),
+  const main = new T.Color(0xf0f0f0),
+    dark = new T.Color(0xb9c7b0),
+    light = new T.Color(0xffffff),
     c = new T.Color();
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i),
@@ -60,7 +60,7 @@ export function buildWorld(scene: T.Scene) {
   geometry.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
   geometry.computeVertexNormals();
   const ground = new T.Mesh(geometry, surfaces.grass);
-  ground.name = "Stylized moss terrain";
+  ground.name = "Textured grass terrain";
   ground.receiveShadow = true;
   scene.add(ground);
 

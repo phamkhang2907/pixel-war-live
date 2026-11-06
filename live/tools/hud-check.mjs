@@ -80,7 +80,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(base + "/3d/?overlay=1&debug=1");
+  await page.goto(base + "/3d/?live=1&overlay=1&debug=1");
   await page.waitForFunction(
     () => window.__PW3D?.inspect().assets.rendered >= 90,
   );

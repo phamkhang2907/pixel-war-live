@@ -88,7 +88,7 @@ async function run(label, directory, port) {
       if (r.url().includes("/forest/") || r.url().includes("/terrain/"))
         requests.push({ url: r.url(), status: r.status() });
     });
-    await page.goto(base + "/3d/?overlay=1&debug=1");
+    await page.goto(base + "/3d/?live=1&overlay=1&debug=1");
     await page
       .waitForFunction(
         () =>
@@ -125,8 +125,8 @@ async function run(label, directory, port) {
     await mode("front");
     const initial = await page.evaluate(() => window.__PW3D.inspect());
     if (label === "stylized") {
-      assert.equal(initial.terrain.style, "stylized-low-poly");
-      assert.deepEqual(initial.terrain.maps, []);
+      assert.equal(initial.terrain.style, "photographic-pbr-grass");
+      assert.equal(initial.terrain.maps.length, 3);
       assert.deepEqual(initial.terrain.errors, []);
       assert.equal(initial.environment.status, "ready");
       assert.equal(initial.environment.instances, 426);
@@ -150,8 +150,8 @@ async function run(label, directory, port) {
       assert.ok(initial.contacts.static > 100);
       assert.equal(initial.contacts.shadowPasses, 0);
       assert.ok(
-        !requests.some((r) => r.url.includes("/terrain/")),
-        "photorealistic maps still loaded",
+        requests.some((r) => r.url.includes("/terrain/")),
+        "grass PBR maps not loaded",
       );
     }
     await page.screenshot({

@@ -44,7 +44,7 @@ try {
   await control("roundConfig", {
     config: { duration: 300, prepare: 0, final: 30, results: 15, countdown: 5 },
   });
-  await control("reset");
+  await control("newRound");
   browser = await chromium.launch({
     executablePath:
       process.env.CHROMIUM_PATH ||
@@ -156,7 +156,10 @@ try {
   for (const team of [0, 1])
     for (const type of ["sword", "archer", "mage", "cavalry", "boss"])
       await control("troop", { team, type, count: 1 });
-  await page.goto(base + "/3d/?debug=1");
+  await control("pause");
+  await sleep(300);
+  await control("pause");
+  await page.goto(base + "/3d/?live=1&debug=1");
   await page
     .waitForFunction(
       () => window.__PW3D?.inspect().assets.rendered >= 10,

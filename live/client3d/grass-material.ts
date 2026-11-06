@@ -23,7 +23,7 @@ export function terrainHeight(x: number, z: number) {
   );
 }
 export interface TerrainSurface {
-  grass: T.MeshLambertMaterial;
+  grass: T.MeshStandardMaterial;
   dirt: T.MeshLambertMaterial;
   ready: Promise<void>;
   inspect: () => {
@@ -36,8 +36,11 @@ export interface TerrainSurface {
   dispose: () => void;
 }
 export function terrainMaterials(): TerrainSurface {
-  const grass = new T.MeshLambertMaterial({
-    name: "Stylized moss meadow",
+  const grass = new T.MeshStandardMaterial({
+    name: "Fine grass · ambientCG Grass001 CC0",
+    roughness: 1,
+    metalness: 0,
+    normalScale: new T.Vector2(0.35, -0.35),
     color: 0xffffff,
     vertexColors: true,
   });
@@ -51,17 +54,64 @@ export function terrainMaterials(): TerrainSurface {
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -1,
   });
+  const maps: { name: string; texture: T.Texture }[] = [],
+    errors: string[] = [];
+  let status = "loading",
+    disposed = false;
+  const loader = new T.TextureLoader();
+  const ready = Promise.all(
+    [
+      ["diff", "map"],
+      ["nor_gl", "normalMap"],
+      ["rough", "roughnessMap"],
+    ].map(async ([name, slot]) => {
+      try {
+        const texture = await loader.loadAsync(
+          "/assets/3d/terrain/grass001/" +
+            ({ diff: "color", nor_gl: "normal", rough: "rough" }[
+              name
+            ] as string) +
+            "-1k.jpg",
+        );
+        if (disposed) {
+          texture.dispose();
+          return;
+        }
+        texture.wrapS = texture.wrapT = T.RepeatWrapping;
+        texture.repeat.set(320 / 1.4, 320 / 1.4); // API: photographed surface is 1.4 m wide.
+        texture.colorSpace =
+          name === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
+        texture.anisotropy = name === "diff" ? 2 : 1;
+        (grass as unknown as Record<string, unknown>)[slot] = texture;
+        maps.push({ name, texture });
+        grass.needsUpdate = true;
+      } catch (e) {
+        errors.push(String(e));
+      }
+    }),
+  ).then(() => {
+    status = errors.length ? "failed" : "ready";
+  });
   return {
     grass,
     dirt,
-    ready: Promise.resolve(),
+    ready,
     inspect: () => ({
-      status: "ready",
-      style: "stylized-low-poly",
-      errors: [],
-      maps: [],
+      status,
+      style: "photographic-pbr-grass",
+      errors,
+      maps: maps.map((m) => ({
+        name: m.name,
+        width: m.texture.image.width,
+        height: m.texture.image.height,
+        repeat: m.texture.repeat.toArray(),
+        colorSpace: m.texture.colorSpace,
+      })),
       palette: TERRAIN_PALETTE,
     }),
-    dispose: () => {},
+    dispose: () => {
+      disposed = true;
+      for (const m of maps) m.texture.dispose();
+    },
   };
 }

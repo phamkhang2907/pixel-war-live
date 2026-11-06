@@ -8,11 +8,20 @@ export class Battle {
   constructor({
     clock = () => Date.now() / 1000,
     maxUnits = ARMY.defaultUnits,
+    spawnBatch = ARMY.deploymentBatch,
+    spawnBudgetMs = 6,
   } = {}) {
     this.onCombat = () => {};
     this.onQueue = () => {};
     this.maxUnits = Math.min(ARMY.maxUnits, Math.max(1, Math.floor(maxUnits)));
     this.nextSummonSequence = 1;
+    this.spawnBatch = spawnBatch;
+    this.spawnBudgetMs = spawnBudgetMs;
+    this.spawnWeight = [0, 0];
+    this.spawnBandWeight = [
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
     this.spawnGrid = new SpatialGrid(70);
     this.spawnGridDirty = true;
     this.acceptReceipt = () => true;
@@ -104,6 +113,17 @@ export class Battle {
     if (this.spawnGridDirty) {
       this.spawnGrid.build(this.units);
       this.spawnGridDirty = false;
+      this.spawnWeight = [0, 0];
+      this.spawnBandWeight = [
+        [0, 0, 0],
+        [0, 0, 0],
+      ];
+      for (const u of this.units)
+        if (u.hp > 0) {
+          const w = Math.max(1, (TYPES[u.type].radius / 13) ** 2);
+          this.spawnWeight[u.team] += w;
+          this.spawnBandWeight[u.team][u.spawnBand ?? 0] += w;
+        }
     }
     let deployed = 0;
     for (let i = 0; i < count; i++) {
@@ -112,7 +132,20 @@ export class Battle {
         const slot = this.spawnSlots[team]++;
         const candidate = this.spawnZone
           ? this.spawnZone(team, slot, type)
-          : formation(team, slot, type);
+          : (() => {
+              const bands = Math.min(
+                3,
+                1 + Math.floor(this.spawnWeight[team] / 180),
+              );
+              let selected = 0;
+              for (let b = 1; b < bands; b++)
+                if (
+                  this.spawnBandWeight[team][b] <
+                  this.spawnBandWeight[team][selected]
+                )
+                  selected = b;
+              return formation(team, slot, type, bands, selected);
+            })();
         let free = true;
         this.spawnGrid.query(candidate.x, candidate.y, t.radius + 73, (v) => {
           if (TYPES[v.type].air !== t.air) return;
@@ -156,6 +189,11 @@ export class Battle {
         rage: false,
       });
       this.spawnGrid.add(this.units.at(-1));
+      this.spawnWeight[team] += Math.max(1, (t.radius / 13) ** 2);
+      this.spawnBandWeight[team][position.spawnBand ?? 0] += Math.max(
+        1,
+        (t.radius / 13) ** 2,
+      );
       deployed++;
       this.cameraEvent({
         kind: "spawn",
@@ -309,7 +347,6 @@ export class Battle {
   }
   enqueue(team, type, quantity, name = "Demo", userId = null, origin = "demo") {
     if (
-      !this.inputOpen ||
       ![0, 1].includes(team) ||
       !SUMMONABLE.includes(type) ||
       !Number.isInteger(quantity) ||
@@ -338,8 +375,9 @@ export class Battle {
       sequenceEnd: sequenceStart + quantity - 1,
     };
   }
-  drainSummons(budget = ARMY.deploymentBatch) {
+  drainSummons(budget = this.spawnBatch) {
     if (!this.inputOpen) return 0;
+    const started = performance.now();
     let spawned = 0,
       checked = 0;
     while (this.summonQueue.length && budget > 0 && checked++ < 500) {
@@ -347,7 +385,7 @@ export class Battle {
       const n = this.spawn(
         q.team,
         q.type,
-        Math.min(q.remaining, budget),
+        Math.min(q.remaining, budget, 16),
         q.name,
         q.userId,
         q.sequenceStart + (q.quantity - q.remaining),
@@ -363,6 +401,7 @@ export class Battle {
       spawned += n;
       if (q.remaining === 0) this.summonQueue.shift();
       else if (n === 0) break;
+      if (performance.now() - started >= this.spawnBudgetMs) break;
     }
     this.queueStats.spawned += spawned;
     if (spawned) this.queueChanged();
@@ -621,8 +660,8 @@ export class Battle {
       );
     }
   }
-  tick(dt) {
-    this.drainSummons();
+  tick(dt, deploy = true) {
+    if (deploy) this.drainSummons();
     if (!this.combatOpen) return;
     const powers = this.pendingPowers.splice(0);
     for (const p of powers) {
@@ -871,6 +910,7 @@ export class Battle {
           summonSequence,
           origin,
           attackId,
+          spawnBand,
         }) => ({
           id,
           team,
@@ -886,6 +926,7 @@ export class Battle {
           summonSequence,
           origin,
           attackId,
+          spawnBand,
         }),
       ),
       cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),

@@ -139,6 +139,7 @@ test("observed ongoing streaks complete across a round boundary; unknown old eve
 test("accepted gifts stay FIFO at capacity and carry through round results without phantom XP", () => {
   const { battle, league, rounds } = setup();
   battle.maxUnits = 20;
+  battle.spawnBatch = 8;
   const a = battle.gift({
     id: "stable",
     name: "Viewer",
@@ -172,6 +173,7 @@ test("accepted gifts stay FIFO at capacity and carry through round results witho
 });
 test("a valid gift burst is queued compactly; deployment rather than acceptance is rate limited", () => {
   const { battle } = setup();
+  battle.spawnBatch = 8;
   for (let i = 0; i < 100; i++)
     assert.equal(
       battle.gift({ id: "stable", giftName: "Rose", coins: 1 }).queued,

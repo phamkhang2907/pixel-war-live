@@ -87,7 +87,7 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(base + "/3d/?overlay=1&debug=1");
+  await page.goto(base + "/3d/?live=1&overlay=1&debug=1");
   await page.waitForFunction(
     () => window.__PW3D?.inspect().assets.rendered >= 50,
   );
@@ -116,10 +116,14 @@ try {
       window.__PW3D.inspect().audio.buffers === 16,
   );
   await page.evaluate(() => document.body.classList.remove("overlay"));
-  await page.locator("#admin summary").click();
-  await page.locator("#token").fill(token);
-  await page.locator("#auth button").click();
+  await page.request.post(base + "/owner/login", { form: { password: token } });
+  await page.goto(base + "/3d/?live=1&admin=1&debug=1");
   await page.locator("#adminWorkspace").waitFor({ state: "visible" });
+  await page.locator("#soundToggle").click();
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().audio.buffers === 16,
+  );
+  await api("resumeBattle");
   const rows = page.locator(".gift-mapping");
   assert.equal(await rows.count(), 6);
   await rows.nth(4).locator("[data-field=giftId]").fill("900001");

@@ -1,0 +1,46 @@
+{
+  "asset": "ambientCG Grass001",
+  "source": "https://ambientcg.com/a/Grass001",
+  "metadata": "https://ambientcg.com/api/v2/full_json?id=Grass001",
+  "license": "CC0-1.0",
+  "licenseURL": "https://docs.ambientcg.com/license/",
+  "tileMeters": 1.4,
+  "files": [
+    {
+      "file": "color-1k.jpg",
+      "url": "https://f003.backblazeb2.com/file/ambientCG-Web/media/surface-preview/Grass001/Grass001_SQ_Color.jpg",
+      "sourceDimensions": [
+        2048,
+        2048
+      ],
+      "sourceSHA256": "9512671fcda8b29b83fe6245c346faed66c2fdaa0ac9c449de1795da2c343091",
+      "conversion": "Lanczos to 1024\u00d71024, JPEG quality 92, original color/normal data; DirectX normal Y corrected by material normalScale",
+      "bytes": 651900,
+      "sha256": "703d43183a831e017d527027a8c556dbd4cede94d8a2bebdd3c82c54e99a5cce"
+    },
+    {
+      "file": "normal-1k.jpg",
+      "url": "https://f003.backblazeb2.com/file/ambientCG-Web/media/surface-preview/Grass001/Grass001_SQ_NormalDX.jpg",
+      "sourceDimensions": [
+        2048,
+        2048
+      ],
+      "sourceSHA256": "1db39dad9ff38450fdb66ac9c08e8c1bc7045182f583ef0c8a95d6e4b5c7fecd",
+      "conversion": "Lanczos to 1024\u00d71024, JPEG quality 92, original color/normal data; DirectX normal Y corrected by material normalScale",
+      "bytes": 1291085,
+      "sha256": "1e732f1ac6c04fa849b0da0d73068d74a571950adddc09d7f8026f3eeb338e30"
+    },
+    {
+      "file": "rough-1k.jpg",
+      "url": "https://f003.backblazeb2.com/file/ambientCG-Web/media/surface-preview/Grass001/Grass001_SQ_Roughness.jpg",
+      "sourceDimensions": [
+        2048,
+        2048
+      ],
+      "sourceSHA256": "21ca6debdd64e4ad39b4f362a0b3d772576f52af10328a775b89ad2453874a2a",
+      "conversion": "Lanczos to 1024\u00d71024, JPEG quality 92, original color/normal data; DirectX normal Y corrected by material normalScale",
+      "bytes": 507221,
+      "sha256": "aae472db1bcdadfcc471522dcac25879bbff6d69a9d0f48a1f2198923ecb58e4"
+    }
+  ]
+}

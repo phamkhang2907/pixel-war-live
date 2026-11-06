@@ -4,19 +4,30 @@ import { worldX, type BattleState, CASTLE_X } from "./state";
 export type CameraMode = "overview" | "front" | "red" | "blue" | "manual";
 export class BattlefieldCamera {
   readonly camera = new PerspectiveCamera(42, 9 / 16, 0.1, 750);
-  mode: CameraMode = "front";
+  mode: CameraMode = "overview";
   private focus = new Vector3(0, 0, 0);
   private desiredFocus = new Vector3(0, 0, 0);
-  private distance = 260;
-  private desiredDistance = 260;
+  private distance = 310;
+  private desiredDistance = 310;
   private position = new Vector3();
   private yaw = 0;
   private desiredYaw = 0;
+  private elevation = 52;
+  private desiredElevation = 52;
   constructor() {
     this.update(1);
   }
   select(mode: CameraMode) {
+    if (mode === "manual") {
+      this.mode = mode;
+      this.desiredFocus.copy(this.focus);
+      this.desiredDistance = this.distance;
+      this.desiredYaw = this.yaw;
+      this.desiredElevation = this.elevation;
+      return;
+    }
     this.mode = mode;
+    this.desiredElevation = 52;
     this.desiredYaw = MathUtils.degToRad(
       mode === "red" ? 38 : mode === "blue" ? -38 : 0,
     );
@@ -32,6 +43,31 @@ export class BattlefieldCamera {
     this.desiredFocus.z = mode === "front" ? -5.5 : 0;
     this.desiredDistance =
       mode === "overview" ? 310 : mode === "red" || mode === "blue" ? 115 : 100;
+  }
+  orbit(dx: number, dy: number) {
+    this.mode = "manual";
+    this.desiredYaw -= dx * Math.PI * 2;
+    this.desiredElevation = MathUtils.clamp(
+      this.desiredElevation + dy * 120,
+      20,
+      78,
+    );
+  }
+  panScreen(dx: number, dy: number) {
+    this.mode = "manual";
+    const k = this.desiredDistance * 0.65,
+      c = Math.cos(this.desiredYaw),
+      s = Math.sin(this.desiredYaw);
+    this.desiredFocus.x = MathUtils.clamp(
+      this.desiredFocus.x + (-dx * c + dy * s) * k,
+      -65,
+      65,
+    );
+    this.desiredFocus.z = MathUtils.clamp(
+      this.desiredFocus.z + (dx * s + dy * c) * k,
+      -40,
+      40,
+    );
   }
   pan(delta: number) {
     this.mode = "manual";
@@ -83,14 +119,22 @@ export class BattlefieldCamera {
     const alpha = 1 - Math.exp(-5 * dt);
     this.focus.lerp(this.desiredFocus, alpha);
     this.distance = MathUtils.lerp(this.distance, this.desiredDistance, alpha);
-    // Fixed 52° elevation and no yaw keep RED on screen-left in every mode.
+    this.elevation = MathUtils.lerp(
+      this.elevation,
+      this.desiredElevation,
+      alpha,
+    );
     this.position.set(
       this.focus.x,
-      this.distance * Math.sin(MathUtils.degToRad(52)),
-      this.distance * Math.cos(MathUtils.degToRad(52)),
+      Math.max(
+        16,
+        this.distance * Math.sin(MathUtils.degToRad(this.elevation)),
+      ),
+      this.distance * Math.cos(MathUtils.degToRad(this.elevation)),
     );
     this.yaw = MathUtils.lerp(this.yaw, this.desiredYaw, alpha);
-    const horizontal = this.distance * Math.cos(MathUtils.degToRad(52));
+    const horizontal =
+      this.distance * Math.cos(MathUtils.degToRad(this.elevation));
     this.position.x += horizontal * Math.sin(this.yaw);
     this.position.z = this.focus.z + horizontal * Math.cos(this.yaw);
     this.camera.position.copy(this.position);
@@ -104,7 +148,9 @@ export class BattlefieldCamera {
       targetX: this.desiredFocus.x,
       targetDistance: this.desiredDistance,
       distance: this.distance,
-      elevation: 52,
+      elevation: this.elevation,
+      z: this.focus.z,
+      cameraPosition: this.camera.position.toArray(),
       yaw: MathUtils.radToDeg(this.yaw),
       targetYaw: MathUtils.radToDeg(this.desiredYaw),
     };

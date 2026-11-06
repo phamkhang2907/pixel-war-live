@@ -12,6 +12,8 @@ import { RoundManager } from "./rounds.js";
 import { TikTokService } from "./tiktok-connection.js";
 import { seeded } from "./spatial.js";
 import express from "express";
+import { ownerSessions } from "./owner-session.js";
+import { publicDemo } from "./public-demo.js";
 import { mountMusic } from "./music.js";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
@@ -41,7 +43,26 @@ try {
 } catch (error) {
   if (error.code !== "ENOENT") throw error;
 }
+try {
+  const c = JSON.parse(await readFile(dataDir + "/army-config.json", "utf8"));
+  if (
+    !Number.isInteger(c.batch) ||
+    c.batch < 8 ||
+    c.batch > 256 ||
+    !Number.isFinite(c.budgetMs) ||
+    c.budgetMs < 1 ||
+    c.budgetMs > 12
+  )
+    throw Error("Invalid spawn config");
+  game.spawnBatch = c.batch;
+  game.spawnBudgetMs = c.budgetMs;
+} catch (e) {
+  if (e.code !== "ENOENT") throw e;
+}
 const demoIngest = new TikTokIngest(game, { source: "demo" });
+const owner = ownerSessions(app, {
+  password: process.env.OWNER_PASSWORD || token,
+});
 const adminRates = new Map();
 app.use(express.json({ limit: "16kb" }));
 // Retired routes do not serve the old renderer or its administrative surface.
@@ -49,7 +70,7 @@ app.get(["/", "/index.html"], (_req, res) =>
   res.set("Cache-Control", "no-store").redirect(302, "/3d/"),
 );
 app.get("/admin", (_req, res) =>
-  res.set("Cache-Control", "no-store").redirect(302, "/3d/?admin=1"),
+  res.set("Cache-Control", "no-store").redirect(302, "/3d/?admin=1&live=1"),
 );
 app.use("/legacy", (_req, res) =>
   res
@@ -89,10 +110,13 @@ function auth(req, res, next) {
   );
   const expected = Buffer.from(token);
   if (
-    provided.length !== expected.length ||
-    !timingSafeEqual(provided, expected)
+    (provided.length !== expected.length ||
+      !timingSafeEqual(provided, expected)) &&
+    !owner.authenticated(req)
   )
-    return res.status(401).json({ error: "Admin token required" });
+    return res.status(401).json({ error: "Owner sign in required" });
+  if (owner.authenticated(req) && req.method !== "GET" && !owner.originOK(req))
+    return res.sendStatus(403);
   if (req.method !== "GET") {
     const now = Date.now(),
       ip = req.ip;
@@ -109,8 +133,15 @@ function auth(req, res, next) {
 const music = await mountMusic(app, {
   auth,
   directory: dataDir,
-  changed: (payload) => io.emit("music", payload),
+  changed: (payload) => {
+    io.emit("music", payload);
+    io.of("/demo").emit("music", payload);
+  },
 });
+const demo = publicDemo(app, io);
+demo.game.spawnBatch = game.spawnBatch;
+demo.game.spawnBudgetMs = game.spawnBudgetMs;
+const commands = new Map();
 app.get("/api/config", auth, (_, r) =>
   r.json({
     music: music.manifest(),
@@ -121,6 +152,8 @@ app.get("/api/config", auth, (_, r) =>
     army: {
       capacity: game.maxUnits,
       max: ARMY.maxUnits,
+      spawnBatch: game.spawnBatch,
+      spawnBudgetMs: game.spawnBudgetMs,
       pending: game.summonQueue.reduce((n, q) => n + q.remaining, 0),
     },
     roundConfig: league.data.config,
@@ -128,12 +161,71 @@ app.get("/api/config", auth, (_, r) =>
     auto,
     paused: rounds.paused,
     liveStatus: tiktok.status,
+    liveConnection: tiktok.diagnostics(),
   }),
 );
 app.post("/api/control", auth, async (req, res) => {
   try {
     const { action, ...p } = req.body;
+    const cid = String(p.commandId || "");
+    if (cid && commands.has(cid))
+      return res.json({ ok: true, duplicate: true });
+    if (cid) {
+      if (!/^[\w-]{8,80}$/.test(cid)) throw Error("Invalid command ID");
+      commands.set(cid, Date.now());
+      if (commands.size > 1000) commands.delete(commands.keys().next().value);
+    }
+
     switch (action) {
+      case "startBattle":
+        rounds.begin();
+        break;
+      case "pauseBattle":
+        rounds.setPaused(true);
+        break;
+      case "resumeBattle":
+        rounds.setPaused(false);
+        break;
+      case "stopBattle":
+        rounds.stop();
+        auto = false;
+        speed = 1;
+        await tiktok.disconnect();
+        break;
+      case "resetBattle":
+        rounds.resetReady();
+        auto = false;
+        speed = 1;
+        break;
+      case "spawnConfig": {
+        if (
+          !Number.isInteger(p.batch) ||
+          p.batch < 8 ||
+          p.batch > 256 ||
+          !Number.isFinite(p.budgetMs) ||
+          p.budgetMs < 1 ||
+          p.budgetMs > 12
+        )
+          throw Error("Spawn batch 8–256; budget 1–12 ms");
+        await mkdir(dataDir, { recursive: true });
+        await writeFile(
+          dataDir + "/army-config.tmp",
+          JSON.stringify({ batch: p.batch, budgetMs: p.budgetMs }),
+        );
+        await rename(
+          dataDir + "/army-config.tmp",
+          dataDir + "/army-config.json",
+        );
+        game.spawnBatch = p.batch;
+        game.spawnBudgetMs = p.budgetMs;
+        demo.game.spawnBatch = p.batch;
+        demo.game.spawnBudgetMs = p.budgetMs;
+        break;
+      }
+      case "reconnect":
+        await tiktok.connect(tiktok.username);
+        break;
+
       case "demoGift": {
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
         if (
@@ -313,7 +405,7 @@ app.post("/api/control", auth, async (req, res) => {
         auto = !auto;
         break;
       case "reset":
-        rounds.start();
+        rounds.resetReady();
         break;
       case "newRound":
         rounds.start();
@@ -377,6 +469,7 @@ app.post("/api/control", auth, async (req, res) => {
     lastHud = null;
     res.json({ ok: true });
   } catch (e) {
+    if (req.body?.commandId) commands.delete(String(req.body.commandId));
     res.status(400).json({ error: e.message });
   }
 });
@@ -406,6 +499,7 @@ function state() {
     speed,
     mode: tiktok.mode,
     liveStatus: tiktok.status,
+    liveConnection: tiktok.diagnostics(),
     serverNow: Date.now(),
   };
 }
@@ -442,8 +536,7 @@ const tickTimer = setInterval(() => {
   previous = now;
   eventLoopDelayMs = Math.max(0, dt * 1000 - 50);
   rounds.advance(dt, speed);
-  if (game.inputOpen && (rounds.phase === "prepare" || rounds.paused))
-    game.drainSummons();
+  demo.advance(dt);
   if (
     !rounds.paused &&
     auto &&
@@ -475,7 +568,7 @@ const tickTimer = setInterval(() => {
   tickMs = performance.now() - now;
   maxTickMs = Math.max(maxTickMs, tickMs);
 }, 50);
-if (!game.summonQueue.length)
+if (!game.summonQueue.length && !["ready", "stopped"].includes(rounds.phase))
   for (let team = 0; team < 2; team++)
     for (const type of ["sword", "archer", "cavalry", "mage"])
       game.spawn(team, type, 3, "Founders", null);
