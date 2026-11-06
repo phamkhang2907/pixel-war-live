@@ -37,6 +37,7 @@ export class TikTokService {
     this.mode = "demo";
     this.status = "Offline";
     this.connectionState = "disconnected";
+    this.hint = "Disconnected. Public Demo remains available separately.";
     // Some connector implementations throw during teardown; never propagate to game.
     try {
       Promise.resolve(previous?.disconnect()).catch(() => {});
@@ -63,6 +64,9 @@ export class TikTokService {
         this.mode = "demo";
         this.status = "TikTok disconnected · Demo available separately";
         this.connectionState = error ? "error" : "disconnected";
+        this.hint = error
+          ? "Connector disconnected with an error. Check stream availability and signing access, then reconnect."
+          : "LIVE connection closed. Check that the stream is still broadcasting, then reconnect.";
       }
     };
     try {
