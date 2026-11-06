@@ -1,5 +1,5 @@
 import * as T from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { terrainHeight, MEADOW_CLEARANCE } from "./grass-material";
 export const NATURE_CATALOG = [
   ["CommonTree_3", "tree", 36, 7],
@@ -24,7 +24,7 @@ export async function buildStylizedNature(scene: T.Scene) {
     batches: [],
   };
   scene.add(root);
-  const loader = new GLTFLoader(),
+  const loader = createModelLoader(),
     textures = new Map<string, T.Texture>(),
     materials = new Map<string, T.MeshStandardMaterial>();
   let seed = 901831;

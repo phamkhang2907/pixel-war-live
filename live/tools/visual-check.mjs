@@ -52,6 +52,8 @@ try {
   const page = await browser.newPage({
     viewport: { width: 1080, height: 1920 },
     deviceScaleFactor: 1,
+    isMobile: kit,
+    hasTouch: kit,
   });
   page.setDefaultTimeout(120000);
   const errors = [];
@@ -244,6 +246,7 @@ try {
       {
         engine: kit ? "Linux WebKit" : "Linux Chromium",
         physicalIPad: false,
+        touchEmulation: kit,
         presets,
         softwareEnvironment: Object.fromEntries(
           [

@@ -1,3 +1,4 @@
+import { MODEL_IMAGE_DECODING } from "./model-loader";
 import { KenneyParticles } from "./kenney-particles";
 import { QUALITY, type Quality } from "./quality";
 import { natureQuality } from "./stylized-nature";
@@ -57,7 +58,9 @@ export class BattlefieldRenderer {
     private status: (message: string) => void,
   ) {
     this.renderer = new T.WebGLRenderer({
-      antialias: true,
+      // Coarse-pointer devices start in LOW: avoid a persistent MSAA backbuffer
+      // alongside shadow/HDR targets. Quality can still raise DPR and shadows.
+      antialias: !matchMedia("(pointer: coarse)").matches,
       powerPreference: "high-performance",
     });
     this.renderer.info.autoReset = false;
@@ -397,6 +400,8 @@ export class BattlefieldRenderer {
         visible: f.visible,
       })),
       quality: this.quality,
+      antialias: this.renderer.getContext().getContextAttributes()?.antialias,
+      modelImageDecoding: MODEL_IMAGE_DECODING,
       lighting: {
         toneMapping: "ACESFilmic",
         output: "sRGB",

@@ -1,5 +1,5 @@
 import * as T from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { CASTLE_X } from "./state";
 const ROOT = "/kaykit/medieval/Assets/gltf/";
 export const fortressCatalog = (color: "red" | "blue") => ({
@@ -16,7 +16,7 @@ export const fortressCatalog = (color: "red" | "blue") => ({
 });
 type Kind = keyof ReturnType<typeof fortressCatalog>;
 export async function buildFortresses(scene: T.Scene): Promise<T.Group[]> {
-  const loader = new GLTFLoader(),
+  const loader = createModelLoader(),
     cache = new Map<string, Promise<T.Group>>();
   const get = (path: string) => {
     if (!cache.has(path))

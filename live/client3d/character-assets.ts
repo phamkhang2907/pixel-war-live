@@ -1,6 +1,6 @@
 import * as T from "three";
 import { originalAttacks, onceClip } from "./unit-animation";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { clone as cloneRig } from "three/addons/utils/SkeletonUtils.js";
 import type { Team, SoldierKind as UnitKind } from "./state";
 
@@ -93,7 +93,7 @@ export class CharacterAssets {
       });
       if (!response.ok) throw Error(`Asset manifest HTTP ${response.status}`);
       const paths: string[] = await response.json();
-      const loader = new GLTFLoader();
+      const loader = createModelLoader();
       await Promise.all(
         characterNames.map(async (name) => {
           const path = findModel(paths, name);

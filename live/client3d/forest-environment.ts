@@ -1,5 +1,5 @@
 import * as T from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { terrainHeight, MEADOW_CLEARANCE } from "./grass-material";
 
 export const forestCatalog = [
@@ -15,7 +15,7 @@ export const forestCatalog = [
 ] as const;
 const ROOT = "/kaykit/forest/Assets/gltf/";
 export async function buildForest(scene: T.Scene) {
-  const loader = new GLTFLoader();
+  const loader = createModelLoader();
   const models = await Promise.all(
     forestCatalog.map((a) => loader.loadAsync(ROOT + a.file)),
   );

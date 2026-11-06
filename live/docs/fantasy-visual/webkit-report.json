@@ -5,9 +5,9 @@
     {
       "quality": "low",
       "units": 104,
-      "frames": 18,
-      "elapsedMs": 5020,
-      "fps": 3.585657370517928,
+      "frames": 35,
+      "elapsedMs": 5076,
+      "fps": 6.895193065405832,
       "drawCalls": 149,
       "triangles": 439094,
       "buffer": [
@@ -16,14 +16,15 @@
       ],
       "bloom": false,
       "shadows": false,
-      "physicalIPad": false
+      "physicalIPad": false,
+      "touchEmulation": true
     },
     {
       "quality": "medium",
       "units": 104,
-      "frames": 10,
-      "elapsedMs": 5007,
-      "fps": 1.9972039145196725,
+      "frames": 21,
+      "elapsedMs": 5134,
+      "fps": 4.090377873003506,
       "drawCalls": 305,
       "triangles": 910885,
       "buffer": [
@@ -32,14 +33,15 @@
       ],
       "bloom": false,
       "shadows": true,
-      "physicalIPad": false
+      "physicalIPad": false,
+      "touchEmulation": true
     },
     {
       "quality": "high",
       "units": 104,
-      "frames": 12,
-      "elapsedMs": 5102,
-      "fps": 2.352018816150529,
+      "frames": 13,
+      "elapsedMs": 5141,
+      "fps": 2.5286909161641704,
       "drawCalls": 402,
       "triangles": 1190868,
       "buffer": [
@@ -48,14 +50,15 @@
       ],
       "bloom": true,
       "shadows": true,
-      "physicalIPad": false
+      "physicalIPad": false,
+      "touchEmulation": true
     },
     {
       "quality": "low",
       "units": 304,
-      "frames": 16,
-      "elapsedMs": 5220,
-      "fps": 3.0651340996168583,
+      "frames": 30,
+      "elapsedMs": 5022,
+      "fps": 5.973715651135006,
       "drawCalls": 144,
       "triangles": 601560,
       "buffer": [
@@ -69,9 +72,9 @@
     {
       "quality": "low",
       "units": 504,
-      "frames": 15,
-      "elapsedMs": 5131,
-      "fps": 2.923406743324888,
+      "frames": 32,
+      "elapsedMs": 5047,
+      "fps": 6.340400237765009,
       "drawCalls": 147,
       "triangles": 760492,
       "buffer": [
@@ -83,11 +86,18 @@
       "physicalIPad": false
     }
   ],
+  "softwareEnvironment": {
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "GALLIUM_DRIVER": "llvmpipe",
+    "WEBKIT_DISABLE_DMABUF_RENDERER": "1",
+    "WEBKIT_DISABLE_COMPOSITING_MODE": "1",
+    "LP_NUM_THREADS": "2"
+  },
   "sourceBuild": {
-    "revision": "9745b25ec45744432e4fba8716dd649dbb65832f",
-    "shortRevision": "9745b25",
+    "revision": "1f7a915e47634537fdd320d7049c0a1a19b47cf8",
+    "shortRevision": "1f7a915",
     "dirty": true,
-    "builtAt": "2026-11-06T18:51:54.697Z",
+    "builtAt": "2026-11-06T19:20:09.281Z",
     "environment": "fantasy-visual-upgrade"
   },
   "graphics": {
@@ -101,15 +111,15 @@
   ],
   "errors": [],
   "mode": "front",
-  "x": -2.2666806399415579e-10,
+  "x": -0.000024940055522377266,
   "targetX": 0,
   "targetDistance": 145,
   "distance": 145,
   "elevation": 52,
   "z": -9,
   "cameraPosition": [
-    24.606398664661118,
-    117.53508325658885,
+    24.606373724832263,
+    117.53508297019835,
     76.81271011483732
   ],
   "yaw": 16,
@@ -608,44 +618,44 @@
       },
       "projectedBounds": [
         [
-          -1.4481712868428782,
-          0.3204879376308411,
-          0.9990545284555524
+          -1.4481706531253482,
+          0.3204878635533985,
+          0.999054528422805
         ],
         [
-          -1.0739527822898314,
-          0.27498389739250273,
-          0.9990362268265349
+          -1.0739521287419942,
+          0.27498382094875223,
+          0.999036226792791
         ],
         [
-          -1.5440244965194057,
-          0.4764167452848245,
-          0.9989742957180779
+          -1.5440238236175727,
+          0.4764166707955674,
+          0.9989742956808517
         ],
         [
-          -1.1461822128969863,
-          0.43036487847798305,
-          0.9989534703599426
+          -1.1461815175083305,
+          0.430364801440601,
+          0.9989534703215075
         ],
         [
-          -2.123670022168044,
-          -0.24421639498421216,
-          0.9988274055639155
+          -2.1236692913801267,
+          -0.24421650105560078,
+          0.998827405517747
         ],
         [
-          -1.6902183871543466,
-          -0.3085519654880948,
-          0.9988015299331403
+          -1.6902176290744282,
+          -0.3085520755672437,
+          0.9988015298852968
         ],
         [
-          -2.2926669794957526,
-          -0.1016844447040908,
-          0.9987128695229075
+          -2.292666196405701,
+          -0.10168455428053469,
+          0.9987128694690983
         ],
         [
-          -1.8273364966820744,
-          -0.16846889451908964,
-          0.9986826685738104
+          -1.8273356819439872,
+          -0.16846900858299982,
+          0.9986826685178894
         ]
       ],
       "visible": true
@@ -1133,50 +1143,52 @@
       },
       "projectedBounds": [
         [
-          1.4040030815699263,
-          -0.026329378049538818,
-          0.998915039262611
+          1.404003874131128,
+          -0.026329471098938934,
+          0.9989150392218931
         ],
         [
-          1.8701121181957323,
-          -0.08300707864429188,
-          0.9988922436109628
+          1.8701129384013664,
+          -0.08300717499912615,
+          0.9988922435688601
         ],
         [
-          1.508421915437967,
-          0.12308362463570387,
-          0.9988145130797463
+          1.508422770323187,
+          0.12308352950170769,
+          0.9988145130327468
         ],
         [
-          2.01171977764386,
-          0.06482484453964146,
-          0.9987881675688228
+          2.0117206646229056,
+          0.06482474576000079,
+          0.9987881675201025
         ],
         [
-          1.2432084435781978,
-          -0.74394930498737,
-          0.9986264140414308
+          1.2432093994995848,
+          -0.7439494441397749,
+          0.9986264139814673
         ],
         [
-          1.8075889553273385,
-          -0.8277181485482134,
-          0.9985927223892163
+          1.8075899519391236,
+          -0.8277182936840364,
+          0.9985927223267641
         ],
         [
-          1.357222614979373,
-          -0.6255183164474823,
-          0.9984759838385967
+          1.3572236631181798,
+          -0.6255184636349983,
+          0.9984759837671304
         ],
         [
-          1.9770865311803616,
-          -0.7144814773247581,
-          0.998435753337326
+          1.9770876281609253,
+          -0.7144816314492339,
+          0.9984357532626124
         ]
       ],
       "visible": true
     }
   ],
   "quality": "high",
+  "antialias": false,
+  "modelImageDecoding": "HTMLImageElement (WebKit compatibility)",
   "lighting": {
     "toneMapping": "ACESFilmic",
     "output": "sRGB",
@@ -12803,7 +12815,7 @@
       "strategy": "vertex-animation-textures",
       "rendered": 0,
       "states": {},
-      "time": 7.801,
+      "time": 4.412,
       "textureBytes": 5799936,
       "models": [
         {
@@ -13012,7 +13024,7 @@
     },
     "instances": [
       {
-        "id": 1074,
+        "id": 1073,
         "model": "Knight BLUE",
         "position": [
           0.2,
@@ -13022,10 +13034,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 1.0659998331069946
+        "time": 0.8803332777023316
       },
       {
-        "id": 1075,
+        "id": 1074,
         "model": "Knight BLUE",
         "position": [
           0.2,
@@ -13035,10 +13047,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 1.0659998331069946
+        "time": 0.8803332777023316
       },
       {
-        "id": 1076,
+        "id": 1075,
         "model": "Knight BLUE",
         "position": [
           0.2,
@@ -13048,10 +13060,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.5969998331069946
+        "time": 0.5333332777023316
       },
       {
-        "id": 1077,
+        "id": 1076,
         "model": "Knight BLUE",
         "position": [
           0.2,
@@ -13061,10 +13073,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.5969998331069946
+        "time": 0.5333332777023316
       },
       {
-        "id": 1079,
+        "id": 1078,
         "model": "Knight RED",
         "position": [
           -0.2,
@@ -13074,10 +13086,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.742666555404663
+        "time": 0.2813332777023314
       },
       {
-        "id": 1080,
+        "id": 1079,
         "model": "Knight RED",
         "position": [
           -0.2,
@@ -13087,10 +13099,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.742666555404663
+        "time": 0.2813332777023314
       },
       {
-        "id": 1081,
+        "id": 1080,
         "model": "Knight RED",
         "position": [
           -0.2,
@@ -13100,10 +13112,10 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.393666555404663
+        "time": 0.05433327770233154
       },
       {
-        "id": 1082,
+        "id": 1081,
         "model": "Knight RED",
         "position": [
           -0.2,
@@ -13113,7 +13125,7 @@
         "scale": 0.85,
         "normalizedScale": 0.7077962064037115,
         "clip": "Idle_A",
-        "time": 0.393666555404663
+        "time": 0.05433327770233154
       }
     ]
   },
@@ -13183,76 +13195,76 @@
     "animationHz": 30,
     "instances": [
       {
-        "id": 1069,
+        "id": 1068,
         "model": "MushroomKing mushroomKing 0",
         "clip": "Idle",
-        "time": 0.266,
+        "time": 0.9470000000000001,
         "position": [
           -37.800000000000004,
           -0.026478027878270534,
           -3
         ],
-        "rootBoneId": "1790685e-eee1-415b-8e20-8ff133cfe5c1"
+        "rootBoneId": "e12cc3cb-b17c-4370-be5f-ec300e527ce5"
       },
       {
-        "id": 1070,
+        "id": 1069,
         "model": "MushroomKing mushroomKing 0",
         "clip": "Idle",
-        "time": 0.266,
+        "time": 0.9470000000000001,
         "position": [
           -37.800000000000004,
           -0.026145268186687633,
           3
         ],
-        "rootBoneId": "6c7d389e-0ce6-4963-bffd-0899eec6b330"
+        "rootBoneId": "96f89abf-7562-4ba8-88fa-792cf2facbb3"
       },
       {
-        "id": 1071,
+        "id": 1070,
         "model": "MushroomKing mushroomKing 1",
         "clip": "Idle",
-        "time": 0.266,
+        "time": 0.9470000000000001,
         "position": [
           37.800000000000004,
           -0.02657631985283635,
           -3
         ],
-        "rootBoneId": "b4348ba3-8f50-4fc3-a276-913af746779e"
+        "rootBoneId": "3522afc0-3645-4e2f-a2cd-8f137c640d40"
       },
       {
-        "id": 1072,
+        "id": 1071,
         "model": "MushroomKing mushroomKing 1",
         "clip": "Idle",
-        "time": 0.266,
+        "time": 0.9470000000000001,
         "position": [
           37.800000000000004,
           -0.026477326489726553,
           3
         ],
-        "rootBoneId": "254ddfba-c6b2-4e69-9992-f66002391e5a"
+        "rootBoneId": "d1a0caa2-a9c6-4498-b2e0-c25eafe78339"
       },
       {
-        "id": 1073,
+        "id": 1072,
         "model": "Dragon frostDragon 0",
         "clip": "Flying_Idle",
-        "time": 0.944,
+        "time": 0.431,
         "position": [
           -4,
           8.894788464058397,
           -3.4
         ],
-        "rootBoneId": "6cf4c455-aee1-49fb-9848-457d210bb2ac"
+        "rootBoneId": "887f4df7-8608-4263-bd1c-58af703fde8d"
       },
       {
-        "id": 1078,
+        "id": 1077,
         "model": "Dragon_Evolved fireDragon 1",
         "clip": "Flying_Idle",
-        "time": 0.944,
+        "time": 0.431,
         "position": [
           4,
           9.430801428798716,
           3.4
         ],
-        "rootBoneId": "302b2709-ff3e-4832-8c98-3f8c27a33ed9"
+        "rootBoneId": "b3f013ca-7e8b-4d5b-864b-82a87ef4cf0b"
       }
     ]
   },
@@ -13283,19 +13295,20 @@
       1024,
       1024
     ],
-    "drawCalls": 1,
+    "drawCalls": 0,
     "maxDrawCalls": 2,
-    "active": 15,
+    "active": 0,
     "cap": 1000,
     "emitted": {
-      "trace_01": 4,
-      "spark_01": 185,
-      "smoke_04": 143,
-      "magic_01": 82,
-      "slash_01": 13,
-      "fire_01": 93,
-      "star_01": 64,
-      "flame_01": 64
+      "trace_01": 8,
+      "spark_01": 105,
+      "dirt_01": 25,
+      "smoke_04": 104,
+      "magic_01": 74,
+      "fire_01": 53,
+      "slash_01": 9,
+      "star_01": 32,
+      "flame_01": 32
     },
     "pooled": true,
     "video": false
@@ -13305,17 +13318,17 @@
     "arrowCap": 240,
     "rings": 0,
     "lightningBolts": 0,
-    "attacks": 39,
+    "attacks": 17,
     "castleHits": 0,
     "deaths": 0,
     "projectiles": "server snapshot; no client damage or guessed targets",
     "pooled": true
   },
-  "fps": 1.0593220338983051,
-  "totalFrames": 165,
-  "maxFrameMs": 1081,
-  "listenerX": 24.606398664661118,
-  "adaptiveScale": 0.5120000000000001,
+  "fps": 1.784121320249777,
+  "totalFrames": 212,
+  "maxFrameMs": 987,
+  "listenerX": 24.606373724832263,
+  "adaptiveScale": 0.8,
   "contextLost": false,
   "renderMemory": {
     "geometries": 143,
@@ -13328,32 +13341,32 @@
   "connectedState": true,
   "roundState": {
     "phase": "combat",
-    "elapsed": 4.6727278649999935,
-    "remaining": 295.327272135,
-    "phaseRemaining": 265.327272135,
+    "elapsed": 2.144198425999996,
+    "remaining": 297.855801574,
+    "phaseRemaining": 267.855801574,
     "duration": 300,
     "paused": false,
-    "id": "68c92200-09d3-43c0-90bb-3b92cda665e5",
+    "id": "4263fdb2-013b-475a-bb97-da82f6d54e90",
     "number": 6,
     "season": "2026-11",
-    "sessionId": "b7d660fa-4991-4431-ba4d-b1ff710101c7",
+    "sessionId": "a2b795c3-70cc-4231-b82f-2475c9d3cf7d",
     "result": null,
     "state": "COMBAT"
   },
   "drawingBuffer": [
-    691,
-    1228
+    1080,
+    1920
   ],
   "castleNDC": [
     [
-      -1.396318436784566,
-      0.014107700900047112,
-      0.998931302970484
+      -1.3963177371022224,
+      0.01410761017373,
+      0.9989313029307403
     ],
     [
-      1.381944944362822,
-      -0.35728789112014414,
-      0.9987819284466334
+      1.3819458142449728,
+      -0.35728800428467483,
+      0.998781928397501
     ]
   ],
   "audio": {
@@ -13370,10 +13383,10 @@
     "buffers": 0
   },
   "build": {
-    "revision": "9745b25ec45744432e4fba8716dd649dbb65832f",
-    "shortRevision": "9745b25",
+    "revision": "1f7a915e47634537fdd320d7049c0a1a19b47cf8",
+    "shortRevision": "1f7a915",
     "dirty": true,
-    "builtAt": "2026-11-06T18:51:54.697Z",
+    "builtAt": "2026-11-06T19:20:09.281Z",
     "environment": "fantasy-visual-upgrade"
   }
 }
