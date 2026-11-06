@@ -143,9 +143,11 @@ try {
   await wait(() => publicState.units.length >= 800);
   assert.ok(publicState.units.some((u) => u.spawnBand === 2));
   assert.ok(
-    publicState.units.every(
-      (u, i, a) => i === 0 || u.summonSequence > a[i - 1].summonSequence,
-    ),
+    publicState.units
+      .filter((u) => u.summonSequence !== null)
+      .every(
+        (u, i, a) => i === 0 || u.summonSequence > a[i - 1].summonSequence,
+      ),
   );
   for (const [team, giftName, quantity] of [
     [0, "Demo Giant", 1],
@@ -360,10 +362,10 @@ try {
   const frozen = latest.time;
   await sleep(450);
   assert.equal(latest.time, frozen);
-  assert.equal(latest.units.length, 0);
+  assert.equal(latest.units.length, 4);
   assert.equal(latest.summonQueue.pending, 100);
   await command("resumeBattle");
-  await wait(() => latest.units.length === 100);
+  await wait(() => latest.units.length === 104);
   await command("stopBattle");
   await wait(() => latest.roundState.phase === "stopped");
   const stopped = latest.roundState.id;

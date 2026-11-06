@@ -25,6 +25,22 @@ export function publicDemo(app, io) {
   });
   game.giftMappings.push(
     {
+      key: "demo-lion",
+      giftId: "demo-lion",
+      giftName: "Demo Lion",
+      type: "frostDragon",
+      count: 1,
+      enabled: true,
+    },
+    {
+      key: "demo-dragon",
+      giftId: "demo-dragon",
+      giftName: "Demo Dragon",
+      type: "fireDragon",
+      count: 1,
+      enabled: true,
+    },
+    {
       key: "demo-heavy",
       giftId: "demo-heavy",
       giftName: "Demo Heavy",
@@ -42,6 +58,8 @@ export function publicDemo(app, io) {
     },
   );
   const gifts = [
+    ["Demo Lion", "Blue Frost Dragon", 1],
+    ["Demo Dragon", "Red Fire Dragon", 1],
     ["Rose", "Small Soldier", 1],
     ["Finger Heart", "Small Soldier", 5],
     ["Doughnut", "Archer", 3],
@@ -55,13 +73,11 @@ export function publicDemo(app, io) {
         "Set-Cookie",
         `pw_demo=${randomBytes(18).toString("base64url")}; HttpOnly; SameSite=Strict; Path=/${req.secure || req.get("x-forwarded-proto") === "https" ? "; Secure" : ""}`,
       );
-    res
-      .set("Cache-Control", "no-store")
-      .json({
-        simulated: true,
-        gifts: gifts.map(([name, unit, count]) => ({ name, unit, count })),
-        maxQuantity: 50,
-      });
+    res.set("Cache-Control", "no-store").json({
+      simulated: true,
+      gifts: gifts.map(([name, unit, count]) => ({ name, unit, count })),
+      maxQuantity: 50,
+    });
   });
   app.post("/api/demo/gift", (req, res) => {
     const origin = req.get("origin");
@@ -112,11 +128,15 @@ export function publicDemo(app, io) {
     const result = ingest.gift({
       user: { userId, nickname: p.username.trim() },
       giftId:
-        p.giftName === "Demo Heavy"
-          ? "demo-heavy"
-          : p.giftName === "Demo Giant"
-            ? "demo-giant"
-            : "",
+        p.giftName === "Demo Lion"
+          ? "demo-lion"
+          : p.giftName === "Demo Dragon"
+            ? "demo-dragon"
+            : p.giftName === "Demo Heavy"
+              ? "demo-heavy"
+              : p.giftName === "Demo Giant"
+                ? "demo-giant"
+                : "",
       giftDetails: { giftName: p.giftName, giftType: 1, diamondCount: 0 },
       repeatCount: p.quantity,
       repeatEnd: true,

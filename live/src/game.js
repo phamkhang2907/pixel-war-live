@@ -1,6 +1,21 @@
-import { DEFAULT_GIFT_MAPPINGS, resolveGift, SUMMONABLE } from "./gifts.js";
+import { giftGroupPosition } from "./summon-groups.js";
+import { tickMonster } from "./monster-combat.js";
+import {
+  DEFAULT_GIFT_MAPPINGS,
+  resolveGift,
+  SUMMONABLE,
+  isDragon,
+  verifiedDragonGift,
+} from "./gifts.js";
 import { safeAvatar } from "./hud-data.js";
-import { TYPES, WORLD, LIKE_REWARDS, formation, ARMY } from "./characters.js";
+import {
+  TYPES,
+  WORLD,
+  LIKE_REWARDS,
+  formation,
+  ARMY,
+  MONSTERS,
+} from "./characters.js";
 import { SpatialGrid, seeded } from "./spatial.js";
 export { TYPES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -31,6 +46,7 @@ export class Battle {
     this.giftCatalog = new Map();
     this.teams = new Map();
     this.scores = new Map();
+    this.profiles = new Map();
     this.round = 0;
     this.nextId = 1;
     this.effectId = 1;
@@ -58,6 +74,7 @@ export class Battle {
     this.projectiles = [];
     this.effects = [];
     this.events = [];
+    this.summonEvents = [];
     this.castles = [10000, 10000];
     this.time = 0;
     this.winner = null;
@@ -72,6 +89,12 @@ export class Battle {
   }
   profile(id, name, avatar) {
     if (id === undefined || id === null) return;
+    const previous = this.profiles.get(String(id));
+    avatar = safeAvatar(avatar) || previous?.avatar || "";
+    this.profiles.set(String(id), {
+      name: String(name || id).slice(0, 64),
+      avatar,
+    });
     this.onCombat({
       kind: "profile",
       userId: String(id),
@@ -99,6 +122,7 @@ export class Battle {
     userId = name,
     sequenceStart = null,
     origin = "demo",
+    summonContext = null,
   ) {
     if (
       !this.inputOpen ||
@@ -109,7 +133,17 @@ export class Battle {
     )
       return 0;
     const t = TYPES[type];
-    count = clamp(Math.floor(count), 0, this.maxUnits - this.units.length);
+    count = clamp(
+      Math.floor(count),
+      0,
+      this.maxUnits - this.units.filter((u) => !TYPES[u.type].defender).length,
+    );
+    if (isDragon(type))
+      count = Math.min(
+        count,
+        MONSTERS.maxDragons - this.units.filter((u) => isDragon(u.type)).length,
+      );
+    if (t.defender) return 0;
     if (this.spawnGridDirty) {
       this.spawnGrid.build(this.units);
       this.spawnGridDirty = false;
@@ -126,11 +160,12 @@ export class Battle {
         }
     }
     let deployed = 0;
+    const deployedGroups = new Map();
     for (let i = 0; i < count; i++) {
       let position = null;
       for (let attempt = 0; attempt < 96; attempt++) {
         const slot = this.spawnSlots[team]++;
-        const candidate = this.spawnZone
+        let candidate = this.spawnZone
           ? this.spawnZone(team, slot, type)
           : (() => {
               const bands = Math.min(
@@ -146,6 +181,19 @@ export class Battle {
                   selected = b;
               return formation(team, slot, type, bands, selected);
             })();
+        // Saturated compact groups fall back to a free position in the broad band, retaining FIFO throughput.
+        if (summonContext && ["gift", "demoGift"].includes(origin)) {
+          const compact = giftGroupPosition(
+            summonContext,
+            team,
+            type,
+            sequenceStart + i,
+            slot,
+            candidate,
+          );
+          if (attempt < 64) candidate = compact;
+          else candidate.cohort = compact.cohort;
+        }
         let free = true;
         this.spawnGrid.query(candidate.x, candidate.y, t.radius + 73, (v) => {
           if (TYPES[v.type].air !== t.air) return;
@@ -175,6 +223,8 @@ export class Battle {
         summonSequence,
         origin,
         attackId: 0,
+        bornAt: this.time,
+        summonRequest: summonContext?.sequenceStart,
         ...position,
         hp: t.hp,
         maxHp: t.hp,
@@ -188,6 +238,22 @@ export class Battle {
         chargeUntil: 0,
         rage: false,
       });
+      if (summonContext && ["gift", "demoGift"].includes(origin)) {
+        const cohort = position.cohort ?? 0,
+          group = deployedGroups.get(cohort) || {
+            cohort,
+            count: 0,
+            x: 0,
+            y: 0,
+            firstId: unitId,
+            lastId: unitId,
+          };
+        group.count++;
+        group.x += position.x;
+        group.y += position.y;
+        group.lastId = unitId;
+        deployedGroups.set(cohort, group);
+      }
       this.spawnGrid.add(this.units.at(-1));
       this.spawnWeight[team] += Math.max(1, (t.radius / 13) ** 2);
       this.spawnBandWeight[team][position.spawnBand ?? 0] += Math.max(
@@ -205,6 +271,25 @@ export class Battle {
       if (userId !== null) this.committedTeams.set(String(userId), team);
       this.onCombat({ kind: "spawn", unitId, source: { userId, name, team } });
     }
+    for (const group of deployedGroups.values())
+      this.summonEvents.push({
+        id: this.effectId++,
+        at: Date.now(),
+        roundId: this.roundId,
+        requestId: summonContext.sequenceStart,
+        ...group,
+        x: group.x / group.count,
+        y: group.y / group.count,
+        type,
+        team,
+        name: String(name || "Viewer").slice(0, 64),
+        userId,
+        avatar: summonContext.avatar || "",
+        giftIcon: summonContext.giftIcon || "",
+        giftName: summonContext.giftName || "Gift",
+        origin,
+      });
+    this.summonEvents = this.summonEvents.slice(-128);
     if (sequenceStart === null) this.queueChanged();
     return deployed;
   }
@@ -233,7 +318,7 @@ export class Battle {
   }
   event(data) {
     this.events.unshift({ ...data, id: this.effectId++, at: Date.now() });
-    this.events = this.events.slice(0, 20);
+    this.events = this.events.slice(0, 64);
   }
   effect(type, x, y, extra = {}) {
     this.effects.push({
@@ -263,11 +348,17 @@ export class Battle {
     count = 1,
     giftId = "",
     giftName = "",
+    giftIcon = "",
+    avatar = "",
     roundId,
     eventAt,
     origin = "gift",
     continuedStreak = false,
   }) {
+    name = String(name || this.profiles.get(String(id))?.name || id).slice(
+      0,
+      24,
+    );
     const team = this.teams.get(String(id));
     const reject = (error) => {
       this.queueStats.rejected++;
@@ -280,6 +371,15 @@ export class Battle {
     )
       return reject("Late gift from an earlier round");
     const rule = resolveGift(this.giftMappings, { giftId, giftName, coins });
+    if (
+      rule &&
+      isDragon(rule.type) &&
+      origin !== "demoGift" &&
+      !verifiedDragonGift(rule, this.giftCatalog)
+    )
+      return {
+        error: "Dragon gift ID has not been verified by the LIVE connector",
+      };
     if (!rule) return reject("No configured action for this gift");
     const repeats = Number(count ?? 1);
     if (!Number.isInteger(repeats) || repeats < 1 || repeats > 10000)
@@ -310,6 +410,10 @@ export class Battle {
       this.score(id, name, team).coins += value;
       this.teamScore[team] += value;
     }
+    avatar = safeAvatar(avatar) || this.profiles.get(String(id))?.avatar || "";
+    giftIcon = /\.(mp4|webm|mov)([?#]|$)/i.test(giftIcon)
+      ? ""
+      : safeAvatar(giftIcon);
     const sequenceStart = this.nextSummonSequence;
     this.nextSummonSequence += quantity;
     this.summonQueue.push({
@@ -319,6 +423,10 @@ export class Battle {
       quantity,
       sequenceStart,
       sourceRound: this.roundId,
+      avatar,
+      giftIcon,
+      giftName: giftName || rule.giftName,
+      giftQuantity: repeats,
       creditOnDeploy: deferCoins ? value : 0,
       origin,
       name,
@@ -335,6 +443,10 @@ export class Battle {
       value,
       kind: "gift",
       queued: true,
+      userId: String(id),
+      avatar,
+      giftIcon,
+      giftQuantity: repeats,
       giftName: giftName || rule.giftName,
       giftId,
     });
@@ -390,6 +502,7 @@ export class Battle {
         q.userId,
         q.sequenceStart + (q.quantity - q.remaining),
         q.origin,
+        q,
       );
       if (n > 0 && q.creditOnDeploy) {
         this.score(q.userId, q.name, q.team).coins += q.creditOnDeploy;
@@ -588,7 +701,7 @@ export class Battle {
         kind: "kill",
         unitId: target.id,
         source,
-        boss: target.type === "boss",
+        boss: target.type === "boss" || isDragon(target.type),
         helpers: [...target.contributors.values()],
       });
     }
@@ -621,8 +734,15 @@ export class Battle {
       ty: target.y - (target.type && TYPES[target.type].air ? 85 : 25),
       target: target.id,
       damage,
-      startLift: TYPES[u.type]?.air ? 84 : 10.5,
-      endLift: target.type && TYPES[target.type].air ? 84 : 10.5,
+      startGroundY: u.y,
+      endGroundY: target.y,
+      startLift:
+        u.type === "mushroomKing"
+          ? 135
+          : TYPES[u.type]?.flightHeight || (TYPES[u.type]?.air ? 84 : 10.5),
+      endLift:
+        (target.type && TYPES[target.type].flightHeight) ||
+        (target.type && TYPES[target.type].air ? 84 : 10.5),
       lift: TYPES[u.type]?.air ? 84 : 10.5,
       flightTime: Math.max(
         0.1,
@@ -653,6 +773,11 @@ export class Battle {
       )
         continue;
       this.damage(v, amount, { ...source, team, x }, true);
+      if (source.element === "ice" && v.hp > 0)
+        v.slowUntil = Math.max(
+          v.slowUntil || 0,
+          this.time + MONSTERS.slowSeconds,
+        );
       v.x = clamp(
         v.x + (team === 0 ? knock : -knock),
         WORLD.castles[0] + 60,
@@ -670,7 +795,9 @@ export class Battle {
     }
     dt = clamp(dt, 0, 0.1); // Always age corpses, including after victory.
     for (const u of this.units) if (u.hp <= 0) u.dead += dt;
-    this.units = this.units.filter((u) => u.dead < 0.95);
+    this.units = this.units.filter(
+      (u) => u.dead < (TYPES[u.type].monster ? 2.4 : 0.95),
+    );
     if (this.winner !== null) return;
     this.time += dt;
     const grid = new SpatialGrid(100).build(this.units),
@@ -690,6 +817,7 @@ export class Battle {
         u.state = "idle";
         continue;
       }
+      if (tickMonster(this, u, enemies, dt)) continue;
       if (u.type === "boss" && !u.rage && u.hp < u.maxHp * 0.4) {
         u.rage = true;
         u.enrage = 0.8;
@@ -784,7 +912,8 @@ export class Battle {
         }
       } else {
         u.state = u.hurt > 0 ? "hurt" : t.air ? "fly" : "run";
-        const velocity = t.speed;
+        const velocity =
+          t.speed * (u.slowUntil > this.time ? MONSTERS.slowFactor : 1);
         if (best > 0) {
           u.x += ((target.x - u.x) / best) * velocity * dt;
           const wander =
@@ -857,6 +986,7 @@ export class Battle {
           : alive.get(p.target);
       if (t && t.hp > 0 && p.kind !== "rain") {
         p.tx = t.x;
+        p.endGroundY = t.y;
         p.ty = t.y - (t.type && TYPES[t.type].air ? 85 : 25);
       }
       const dx = p.tx - p.x,
@@ -911,6 +1041,11 @@ export class Battle {
           origin,
           attackId,
           spawnBand,
+          faceX,
+          faceY,
+          slowUntil,
+          bornAt,
+          summonRequest,
         }) => ({
           id,
           team,
@@ -927,8 +1062,15 @@ export class Battle {
           origin,
           attackId,
           spawnBand,
+          faceX,
+          faceY,
+          slowUntil,
+          bornAt,
+          summonRequest,
         }),
       ),
+      summonProtocol: 1,
+      summons: this.summonEvents.filter((e) => Date.now() - e.at < 5000),
       cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),
       projectiles: this.projectiles,
       effects: this.effects.filter((e) => this.time - e.time < 1),

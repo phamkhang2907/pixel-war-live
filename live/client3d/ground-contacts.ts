@@ -36,7 +36,7 @@ export class GroundContacts {
     this.units = new T.InstancedMesh(
       this.geometry,
       this.material,
-      ARMY.maxUnits,
+      ARMY.maxUnits + 4,
     );
     this.units.name = "Unit ground contact shadows";
     this.units.instanceMatrix.setUsage(T.DynamicDrawUsage);
@@ -68,7 +68,7 @@ export class GroundContacts {
   update(state: BattleState | null, dt: number) {
     let count = 0;
     const ids = new Set<number>();
-    for (const u of state?.units.slice(0, ARMY.maxUnits) ?? []) {
+    for (const u of state?.units.slice(0, ARMY.maxUnits + 4) ?? []) {
       if (u.hp <= 0) continue;
       ids.add(u.id);
       const x = worldX(u.x),

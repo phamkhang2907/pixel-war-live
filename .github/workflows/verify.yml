@@ -126,3 +126,35 @@ jobs:
             live/artifacts/upgrade-*.png
             live/artifacts/upgrade-report*.json
             live/artifacts/deployment-throughput.json
+
+  monster-gifts-and-defenders:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+        working-directory: live
+      - run: node tools/monster-check.mjs
+        working-directory: live
+      - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 MONSTER_ENGINE=webkit node tools/monster-check.mjs
+        working-directory: live
+      - run: node tools/native-summons-check.mjs
+        working-directory: live
+      - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 NATIVE_ENGINE=webkit node tools/native-summons-check.mjs
+        working-directory: live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: monster-gifts-models-and-castle-defenders
+          path: |
+            live/artifacts/monsters-*.png
+            live/artifacts/monsters-*-report.json
+            live/artifacts/native-*.png
+            live/artifacts/native-*-report.json

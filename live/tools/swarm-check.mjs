@@ -88,7 +88,7 @@ try {
       await command("pause");
     }
     await page.waitForFunction(
-      (n) => window.__PW3D?.inspect().assets.rendered === n,
+      (n) => window.__PW3D?.inspect().assets.rendered === n + 4,
       count,
     );
     await page.locator("[data-camera=front]").evaluate((b) => b.click());
@@ -102,7 +102,7 @@ try {
       "Demo marches stay outside fortress walls",
     );
     for (const team of [0, 1]) {
-      const troops = latest.units.filter((u) => u.team === team);
+      const troops = latest.units.filter((u) => u.team === team && u.type !== "mushroomKing");
       assert.equal(troops.length, count / 2);
       assert.ok(
         new Set(troops.map((u) => u.y)).size > troops.length * 0.85,

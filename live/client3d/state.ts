@@ -7,8 +7,15 @@ export const worldX = (x: number) => (x - WORLD.width / 2) * WORLD_SCALE;
 export const worldZ = (y: number) => (y - WORLD.ground) * WORLD_SCALE;
 export const CASTLE_X = WORLD.castles.map(worldX);
 export type Team = 0 | 1;
-export type UnitKind =
+export type SoldierKind =
   "sword" | "archer" | "cavalry" | "mage" | "guardian" | "boss";
+export type MonsterKind = "frostDragon" | "fireDragon" | "mushroomKing";
+export type UnitKind = SoldierKind | MonsterKind;
+export interface SoldierState extends UnitState {
+  type: SoldierKind;
+}
+export const isSoldier = (u: UnitState): u is SoldierState =>
+  !["frostDragon", "fireDragon", "mushroomKing"].includes(u.type);
 export interface UnitState {
   id: number;
   team: Team;
@@ -18,8 +25,13 @@ export interface UnitState {
   hp: number;
   maxHp: number;
   state: string;
+  faceX?: number;
+  faceY?: number;
+  slowUntil?: number;
+  bornAt?: number;
+  summonRequest?: number;
   attackId?: number;
-  summonSequence?: number;
+  summonSequence?: number | null;
   origin?: string;
 }
 export interface BattleState {
@@ -33,6 +45,9 @@ export interface BattleState {
     message: string;
     hint: string;
   };
+  events?: GiftNotice[];
+  summons?: SummonBatch[];
+  summonProtocol?: number;
   paused: boolean;
   castles: [number, number];
   units: UnitState[];
@@ -62,4 +77,40 @@ export interface BattleState {
       }[];
     } | null;
   };
+}
+
+export interface SummonBatch {
+  id: number;
+  at: number;
+  roundId: string;
+  requestId: number;
+  cohort: number;
+  count: number;
+  firstId: number;
+  lastId: number;
+  x: number;
+  y: number;
+  type: UnitKind;
+  team: Team;
+  name: string;
+  userId: string;
+  avatar: string;
+  giftIcon: string;
+  giftName: string;
+  origin: string;
+}
+export interface GiftNotice {
+  id: number;
+  at: number;
+  kind: string;
+  name: string;
+  userId?: string;
+  team: Team;
+  type?: UnitKind;
+  count?: number;
+  giftName?: string;
+  avatar?: string;
+  giftIcon?: string;
+  giftQuantity?: number;
+  queued?: boolean;
 }

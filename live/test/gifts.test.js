@@ -1,3 +1,4 @@
+// These existing unit fixtures isolate summon/scoring behavior; monster tests cover default automatic defenders.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Battle } from "../src/game.js";
@@ -13,7 +14,7 @@ import { calendarBoard } from "../src/hud-data.js";
 const setup = () => {
   const league = new League(),
     battle = new Battle(),
-    rounds = new RoundManager(battle, league),
+    rounds = new RoundManager(battle, league, { defenders: false }),
     ingest = new TikTokIngest(battle);
   const user = { userId: "stable", nickname: "Viewer" };
   ingest.chat({ user, comment: "1" });
@@ -77,7 +78,7 @@ test("exact observed ID overrides name, and an admin can configure Heavy/Giant t
   assert.ok(battle.units.every((u) => u.type === "cavalry"));
   assert.equal(battle.teamScore[0], 17);
 });
-test("Guardian and dragons are rejected in mappings; castle Guardian reserved and disabled", () => {
+test("Reserved Guardian and unverified enabled dragon mappings are rejected", () => {
   for (const type of ["guardian", "fireDragon", "frostDragon"])
     assert.throws(() =>
       validateGiftMappings([{ ...DEFAULT_GIFT_MAPPINGS[0], type }]),

@@ -1,6 +1,8 @@
+import { spawnCastleDefenders } from "./monster-combat.js";
 import { roundConfig } from "./league.js";
 export class RoundManager {
-  constructor(game, league) {
+  constructor(game, league, { defenders = true } = {}) {
+    this.defenders = defenders;
     this.game = game;
     this.league = league;
     this.paused = false;
@@ -85,6 +87,7 @@ export class RoundManager {
     const active = this.league.start();
     this.game.round = active.number;
     this.game.roundId = active.id;
+    if (this.defenders) spawnCastleDefenders(this.game);
     this.config = { ...this.league.data.config };
     this.elapsed = 0;
     this.phase = this.config.prepare ? "prepare" : "combat";

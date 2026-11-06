@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/formations.test.js && node test/hud.test.js && node test/gifts.test.js && node test/async-storage.test.js && node test/swarm.test.js && node test/upgrade.test.js",
+    "test": "node test/game.test.js && node test/energy.test.js && node test/tiktok.test.js && node test/connection.test.js && node test/rounds.test.js && node test/persistence.test.js && node test/formations.test.js && node test/hud.test.js && node test/gifts.test.js && node test/async-storage.test.js && node test/swarm.test.js && node test/upgrade.test.js && node test/monsters.test.js && node test/native-summons.test.js",
     "build": "npm run build:assets && npm run build:3d",
     "prestart": "npm run build",
     "predev": "npm run build",
@@ -18,7 +18,7 @@
     "test:battlefield": "npm run build && node tools/battlefield-check.mjs",
     "test:fortresses": "npm run build && node tools/fortress-check.mjs",
     "test:hud": "npm run build && node tools/hud-check.mjs",
-    "build:assets": "python3 tools/extract-ui-kit.py && node tools/build.mjs && python3 tools/extract-kaykit.py && python3 tools/validate-kaykit.py",
+    "build:assets": "python3 tools/extract-ui-kit.py && python3 tools/extract-monsters.py && node tools/build.mjs && python3 tools/extract-kaykit.py && python3 tools/validate-kaykit.py",
     "test:browser": "npm run build && node tools/gameplay-check.mjs",
     "test:audio": "node tools/audio-check.mjs",
     "audio:generate": "python3 tools/make-audio.py",
@@ -26,7 +26,9 @@
     "test:version": "npm run build && node tools/version-check.mjs",
     "test:swarm": "npm run build && node tools/swarm-check.mjs",
     "test:music": "npm run build && node tools/music-check.mjs",
-    "test:upgrade": "npm run build && node tools/upgrade-check.mjs"
+    "test:upgrade": "npm run build && node tools/upgrade-check.mjs",
+    "test:monsters": "npm run build && node tools/monster-check.mjs",
+    "test:native": "npm run build && node tools/native-summons-check.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

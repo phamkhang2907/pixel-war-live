@@ -35,6 +35,9 @@ export default defineConfig(({ command }) => {
       target: "safari15.4",
       rollupOptions: {
         input: {
+          monsters: fileURLToPath(
+            new URL("./client3d/monsters.html", import.meta.url),
+          ),
           game: fileURLToPath(
             new URL("./client3d/index.html", import.meta.url),
           ),

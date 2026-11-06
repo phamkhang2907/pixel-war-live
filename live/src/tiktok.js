@@ -1,3 +1,5 @@
+import { safeAvatar } from "./hud-data.js";
+import { normalizeGiftName } from "./gifts.js";
 // TikTok-Live-Connector 2.5 native events use nested user/giftDetails/common.
 export class TikTokIngest {
   constructor(battle, { source = "live" } = {}) {
@@ -5,6 +7,92 @@ export class TikTokIngest {
     this.battle = battle;
     this.seen = new Set();
     this.streakRounds = new Map();
+  }
+  observeGift(raw, evidence = "connector-gift-event", notify = true) {
+    const giftId = String(raw.giftId ?? raw.id ?? ""),
+      giftName = String(raw.giftName ?? raw.name ?? "")
+        .trim()
+        .slice(0, 80);
+    if (!giftId && !giftName) return;
+    const coins = Number(raw.coins ?? raw.diamond_count ?? raw.diamondCount),
+      key = giftId || giftName;
+    const entry = {
+      giftId,
+      giftName,
+      coins: Number.isFinite(coins) && coins > 0 ? coins : null,
+      icon: safeAvatar(
+        raw.giftIcon ||
+          raw.icon ||
+          raw.image?.url_list?.[0] ||
+          raw.image?.urlList?.[0] ||
+          this.battle.giftCatalog?.get(key)?.icon ||
+          "",
+      ),
+      source: this.source,
+      evidence:
+        evidence === "persisted-live-metadata" ? raw.evidence : evidence,
+      observedAt:
+        evidence === "persisted-live-metadata" ? raw.observedAt : Date.now(),
+    };
+    if (
+      this.source === "live" ||
+      this.battle.giftCatalog?.get(key)?.source !== "live"
+    )
+      this.battle.giftCatalog?.set(key, entry);
+    if (this.source === "live" && /^[1-9]\d{0,23}$/.test(giftId) && giftName) {
+      const lion = this.battle.giftMappings.find((r) => r.key === "lion-frost");
+      if (
+        lion &&
+        !lion.giftId &&
+        ["lion", "sutu"].includes(normalizeGiftName(giftName))
+      )
+        Object.assign(lion, {
+          giftId,
+          giftName,
+          type: "frostDragon",
+          count: 1,
+          enabled: true,
+        });
+      for (const row of this.battle.giftMappings)
+        if (
+          row.pendingVerification &&
+          row.giftId === giftId &&
+          ["frostDragon", "fireDragon"].includes(row.type)
+        ) {
+          Object.assign(row, {
+            giftName,
+            count: 1,
+            enabled: true,
+            pendingVerification: false,
+          });
+          delete row.minCoins;
+          for (const other of this.battle.giftMappings)
+            if (other !== row && other.giftId === giftId) {
+              other.enabled = false;
+              other.pendingVerification = false;
+            }
+        }
+      if (lion?.giftId === giftId && lion.enabled) delete lion.minCoins;
+    }
+    // Keep explicitly configured monster IDs while bounding the display catalog.
+    const protectedIds = new Set(
+      this.battle.giftMappings
+        .filter((r) => r.type === "frostDragon" || r.type === "fireDragon")
+        .map((r) => r.giftId),
+    );
+    if (this.battle.giftCatalog?.size > 200)
+      for (const k of this.battle.giftCatalog.keys())
+        if (!protectedIds.has(k)) {
+          this.battle.giftCatalog.delete(k);
+          break;
+        }
+    if (notify && this.source === "live") this.battle.onGiftMetadata?.(entry);
+  }
+  catalog(items, evidence = "connector-room-gift-list") {
+    if (this.source !== "live" || !Array.isArray(items)) return;
+    for (const item of items.slice(0, 5000))
+      this.observeGift(item, evidence, false);
+    this.battle.onGiftMetadata?.();
   }
   profile(data) {
     const user = data?.user;
@@ -60,19 +148,18 @@ export class TikTokIngest {
         details.giftName || data.giftName || details.name || "",
       );
     const coins = Number(details.diamondCount);
-    if (giftId || giftName) {
-      const key = giftId || giftName;
-      this.battle.giftCatalog?.set(key, {
+    this.observeGift(
+      {
         giftId,
         giftName,
-        coins: Number.isFinite(coins) && coins > 0 ? coins : null,
-        source: this.source,
-      });
-      if (this.battle.giftCatalog?.size > 200)
-        this.battle.giftCatalog.delete(
-          this.battle.giftCatalog.keys().next().value,
-        );
-    }
+        coins,
+        giftIcon:
+          details.giftImage?.urlList?.[0] ||
+          details.image?.urlList?.[0] ||
+          data.extendedGiftInfo?.image?.url_list?.[0],
+      },
+      "connector-gift-event",
+    );
     const groupValue = String(data.groupId || data.streakId || "");
     const group =
       Number(details.giftType) === 1 && groupValue !== "0" ? groupValue : "";
@@ -119,6 +206,13 @@ export class TikTokIngest {
           : (data.repeatCount ?? 1),
       giftId,
       giftName,
+      avatar:
+        user.avatarThumb?.urlList?.[0] ||
+        user.avatarMedium?.urlList?.[0] ||
+        user.profilePictureUrl ||
+        data.profilePictureUrl ||
+        "",
+      giftIcon: this.battle.giftCatalog?.get(giftId || giftName)?.icon || "",
       roundId: continuedStreak ? undefined : roundId,
       continuedStreak,
       eventAt: createTime

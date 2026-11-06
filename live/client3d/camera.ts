@@ -87,8 +87,9 @@ export class BattlefieldCamera {
       max = -Infinity,
       red = -Infinity,
       blue = Infinity;
+    const hasMarchers = state.units.some((v) => v.type !== "mushroomKing");
     for (const u of state.units) {
-      if (u.hp <= 0) continue;
+      if (u.hp <= 0 || (u.type === "mushroomKing" && hasMarchers)) continue;
       const x = worldX(u.x);
       min = Math.min(min, x);
       max = Math.max(max, x);

@@ -1,3 +1,4 @@
+// These existing unit fixtures isolate summon/scoring behavior; monster tests cover default automatic defenders.
 import { WORLD } from "../src/characters.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -12,7 +13,7 @@ const setup = (config = {}, dir = null) => {
   const league = new League(dir);
   league.data.config = roundConfig({ ...league.data.config, ...config });
   const game = new Battle();
-  const rounds = new RoundManager(game, league);
+  const rounds = new RoundManager(game, league, { defenders: false });
   return { game, league, rounds };
 };
 test("default 300s: prepare30 / combat240 / final30 / result7 / immediate next round", () => {

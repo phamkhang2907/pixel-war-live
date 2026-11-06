@@ -31,7 +31,20 @@ const app = express(),
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
 const league = new League(dataDir, { asyncPersistence: true });
+game.profiles = new Map(Object.entries(league.data.profiles || {}));
 const rounds = new RoundManager(game, league);
+game.giftCatalog = new Map(
+  (league.data.observedGifts || [])
+    .filter((g) => g.source === "live")
+    .map((g) => [g.giftId || g.giftName, g]),
+);
+game.onGiftMetadata = () => {
+  league.data.observedGifts = [...game.giftCatalog.values()].filter(
+    (g) => g.source === "live",
+  );
+  league.dirty = true;
+  league.checkpoint();
+};
 const tiktok = new TikTokService(game);
 let auto = false,
   speed = 1;
@@ -39,6 +52,7 @@ const token = process.env.ADMIN_TOKEN || randomBytes(18).toString("hex");
 try {
   game.giftMappings = validateGiftMappings(
     JSON.parse(await readFile(dataDir + "/gift-mappings.json", "utf8")),
+    game.giftCatalog,
   );
 } catch (error) {
   if (error.code !== "ENOENT") throw error;
@@ -59,6 +73,16 @@ try {
 } catch (e) {
   if (e.code !== "ENOENT") throw e;
 }
+for (const row of DEFAULT_GIFT_MAPPINGS.filter((r) =>
+  ["lion-frost", "dragon-fire", "ice-summon"].includes(r.key),
+))
+  if (!game.giftMappings.some((r) => r.key === row.key))
+    game.giftMappings.push(structuredClone(row));
+// Only server-persisted LIVE metadata can restore verified pending bindings.
+new TikTokIngest(game).catalog(
+  [...game.giftCatalog.values()],
+  "persisted-live-metadata",
+);
 const demoIngest = new TikTokIngest(game, { source: "demo" });
 const owner = ownerSessions(app, {
   password: process.env.OWNER_PASSWORD || token,
@@ -254,6 +278,7 @@ app.post("/api/control", auth, async (req, res) => {
             giftName: p.giftName || "Rose",
             diamondCount: Number(p.coins ?? 0),
             giftType: p.streak ? 1 : 0,
+            giftImage: { urlList: [String(p.giftIcon || "")] },
           },
           repeatCount: p.count ?? 1,
           repeatEnd: p.repeatEnd ?? true,
@@ -268,7 +293,7 @@ app.post("/api/control", auth, async (req, res) => {
         return;
       }
       case "giftMappings": {
-        const mappings = validateGiftMappings(p.mappings);
+        const mappings = validateGiftMappings(p.mappings, game.giftCatalog);
         await mkdir(dataDir, { recursive: true });
         const tmp = dataDir + "/gift-mappings." + randomUUID() + ".tmp";
         await writeFile(tmp, JSON.stringify(mappings, null, 2));
@@ -312,6 +337,68 @@ app.post("/api/control", auth, async (req, res) => {
             "demo",
           );
         break;
+      case "monsterScenario": {
+        if (tiktok.mode !== "demo" || !["breath", "gate"].includes(p.kind))
+          throw Error("Choose an owner Demo monster fixture");
+        if (game.summonQueue.length)
+          throw Error("Deploy accepted summons before changing a fixture");
+        rounds.start();
+        rounds.config.prepare = 0;
+        rounds.phase = "combat";
+        rounds.paused = false;
+        rounds.gates();
+        speed = 1;
+        auto = false;
+        if (p.kind === "breath") {
+          for (const [team, type, y] of [
+            [0, "frostDragon", 1430],
+            [1, "fireDragon", 1770],
+          ]) {
+            game.spawn(team, type, 1, "Owner Demo dragon", null);
+            const d = game.units.at(-1);
+            Object.assign(d, {
+              x: team ? 2600 : 2200,
+              y,
+              lane: y,
+              windup: 0,
+              cd: 0,
+            });
+            for (let i = 0; i < 4; i++) {
+              game.spawn(1 - team, "sword", 1, "Owner Demo target", null);
+              Object.assign(game.units.at(-1), {
+                x: team ? 2390 : 2410,
+                y: y + (i - 1.5) * 38,
+                hp: 2000,
+                maxHp: 2000,
+                windup: 120,
+              });
+            }
+          }
+        } else {
+          for (const team of [0, 1])
+            for (const king of game.units.filter(
+              (u) => u.type === "mushroomKing" && u.team === team,
+            ))
+              for (let i = 0; i < 3; i++) {
+                game.spawn(
+                  1 - team,
+                  "sword",
+                  1,
+                  "Owner Demo siege target",
+                  null,
+                );
+                Object.assign(game.units.at(-1), {
+                  x: king.x + (team ? -1 : 1) * 280,
+                  y: king.y + (i - 1) * 45,
+                  hp: 2000,
+                  maxHp: 2000,
+                  windup: 120,
+                });
+              }
+        }
+        game.spawnGridDirty = true;
+        break;
+      }
       case "cameraScenario": {
         if (
           tiktok.mode !== "demo" ||

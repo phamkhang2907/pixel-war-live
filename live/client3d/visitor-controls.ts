@@ -57,6 +57,15 @@ export function visitorControls(api: {
       button.disabled = false;
     }
   };
+  for (const b of document.querySelectorAll<HTMLButtonElement>(
+    "[data-demo-monster]",
+  ))
+    b.onclick = async () => {
+      await ready;
+      el<HTMLSelectElement>("publicGift").value = b.dataset.demoMonster!;
+      el<HTMLInputElement>("publicQuantity").value = "1";
+      el<HTMLFormElement>("publicGiftForm").requestSubmit();
+    };
   el("connectLive").onclick = () => {
     if (!api.isOwner()) {
       location.href = "/owner/login";
@@ -100,7 +109,7 @@ export function visitorControls(api: {
   return {
     state(s: BattleState) {
       el("publicQueue").textContent =
-        `${api.demoMode ? "PUBLIC DEMO · simulated" : "Production view"} · Pending: ${s.summonQueue?.pending ?? 0}`;
+        `${api.demoMode ? "PUBLIC DEMO · simulated" : "Production view"} · Pending: ${s.summonQueue?.pending ?? 0} · Frost ${s.units.filter((u) => u.type === "frostDragon" && u.hp > 0).length} · Fire ${s.units.filter((u) => u.type === "fireDragon" && u.hp > 0).length} · Gate Kings ${s.units.filter((u) => u.type === "mushroomKing" && u.hp > 0).length}`;
       const c = s.liveConnection;
       if (c) {
         el<HTMLButtonElement>("quickReconnect").disabled = !c.username;

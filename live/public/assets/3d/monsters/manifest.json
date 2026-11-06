@@ -1,0 +1,76 @@
+{
+  "license": "CC0-1.0",
+  "author": "Quaternius",
+  "models": [
+    {
+      "name": "Dragon",
+      "path": "/assets/3d/monsters/Dragon/Dragon.gltf",
+      "archive": "Ultimate_Monsters_Flying.zip",
+      "member": "Ultimate Monsters/Flying/glTF/Dragon.gltf",
+      "sha256": "d219a29b5e928da26c24218a64284bbf999b88484a508ac6c01e0edad9f1f56c",
+      "clips": [
+        "Death",
+        "Fast_Flying",
+        "Flying_Idle",
+        "Headbutt",
+        "HitReact",
+        "No",
+        "Punch",
+        "Yes"
+      ],
+      "skins": 1,
+      "embeddedTextures": 1,
+      "triangles": 4562
+    },
+    {
+      "name": "Dragon_Evolved",
+      "path": "/assets/3d/monsters/Dragon_Evolved/Dragon_Evolved.gltf",
+      "archive": "Ultimate_Monsters_Flying.zip",
+      "member": "Ultimate Monsters/Flying/glTF/Dragon_Evolved.gltf",
+      "sha256": "39ba6ea24b5f27acf68bbf4c19fe80ba070dbec167ff14bbe933453303426f5c",
+      "clips": [
+        "Death",
+        "Fast_Flying",
+        "Flying_Idle",
+        "Headbutt",
+        "HitReact",
+        "No",
+        "Punch",
+        "Yes"
+      ],
+      "skins": 1,
+      "embeddedTextures": 1,
+      "triangles": 7440
+    },
+    {
+      "name": "MushroomKing",
+      "path": "/assets/3d/monsters/MushroomKing/MushroomKing.gltf",
+      "archive": "Ultimate_Monsters_Big.zip",
+      "member": "Ultimate Monsters/Big/glTF/MushroomKing.gltf",
+      "sha256": "ccf27e126b881d80a2046c3ab96ddd94eb996837480e783142009ecd6629a3a4",
+      "clips": [
+        "Death",
+        "Duck",
+        "HitReact",
+        "Idle",
+        "Jump",
+        "Jump_Idle",
+        "Jump_Land",
+        "No",
+        "Punch",
+        "Run",
+        "Walk",
+        "Wave",
+        "Weapon",
+        "Yes"
+      ],
+      "skins": 1,
+      "embeddedTextures": 1,
+      "triangles": 6044
+    }
+  ],
+  "archives": {
+    "Ultimate_Monsters_Flying.zip": "aff8d4a76b671e0ff1f2a2655be6f32211e607a463f663074e89b93a7d157d4e",
+    "Ultimate_Monsters_Big.zip": "0915b5f58f611793adabbaf116c131512a633eba8f78829888cb9e733cec28ac"
+  }
+}

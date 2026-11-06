@@ -88,6 +88,16 @@
               required /></label
           ><button>Send Gift</button>
         </form>
+        <div class="options">
+          <button type="button" data-demo-monster="Demo Lion">
+            🦁 Lion → Summon Blue Dragon</button
+          ><button type="button" data-demo-monster="Demo Dragon">
+            🐉 Dragon → Summon Red Dragon
+          </button>
+        </div>
+        <p>
+          DEMO · Element color is separate from your selected RED/BLUE team.
+        </p>
         <p id="publicGiftStatus" role="status"></p>
       </dialog>
       <dialog id="livePanel">
@@ -180,6 +190,7 @@
         <p id="assetStatus" role="status">Loading real KayKit characters…</p>
         <output id="debug" hidden></output>
       </section>
+      <p><a href="/3d/monsters.html">Monster model gallery</a></p>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

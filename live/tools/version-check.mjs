@@ -126,7 +126,7 @@ try {
     bfcacheRestoreDetectsUpdate: true,
     userInitiatedCacheBustingReload: true,
     liveScene: {
-      environment: "pbr-grass-free-camera",
+      environment: "native-summons-monsters",
       decorations: 426,
       realCharacters: true,
     },

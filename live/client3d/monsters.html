@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>PIXEL WAR · Monster inspection</title>
+    <style>
+      body {
+        margin: 0;
+        background: #14201c;
+        color: #fff;
+        font: 16px system-ui;
+      }
+      header {
+        padding: 12px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      a {
+        color: #aaf;
+      }
+      select,
+      button {
+        padding: 10px;
+      }
+      canvas {
+        display: block;
+        touch-action: none;
+      }
+      #labels {
+        position: absolute;
+        top: 110px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-evenly;
+        pointer-events: none;
+      }
+      #status {
+        padding: 8px;
+      }
+      #view {
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/3d/">Battle</a
+      ><label
+        >Model
+        <select id="model">
+          <option value="all">All three</option>
+          <option value="frostDragon">Frost · Dragon</option>
+          <option value="fireDragon">Fire · Dragon_Evolved</option>
+          <option value="mushroomKing">MushroomKing</option>
+        </select></label
+      ><label
+        >Allegiance
+        <select id="team">
+          <option value="0">RED</option>
+          <option value="1">BLUE</option>
+        </select></label
+      ><label
+        >Animation
+        <select id="clip">
+          <option value="idle">Idle</option>
+          <option value="move">Flight / Walk</option>
+          <option value="attack">Attack / Staff swing</option>
+          <option value="death">Death</option>
+        </select></label
+      ><button id="reset">Reset camera</button>
+    </header>
+    <div id="status">Loading actual embedded glTF meshes…</div>
+    <div id="view"></div>
+    <div id="labels">
+      <span>Dragon · Frost</span><span>Dragon_Evolved · Fire</span
+      ><span>MushroomKing</span>
+    </div>
+    <script type="module" src="/monsters.ts"></script>
+  </body>
+</html>

@@ -108,6 +108,7 @@ export class TikTokService {
           connection.on("disconnected", fail);
           connection.on("error", fail);
           await connection.connect();
+          if (current() && !failed) ingest.catalog(connection.availableGifts);
         })(),
         new Promise((_, reject) => {
           timer = setTimeout(

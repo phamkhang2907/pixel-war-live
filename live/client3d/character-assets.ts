@@ -2,7 +2,7 @@ import * as T from "three";
 import { originalAttacks, onceClip } from "./unit-animation";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { clone as cloneRig } from "three/addons/utils/SkeletonUtils.js";
-import type { Team, UnitKind } from "./state";
+import type { Team, SoldierKind as UnitKind } from "./state";
 
 export const ASSET_REVISION = "kaykit-render-fix-1";
 export const assetRoot = "/kaykit/adventurers/";

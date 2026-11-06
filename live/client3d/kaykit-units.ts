@@ -2,7 +2,7 @@ import { ArmyLOD } from "./army-lod";
 import * as T from "three";
 import { animationFor } from "./unit-animation";
 import { TYPES, ARMY, renderScale } from "../src/characters.js";
-import { worldX, worldZ, type BattleState } from "./state";
+import { worldX, worldZ, isSoldier, type BattleState } from "./state";
 import {
   CharacterAssets,
   playClip,
@@ -28,6 +28,9 @@ export class KaykitUnits {
   private lod = new ArmyLOD();
   private tick = 0;
   private lowQuality = matchMedia("(pointer: coarse)").matches;
+  get ready() {
+    return this.loaded;
+  }
   setQuality(low: boolean) {
     this.lowQuality = low;
     this.lod.setQuality(low);
@@ -47,7 +50,7 @@ export class KaykitUnits {
   }
   update(state: BattleState | null, dt: number, camera?: T.Vector3) {
     if (!this.loaded || this.disposed) return;
-    const all = state?.units.slice(0, ARMY.maxUnits) ?? [];
+    const all = state?.units.filter(isSoldier).slice(0, ARMY.maxUnits) ?? [];
     this.selectionAge += dt;
     if (this.selectionAge > 0.5 || this.selectionCount !== all.length) {
       this.selectionAge = 0;

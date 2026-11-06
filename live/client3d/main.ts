@@ -66,7 +66,7 @@ let latestServerTime = 0;
 socket.on("state", (state: BattleState) => {
   if (state.serverNow && state.serverNow < latestServerTime) return;
   latestServerTime = state.serverNow ?? latestServerTime;
-  if (state.armyCapacity === undefined)
+  if (state.armyCapacity === undefined || state.summonProtocol !== 1)
     setStatus(
       "Server vẫn chạy bản cũ: khởi động lại Node server sau khi cập nhật/build.",
     );
@@ -78,7 +78,7 @@ socket.on("state", (state: BattleState) => {
   visitors.state(state);
   const queueStatus = document.getElementById("summonStatus");
   if (queueStatus)
-    queueStatus.textContent = `${state.units.length}/${state.armyCapacity ?? 1000} quân · Chờ triển khai: ${state.summonQueue?.pending ?? 0} · FIFO tiếp theo: ${state.summonQueue?.headSequence ?? "—"}`;
+    queueStatus.textContent = `${state.units.filter((u) => u.type !== "mushroomKing").length}/${state.armyCapacity ?? 1000} quân triệu hồi + ${state.units.filter((u) => u.type === "mushroomKing").length} Gate Kings · Chờ triển khai: ${state.summonQueue?.pending ?? 0} · FIFO tiếp theo: ${state.summonQueue?.headSequence ?? "—"}`;
   hud.render(state as HudState);
   audio.update(state as HudState, battlefield?.director.camera.position.x ?? 0);
   element("round").textContent = `ROUND ${state.round}`;
@@ -213,13 +213,21 @@ if (battlefield) {
     const readyModels = d.assets.models.filter((m) => m.status === "ready");
     const failedModels = d.assets.models.filter((m) => m.status === "failed");
     element("assetStatus").textContent =
-      `${d.assets.revision} · ${readyModels.length}/6 models loaded · ${d.assets.rendered} real character instances` +
+      `${d.assets.revision} · ${readyModels.length}/6 KayKit + ${Object.values(d.monsters.reports).filter((r) => r.status === "ready").length}/3 monster models loaded · ${d.assets.rendered} real character instances` +
       (failedModels.length
         ? ` · FAILED: ${failedModels.map((m) => m.model + ": " + m.error).join("; ")}`
         : "") +
       (d.assets.errors.length
         ? ` · Asset warnings: ${d.assets.errors.join("; ")}`
         : "");
+    const brokenMonsters = Object.entries(d.monsters.reports).filter(
+      ([, r]) => r.status === "failed",
+    );
+    if (brokenMonsters.length)
+      showError(
+        "Monster assets failed: " +
+          brokenMonsters.map(([n, r]) => n + ": " + r.error).join("; "),
+      );
     if (query.has("debug"))
       element("debug").textContent =
         `FPS ${d.fps.toFixed(1)} · average frame ${d.fps > 0 ? (1000 / d.fps).toFixed(1) : "—"} ms\n${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · JS heap ${d.jsHeapBytes ? (d.jsHeapBytes / 1048576).toFixed(1) + " MiB" : "unavailable"}\nContext ${d.contextLost ? "lost" : "ready"} · Development measurements only.`;
