@@ -14,6 +14,7 @@
     "circles": 2,
     "activeToasts": 1,
     "queuedToasts": 0,
+    "waitingWaves": 0,
     "receivedNotifications": 1,
     "combinedNotifications": 0,
     "visibleNameplates": [
@@ -45,6 +46,7 @@
     "circles": 10,
     "activeToasts": 2,
     "queuedToasts": 0,
+    "waitingWaves": 0,
     "receivedNotifications": 5,
     "combinedNotifications": 3,
     "visibleNameplates": [
@@ -101,6 +103,148 @@
       ]
     ]
   },
+  "backlog": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 8,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 160,
+    "maxParticles": 240,
+    "circles": 16,
+    "activeToasts": 2,
+    "queuedToasts": 12,
+    "waitingWaves": 0,
+    "receivedNotifications": 17,
+    "combinedNotifications": 3,
+    "visibleNameplates": [
+      {
+        "name": "Native Viewer",
+        "type": "sword",
+        "count": 15,
+        "team": 0
+      },
+      {
+        "name": "Rapid Viewer",
+        "type": "sword",
+        "count": 1,
+        "team": 0
+      },
+      {
+        "name": "Rapid Viewer",
+        "type": "sword",
+        "count": 1,
+        "team": 0
+      },
+      {
+        "name": "Rapid Viewer",
+        "type": "sword",
+        "count": 1,
+        "team": 0
+      }
+    ],
+    "origins": [
+      [
+        -36.87245065305344,
+        0.08,
+        -4.523719621355849
+      ],
+      [
+        -37.46638696730788,
+        0.08,
+        -14.978338070497639
+      ],
+      [
+        -36.55085372114053,
+        0.08,
+        -2.770153815626786
+      ],
+      [
+        -36.33704407033858,
+        0.08,
+        -9.961830306399333
+      ],
+      [
+        -37.45515801771869,
+        0.08,
+        15.063473598449427
+      ],
+      [
+        -37.71189023283906,
+        0.08,
+        20.633118788214723
+      ],
+      [
+        -36.1756389880426,
+        0.08,
+        -9.092860451149113
+      ],
+      [
+        -36.73877540661802,
+        0.08,
+        -15.852844483547193
+      ]
+    ]
+  },
+  "roundReset": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 0,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 0,
+    "maxParticles": 240,
+    "circles": 0,
+    "activeToasts": 0,
+    "queuedToasts": 0,
+    "waitingWaves": 0,
+    "receivedNotifications": 17,
+    "combinedNotifications": 3,
+    "visibleNameplates": [],
+    "origins": []
+  },
+  "waiting": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 0,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 0,
+    "maxParticles": 240,
+    "circles": 0,
+    "activeToasts": 1,
+    "queuedToasts": 0,
+    "waitingWaves": 1,
+    "receivedNotifications": 1,
+    "combinedNotifications": 0,
+    "visibleNameplates": [],
+    "origins": []
+  },
+  "afterSlowLoad": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 0,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 0,
+    "maxParticles": 240,
+    "circles": 0,
+    "activeToasts": 0,
+    "queuedToasts": 0,
+    "waitingWaves": 0,
+    "receivedNotifications": 1,
+    "combinedNotifications": 0,
+    "visibleNameplates": [],
+    "origins": []
+  },
   "frost": {
     "native": true,
     "videos": 0,
@@ -114,6 +258,7 @@
     "circles": 2,
     "activeToasts": 1,
     "queuedToasts": 0,
+    "waitingWaves": 0,
     "receivedNotifications": 1,
     "combinedNotifications": 0,
     "visibleNameplates": [
@@ -145,6 +290,7 @@
     "circles": 2,
     "activeToasts": 1,
     "queuedToasts": 0,
+    "waitingWaves": 0,
     "receivedNotifications": 2,
     "combinedNotifications": 0,
     "visibleNameplates": [

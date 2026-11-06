@@ -14,6 +14,7 @@ const server = spawn(process.execPath, ["src/server.js"], {
   }),
   sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let browser, socket, latest;
+let releaseSlowModel = () => {};
 async function wait(f) {
   for (let i = 0; i < 600; i++) {
     if (await f()) return;
@@ -146,6 +147,65 @@ try {
       combined.activeToasts <= 2 &&
       combined.particles <= 240,
   );
+  // A backlog must never announce the previous round's viewers in a new round.
+  await Promise.all(
+    Array.from({ length: 12 }, (_, k) =>
+      command("demoGift", {
+        team: 0,
+        name: "Round backlog " + k,
+        giftName: "Rose",
+        count: 1,
+        eventId: "round-backlog-" + k,
+      }),
+    ),
+  );
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().summons.queuedToasts > 0,
+  );
+  await wait(
+    () =>
+      latest.units.filter((u) => u.name.startsWith("Round backlog ")).length ===
+        12 && latest.summonQueue.pending === 0,
+  );
+  const backlog = await page.evaluate(() => window.__PW3D.inspect().summons);
+  const oldRound = latest.roundState.id;
+  await command("newRound");
+  await page.waitForFunction(
+    (id) => window.__PW3D.inspect().roundState.id !== id,
+    oldRound,
+  );
+  const roundReset = await page.evaluate(() => window.__PW3D.inspect().summons);
+  assert.equal(
+    roundReset.activeToasts,
+    0,
+    "old-round cards must be cleared immediately",
+  );
+  assert.equal(roundReset.queuedToasts, 0, "old-round backlog must be cleared");
+  assert.equal(
+    roundReset.activeWaves,
+    0,
+    "old-round summon waves must be cleared",
+  );
+  assert.equal(
+    await page.locator("#nativeGiftNotices article:not([hidden])").count(),
+    0,
+  );
+  await command("demoGift", {
+    team: 0,
+    name: "Fresh round viewer",
+    giftName: "Rose",
+    count: 1,
+    eventId: "fresh-round-gift",
+  });
+  await page.waitForFunction(
+    () =>
+      document.querySelector(
+        "#nativeGiftNotices article:not([hidden]) .native-viewer",
+      )?.textContent === "Fresh round viewer",
+  );
+  await page.screenshot({
+    path: `artifacts/${prefix}-fresh-round-1080x1920.png`,
+  });
   await page.waitForFunction(
     () => window.__PW3D.inspect().summons.activeWaves === 0,
   );
@@ -154,6 +214,73 @@ try {
     const d = window.__PW3D.inspect();
     return d.mode === "blue" && Math.abs(d.x - d.targetX) < 1;
   });
+  await wait(
+    () =>
+      latest.units.some((u) => u.name === "Fresh round viewer") &&
+      latest.summonQueue.pending === 0,
+  );
+  // Delay a real model response: old waves must expire while rendering waits.
+  await command("newRound");
+  const modelGate = new Promise((resolve) => {
+    releaseSlowModel = resolve;
+  });
+  await page.route(
+    "**/MushroomKing.gltf",
+    async (route) => {
+      await modelGate;
+      await route.continue();
+    },
+    { times: 1 },
+  );
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () =>
+      window.__PW3D?.inspect().connectedState &&
+      window.__PW3D.inspect().monsters.reports.MushroomKing?.status ===
+        "loading",
+  );
+  await command("demoGift", {
+    team: 0,
+    name: "Slow model viewer",
+    giftName: "Rose",
+    count: 1,
+    eventId: "slow-model-gift",
+  });
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().summons.waitingWaves > 0,
+  );
+  const waiting = await page.evaluate(() => window.__PW3D.inspect().summons);
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().summons.waitingWaves === 0,
+  );
+  releaseSlowModel();
+  await page.waitForFunction(
+    () =>
+      window.__PW3D.inspect().assets.ready &&
+      window.__PW3D.inspect().monsters.rendered === 4,
+  );
+  const afterSlowLoad = await page.evaluate(
+    () => window.__PW3D.inspect().summons,
+  );
+  assert.equal(
+    afterSlowLoad.activeWaves,
+    0,
+    "expired portals must not replay after loading",
+  );
+  assert.equal(
+    afterSlowLoad.receivedNotifications,
+    waiting.receivedNotifications,
+    "repeated snapshots must not repeat the gift",
+  );
+  await wait(
+    () =>
+      latest.units.filter((u) => u.name === "Slow model viewer").length === 1,
+  );
+  assert.equal(
+    latest.units.length,
+    5,
+    "expired cosmetics cannot remove the actual soldier or four defenders",
+  );
   // Public Demo buttons remain unauthenticated; production mappings remain private.
   await page.goto(base + "/3d/?demo=1&debug=1&overlay=1");
   await page.waitForFunction(
@@ -215,6 +342,10 @@ try {
     physicalIPad: false,
     army,
     combined,
+    backlog,
+    roundReset,
+    waiting,
+    afterSlowLoad,
     frost,
     fire,
     errors,
@@ -232,6 +363,7 @@ try {
   );
   console.log(JSON.stringify(report));
 } finally {
+  releaseSlowModel();
   socket?.close();
   await browser?.close();
   const exited = new Promise((r) => server.once("exit", r));

@@ -64,7 +64,7 @@ export class NativeSummons {
   private pending: GiftNotice[] = [];
   private toasts: Toast[] = [];
   private waves: Wave[] = [];
-  private readyWaves: SummonBatch[] = [];
+  private readyWaves: { data: SummonBatch; expiresAt: number }[] = [];
   private toastPool: HTMLElement[] = [];
   private labelPool: HTMLElement[] = [];
   private circleGeometry = new T.RingGeometry(0.88, 1, 40);
@@ -192,12 +192,23 @@ export class NativeSummons {
     this.now = performance.now() / 1000;
     if (this.round !== state.roundState.id) {
       this.round = state.roundState.id;
+      for (const toast of this.toasts) {
+        toast.node.hidden = true;
+        this.toastPool.push(toast.node);
+      }
+      this.toasts = [];
+      this.pending = [];
       for (const wave of this.waves) {
         wave.node.hidden = true;
         this.labelPool.push(wave.node);
       }
       this.waves = [];
       this.readyWaves = [];
+      this.seenGifts.clear();
+      this.seenWaves.clear();
+      this.circles.count = 0;
+      this.motes.count = 0;
+      this.lastOrigins = [];
     }
     for (const e of [...(state.events ?? [])].reverse()) {
       if (e.kind !== "gift") continue;
@@ -206,7 +217,8 @@ export class NativeSummons {
       this.seenGifts.add(key);
       if (this.seenGifts.size > 512)
         this.seenGifts.delete(this.seenGifts.values().next().value!);
-      if ((state.serverNow ?? Date.now()) - e.at > 10000) continue;
+      const age = Math.max(0, (state.serverNow ?? Date.now()) - e.at);
+      if (age >= 10000) continue;
       this.received++;
       const identity = (e.userId || e.name) + ":" + e.team + ":" + e.giftName,
         active = this.toasts.find(
@@ -240,13 +252,18 @@ export class NativeSummons {
       }
     }
     for (const batch of state.summons ?? []) {
+      if (batch.roundId !== this.round) continue;
       const key = state.roundState.id + ":" + batch.id;
       if (this.seenWaves.has(key)) continue;
       this.seenWaves.add(key);
       if (this.seenWaves.size > 512)
         this.seenWaves.delete(this.seenWaves.values().next().value!);
-      if ((state.serverNow ?? Date.now()) - batch.at < 5000)
-        this.readyWaves.push(batch);
+      const age = Math.max(0, (state.serverNow ?? Date.now()) - batch.at);
+      if (age < 5000)
+        this.readyWaves.push({
+          data: batch,
+          expiresAt: this.now + (5000 - age) / 1000,
+        });
     }
     this.readyWaves = this.readyWaves.slice(-64);
   }
@@ -336,6 +353,9 @@ export class NativeSummons {
     modelsReady: boolean,
   ) {
     this.now = performance.now() / 1000;
+    // These are cosmetic deadlines, independent of simulation pause/speed.
+    // Hidden tabs and slow model loads must not replay old summons on return.
+    this.readyWaves = this.readyWaves.filter((e) => e.expiresAt > this.now);
     for (let i = this.toasts.length - 1; i >= 0; i--) {
       const t = this.toasts[i],
         age = this.now - t.born;
@@ -359,7 +379,7 @@ export class NativeSummons {
       this.toasts.push(toast);
     }
     if (modelsReady) {
-      for (const b of this.readyWaves) this.showWave(b);
+      for (const b of this.readyWaves) this.showWave(b.data);
       this.readyWaves = [];
     }
     for (let k = this.waves.length - 1; k >= 0; k--)
@@ -476,6 +496,7 @@ export class NativeSummons {
       circles: this.circles.count,
       activeToasts: this.toasts.length,
       queuedToasts: this.pending.length,
+      waitingWaves: this.readyWaves.length,
       receivedNotifications: this.received,
       combinedNotifications: this.combined,
       visibleNameplates: this.waves
