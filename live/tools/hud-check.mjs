@@ -190,8 +190,10 @@ try {
     coins: 1000,
     count: 1,
   });
-  await page.waitForFunction(
-    () => document.querySelector("#giftName").textContent === "New Summoner",
+  await page.waitForFunction(() =>
+    [...document.querySelectorAll("#nativeGiftNotices .native-viewer")].some(
+      (n) => n.textContent === "New Summoner",
+    ),
   );
   await page.screenshot({ path: "artifacts/grok-hud-gift.png" });
   for (const size of [

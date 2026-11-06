@@ -86,6 +86,8 @@ export class MonsterUnits {
           type === "mushroomKing" ? 0 : 5.6,
           worldZ(u.y),
         );
+        if (u.summonRequest !== undefined && type !== "mushroomKing")
+          i.revealAt = performance.now() / 1000;
         this.instances.set(u.id, i);
         this.group.add(i.root);
       }
@@ -95,6 +97,17 @@ export class MonsterUnits {
         worldZ(u.y),
       );
       i.root.position.lerp(target, 1 - Math.exp(-16 * dt));
+      const emerging =
+        i.revealAt === undefined
+          ? 1
+          : T.MathUtils.clamp(
+              (performance.now() / 1000 - i.revealAt) / 0.65,
+              0.08,
+              1,
+            );
+      i.root.scale.setScalar(
+        type === "mushroomKing" ? 1 : 1 - Math.pow(1 - emerging, 3),
+      );
       const dx = (u.faceX ?? (u.team ? 0 : 4800)) - u.x,
         dz = (u.faceY ?? u.y) - u.y;
       i.rig.rotation.y = Math.atan2(dx, dz);
@@ -116,7 +129,7 @@ export class MonsterUnits {
         clip + (/attack/.test(u.state) ? ":" + u.attackId : ""),
         u.hp <= 0,
       );
-      i.elapsed += frozen ? 0 : dt;
+      i.elapsed += state?.paused ? 0 : dt;
       const interval =
         this.low && i.root.position.distanceTo(camera) > 70 ? 1 / 15 : 1 / 30;
       if (i.elapsed >= interval) {
@@ -132,6 +145,7 @@ export class MonsterUnits {
         y: number;
         team: number;
         element?: string;
+        sourceId?: number;
         sx?: number;
         sy?: number;
       }[];
@@ -163,6 +177,16 @@ export class MonsterUnits {
           ),
           end = new T.Vector3(worldX(e.x), 0.8, worldZ(e.y)),
           color = new T.Color(e.element === "ice" ? 0x55d9ff : 0xff6028);
+        const caster = this.instances.get(e.sourceId ?? -1),
+          head = caster?.rig.getObjectByName("Head");
+        if (head) {
+          head.getWorldPosition(start);
+          const direction = end.clone().sub(start);
+          direction.y = 0;
+          if (direction.lengthSq() > 0)
+            start.addScaledVector(direction.normalize(), 1.1);
+          start.y -= 0.25;
+        }
         for (
           let j = 0;
           j < (this.low ? 24 : 44) && this.particles.length < 220;

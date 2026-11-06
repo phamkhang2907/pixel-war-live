@@ -1,3 +1,4 @@
+import { giftGroupPosition } from "./summon-groups.js";
 import { tickMonster } from "./monster-combat.js";
 import {
   DEFAULT_GIFT_MAPPINGS,
@@ -45,6 +46,7 @@ export class Battle {
     this.giftCatalog = new Map();
     this.teams = new Map();
     this.scores = new Map();
+    this.profiles = new Map();
     this.round = 0;
     this.nextId = 1;
     this.effectId = 1;
@@ -72,6 +74,7 @@ export class Battle {
     this.projectiles = [];
     this.effects = [];
     this.events = [];
+    this.summonEvents = [];
     this.castles = [10000, 10000];
     this.time = 0;
     this.winner = null;
@@ -86,6 +89,12 @@ export class Battle {
   }
   profile(id, name, avatar) {
     if (id === undefined || id === null) return;
+    const previous = this.profiles.get(String(id));
+    avatar = safeAvatar(avatar) || previous?.avatar || "";
+    this.profiles.set(String(id), {
+      name: String(name || id).slice(0, 64),
+      avatar,
+    });
     this.onCombat({
       kind: "profile",
       userId: String(id),
@@ -113,6 +122,7 @@ export class Battle {
     userId = name,
     sequenceStart = null,
     origin = "demo",
+    summonContext = null,
   ) {
     if (
       !this.inputOpen ||
@@ -150,11 +160,12 @@ export class Battle {
         }
     }
     let deployed = 0;
+    const deployedGroups = new Map();
     for (let i = 0; i < count; i++) {
       let position = null;
       for (let attempt = 0; attempt < 96; attempt++) {
         const slot = this.spawnSlots[team]++;
-        const candidate = this.spawnZone
+        let candidate = this.spawnZone
           ? this.spawnZone(team, slot, type)
           : (() => {
               const bands = Math.min(
@@ -170,6 +181,19 @@ export class Battle {
                   selected = b;
               return formation(team, slot, type, bands, selected);
             })();
+        // Saturated compact groups fall back to a free position in the broad band, retaining FIFO throughput.
+        if (summonContext && ["gift", "demoGift"].includes(origin)) {
+          const compact = giftGroupPosition(
+            summonContext,
+            team,
+            type,
+            sequenceStart + i,
+            slot,
+            candidate,
+          );
+          if (attempt < 64) candidate = compact;
+          else candidate.cohort = compact.cohort;
+        }
         let free = true;
         this.spawnGrid.query(candidate.x, candidate.y, t.radius + 73, (v) => {
           if (TYPES[v.type].air !== t.air) return;
@@ -199,6 +223,8 @@ export class Battle {
         summonSequence,
         origin,
         attackId: 0,
+        bornAt: this.time,
+        summonRequest: summonContext?.sequenceStart,
         ...position,
         hp: t.hp,
         maxHp: t.hp,
@@ -212,6 +238,22 @@ export class Battle {
         chargeUntil: 0,
         rage: false,
       });
+      if (summonContext && ["gift", "demoGift"].includes(origin)) {
+        const cohort = position.cohort ?? 0,
+          group = deployedGroups.get(cohort) || {
+            cohort,
+            count: 0,
+            x: 0,
+            y: 0,
+            firstId: unitId,
+            lastId: unitId,
+          };
+        group.count++;
+        group.x += position.x;
+        group.y += position.y;
+        group.lastId = unitId;
+        deployedGroups.set(cohort, group);
+      }
       this.spawnGrid.add(this.units.at(-1));
       this.spawnWeight[team] += Math.max(1, (t.radius / 13) ** 2);
       this.spawnBandWeight[team][position.spawnBand ?? 0] += Math.max(
@@ -229,6 +271,25 @@ export class Battle {
       if (userId !== null) this.committedTeams.set(String(userId), team);
       this.onCombat({ kind: "spawn", unitId, source: { userId, name, team } });
     }
+    for (const group of deployedGroups.values())
+      this.summonEvents.push({
+        id: this.effectId++,
+        at: Date.now(),
+        roundId: this.roundId,
+        requestId: summonContext.sequenceStart,
+        ...group,
+        x: group.x / group.count,
+        y: group.y / group.count,
+        type,
+        team,
+        name: String(name || "Viewer").slice(0, 64),
+        userId,
+        avatar: summonContext.avatar || "",
+        giftIcon: summonContext.giftIcon || "",
+        giftName: summonContext.giftName || "Gift",
+        origin,
+      });
+    this.summonEvents = this.summonEvents.slice(-128);
     if (sequenceStart === null) this.queueChanged();
     return deployed;
   }
@@ -257,7 +318,7 @@ export class Battle {
   }
   event(data) {
     this.events.unshift({ ...data, id: this.effectId++, at: Date.now() });
-    this.events = this.events.slice(0, 20);
+    this.events = this.events.slice(0, 64);
   }
   effect(type, x, y, extra = {}) {
     this.effects.push({
@@ -287,11 +348,17 @@ export class Battle {
     count = 1,
     giftId = "",
     giftName = "",
+    giftIcon = "",
+    avatar = "",
     roundId,
     eventAt,
     origin = "gift",
     continuedStreak = false,
   }) {
+    name = String(name || this.profiles.get(String(id))?.name || id).slice(
+      0,
+      24,
+    );
     const team = this.teams.get(String(id));
     const reject = (error) => {
       this.queueStats.rejected++;
@@ -343,6 +410,10 @@ export class Battle {
       this.score(id, name, team).coins += value;
       this.teamScore[team] += value;
     }
+    avatar = safeAvatar(avatar) || this.profiles.get(String(id))?.avatar || "";
+    giftIcon = /\.(mp4|webm|mov)([?#]|$)/i.test(giftIcon)
+      ? ""
+      : safeAvatar(giftIcon);
     const sequenceStart = this.nextSummonSequence;
     this.nextSummonSequence += quantity;
     this.summonQueue.push({
@@ -352,6 +423,10 @@ export class Battle {
       quantity,
       sequenceStart,
       sourceRound: this.roundId,
+      avatar,
+      giftIcon,
+      giftName: giftName || rule.giftName,
+      giftQuantity: repeats,
       creditOnDeploy: deferCoins ? value : 0,
       origin,
       name,
@@ -368,6 +443,10 @@ export class Battle {
       value,
       kind: "gift",
       queued: true,
+      userId: String(id),
+      avatar,
+      giftIcon,
+      giftQuantity: repeats,
       giftName: giftName || rule.giftName,
       giftId,
     });
@@ -423,6 +502,7 @@ export class Battle {
         q.userId,
         q.sequenceStart + (q.quantity - q.remaining),
         q.origin,
+        q,
       );
       if (n > 0 && q.creditOnDeploy) {
         this.score(q.userId, q.name, q.team).coins += q.creditOnDeploy;
@@ -964,6 +1044,8 @@ export class Battle {
           faceX,
           faceY,
           slowUntil,
+          bornAt,
+          summonRequest,
         }) => ({
           id,
           team,
@@ -983,8 +1065,12 @@ export class Battle {
           faceX,
           faceY,
           slowUntil,
+          bornAt,
+          summonRequest,
         }),
       ),
+      summonProtocol: 1,
+      summons: this.summonEvents.filter((e) => Date.now() - e.at < 5000),
       cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),
       projectiles: this.projectiles,
       effects: this.effects.filter((e) => this.time - e.time < 1),

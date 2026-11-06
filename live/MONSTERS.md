@@ -1,5 +1,7 @@
 # Dragon gifts and Mushroom King castle defenders
 
+Native gift notifications, portals and army nameplates are documented in [NATIVE-SUMMONS.md](NATIVE-SUMMONS.md).
+
 This feature extends the existing 3D renderer, authoritative combat, FIFO summons, public Demo arena and owner session. It does not replace the armies, castles, terrain, HUD artwork, audio, rankings or LIVE connector.
 
 ## Exact asset allowlist
@@ -70,7 +72,7 @@ Balance settings live in `src/characters.js`: dragon HP 2,200, damage 100, coold
 
 At most twelve dragons (including their brief death lifecycle) occupy active slots; accepted excess summons remain in FIFO rather than being dropped or reordered. Four automatic defenders have reserved capacity alongside the existing 1,000 / experimental 2,000 summons. Mixers are pooled; breath VFX use one capped 220-instance particle mesh and King projectiles use a capped 64-instance mesh. Cosmetic particles do not determine damage. No new individual physics bodies or grass/environment changes are introduced.
 
-The local unit suites pass 79 tests. Browser checks use actual Chromium/SwiftShader and Linux WebKit/llvmpipe, including all three textured meshes, independent skeletons, per-model animated vertex motion, Demo buttons, duplicate retries, team independence, movement, breath/slow, gate projectiles/damage, production isolation and rejected public administrative writes. The gate capture freezes a real in-flight projectile through the owner Pause control for inspection. Screenshots are running-app captures, not mockups:
+The local unit suites pass 83 tests, including native summon metadata, compact placement, crowded FIFO fallback and image-media validation. Browser checks use actual Chromium/SwiftShader and Linux WebKit/llvmpipe, including all three textured meshes, independent skeletons, per-model animated vertex motion, Demo buttons, duplicate retries, team independence, movement, breath/slow, gate projectiles/damage, production isolation and rejected public administrative writes. The gate capture freezes a real in-flight projectile through the owner Pause control for inspection. Screenshots are running-app captures, not mockups:
 
 - [All three original models](docs/monsters/gallery.png)
 - [Public Demo flight](docs/monsters/demo-flight-1080x1920.png)

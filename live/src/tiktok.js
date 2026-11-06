@@ -1,3 +1,4 @@
+import { safeAvatar } from "./hud-data.js";
 import { normalizeGiftName } from "./gifts.js";
 // TikTok-Live-Connector 2.5 native events use nested user/giftDetails/common.
 export class TikTokIngest {
@@ -19,6 +20,14 @@ export class TikTokIngest {
       giftId,
       giftName,
       coins: Number.isFinite(coins) && coins > 0 ? coins : null,
+      icon: safeAvatar(
+        raw.giftIcon ||
+          raw.icon ||
+          raw.image?.url_list?.[0] ||
+          raw.image?.urlList?.[0] ||
+          this.battle.giftCatalog?.get(key)?.icon ||
+          "",
+      ),
       source: this.source,
       evidence:
         evidence === "persisted-live-metadata" ? raw.evidence : evidence,
@@ -139,7 +148,18 @@ export class TikTokIngest {
         details.giftName || data.giftName || details.name || "",
       );
     const coins = Number(details.diamondCount);
-    this.observeGift({ giftId, giftName, coins }, "connector-gift-event");
+    this.observeGift(
+      {
+        giftId,
+        giftName,
+        coins,
+        giftIcon:
+          details.giftImage?.urlList?.[0] ||
+          details.image?.urlList?.[0] ||
+          data.extendedGiftInfo?.image?.url_list?.[0],
+      },
+      "connector-gift-event",
+    );
     const groupValue = String(data.groupId || data.streakId || "");
     const group =
       Number(details.giftType) === 1 && groupValue !== "0" ? groupValue : "";
@@ -186,6 +206,13 @@ export class TikTokIngest {
           : (data.repeatCount ?? 1),
       giftId,
       giftName,
+      avatar:
+        user.avatarThumb?.urlList?.[0] ||
+        user.avatarMedium?.urlList?.[0] ||
+        user.profilePictureUrl ||
+        data.profilePictureUrl ||
+        "",
+      giftIcon: this.battle.giftCatalog?.get(giftId || giftName)?.icon || "",
       roundId: continuedStreak ? undefined : roundId,
       continuedStreak,
       eventAt: createTime

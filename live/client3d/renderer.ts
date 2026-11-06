@@ -1,3 +1,4 @@
+import { NativeSummons } from "./native-summons";
 import { MonsterUnits } from "./monster-units";
 import * as T from "three";
 import { BattlefieldCamera, type CameraMode } from "./camera";
@@ -15,6 +16,7 @@ export class BattlefieldRenderer {
   readonly renderer: T.WebGLRenderer;
   private effects = new CombatEffects();
   private contacts = new GroundContacts();
+  private summons: NativeSummons;
   private monsters = new MonsterUnits();
   private kaykit = new KaykitUnits(() => {});
   private state: BattleState | null = null;
@@ -67,6 +69,8 @@ export class BattlefieldRenderer {
     const world = buildWorld(this.scene);
     this.sun = world.sun;
     this.terrain = world.terrain;
+    this.summons = new NativeSummons(this.host.parentElement!);
+    this.scene.add(this.summons.group);
     this.scene.add(
       this.monsters.group,
       this.kaykit.group,
@@ -98,6 +102,7 @@ export class BattlefieldRenderer {
     this.frame = requestAnimationFrame(this.animate);
   }
   setState(state: BattleState) {
+    this.summons.sync(state);
     this.state = state;
     this.fortresses.forEach((fort, team) => {
       fort.visible = state.castles[team] > 0;
@@ -162,6 +167,15 @@ export class BattlefieldRenderer {
         this.state,
         Math.min(wallDt, 1),
         this.director.camera.position,
+      );
+      this.summons.update(
+        this.state,
+        dt,
+        this.director.camera,
+        this.kaykit.ready &&
+          Object.values(this.monsters.assets.reports).every(
+            (r) => r.status === "ready",
+          ),
       );
       this.effects.update(this.state, dt);
       this.contacts.update(this.state, Math.min(wallDt, 1));
@@ -303,6 +317,7 @@ export class BattlefieldRenderer {
           this.monsters.diagnostics().rendered,
       },
       monsters: this.monsters.diagnostics(),
+      summons: this.summons.diagnostics(),
       fps: this.fps,
       totalFrames: this.totalFrames,
       maxFrameMs: this.maxFrameMs,
@@ -362,6 +377,7 @@ export class BattlefieldRenderer {
     this.effects.dispose();
     this.kaykit.dispose();
     this.monsters.dispose();
+    this.summons.dispose();
     this.scene.clear();
     this.renderer.dispose();
     canvas.remove();

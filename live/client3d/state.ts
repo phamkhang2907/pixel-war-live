@@ -28,6 +28,8 @@ export interface UnitState {
   faceX?: number;
   faceY?: number;
   slowUntil?: number;
+  bornAt?: number;
+  summonRequest?: number;
   attackId?: number;
   summonSequence?: number | null;
   origin?: string;
@@ -43,6 +45,9 @@ export interface BattleState {
     message: string;
     hint: string;
   };
+  events?: GiftNotice[];
+  summons?: SummonBatch[];
+  summonProtocol?: number;
   paused: boolean;
   castles: [number, number];
   units: UnitState[];
@@ -72,4 +77,40 @@ export interface BattleState {
       }[];
     } | null;
   };
+}
+
+export interface SummonBatch {
+  id: number;
+  at: number;
+  roundId: string;
+  requestId: number;
+  cohort: number;
+  count: number;
+  firstId: number;
+  lastId: number;
+  x: number;
+  y: number;
+  type: UnitKind;
+  team: Team;
+  name: string;
+  userId: string;
+  avatar: string;
+  giftIcon: string;
+  giftName: string;
+  origin: string;
+}
+export interface GiftNotice {
+  id: number;
+  at: number;
+  kind: string;
+  name: string;
+  userId?: string;
+  team: Team;
+  type?: UnitKind;
+  count?: number;
+  giftName?: string;
+  avatar?: string;
+  giftIcon?: string;
+  giftQuantity?: number;
+  queued?: boolean;
 }

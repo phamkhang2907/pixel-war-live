@@ -186,11 +186,24 @@ try {
   ]) {
     await page.setViewportSize(viewport);
     await sleep(150);
+    const overflow = await page.evaluate(() => ({
+      width: innerWidth,
+      scroll: document.documentElement.scrollWidth,
+      elements: [...document.querySelectorAll("body *")]
+        .map((e) => ({
+          tag: e.tagName,
+          id: e.id,
+          cls: e.className?.toString(),
+          right: e.getBoundingClientRect().right,
+          width: e.getBoundingClientRect().width,
+          text: e.textContent?.slice(0, 100),
+        }))
+        .filter((e) => e.right > innerWidth + 1),
+    }));
     assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth > innerWidth,
-      ),
+      overflow.scroll > overflow.width,
       false,
+      JSON.stringify(overflow),
     );
     box = await canvas.boundingBox();
     assert.ok(Math.abs(box.width / box.height - 9 / 16) < 0.002);

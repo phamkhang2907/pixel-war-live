@@ -126,7 +126,7 @@ try {
     bfcacheRestoreDetectsUpdate: true,
     userInitiatedCacheBustingReload: true,
     liveScene: {
-      environment: "monster-dragons-gate-defenders",
+      environment: "native-summons-monsters",
       decorations: 426,
       realCharacters: true,
     },

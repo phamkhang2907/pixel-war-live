@@ -1,0 +1,123 @@
+{
+  "engine": "Linux Chromium / SwiftShader",
+  "physicalIPad": false,
+  "army": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 1,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 20,
+    "maxParticles": 240,
+    "circles": 2,
+    "activeToasts": 1,
+    "queuedToasts": 0,
+    "receivedNotifications": 1,
+    "combinedNotifications": 0,
+    "visibleNameplates": [
+      {
+        "name": "Native Viewer",
+        "type": "sword",
+        "count": 15,
+        "team": 0
+      }
+    ],
+    "origins": [
+      [
+        -36.87245065305344,
+        0.08,
+        -4.523719621355849
+      ]
+    ]
+  },
+  "combined": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 0,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 0,
+    "particles": 0,
+    "maxParticles": 240,
+    "circles": 0,
+    "activeToasts": 0,
+    "queuedToasts": 1,
+    "receivedNotifications": 4,
+    "combinedNotifications": 2,
+    "visibleNameplates": [],
+    "origins": []
+  },
+  "frost": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 1,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 1,
+    "particles": 40,
+    "maxParticles": 240,
+    "circles": 2,
+    "activeToasts": 1,
+    "queuedToasts": 0,
+    "receivedNotifications": 1,
+    "combinedNotifications": 0,
+    "visibleNameplates": [
+      {
+        "name": "Frost Summoner",
+        "type": "frostDragon",
+        "count": 1,
+        "team": 0
+      }
+    ],
+    "origins": [
+      [
+        -37.461786536338025,
+        5.5,
+        -8.368269069879048
+      ]
+    ]
+  },
+  "fire": {
+    "native": true,
+    "videos": 0,
+    "activeWaves": 1,
+    "maxWaves": 8,
+    "maxNameplates": 4,
+    "maxDragonPortals": 2,
+    "dragonPortals": 1,
+    "particles": 40,
+    "maxParticles": 240,
+    "circles": 2,
+    "activeToasts": 1,
+    "queuedToasts": 0,
+    "receivedNotifications": 2,
+    "combinedNotifications": 0,
+    "visibleNameplates": [
+      {
+        "name": "Fire Summoner",
+        "type": "fireDragon",
+        "count": 1,
+        "team": 1
+      }
+    ],
+    "origins": [
+      [
+        35.6675155176607,
+        5.5,
+        21.59986561643701
+      ]
+    ]
+  },
+  "errors": [],
+  "videoRequests": [],
+  "avatarCorrect": true,
+  "giftQuantity": 3,
+  "troopsDeployed": 15,
+  "correctNameplate": true,
+  "running": true,
+  "onlyNativeEffects": true
+}

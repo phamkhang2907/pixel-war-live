@@ -66,7 +66,7 @@ let latestServerTime = 0;
 socket.on("state", (state: BattleState) => {
   if (state.serverNow && state.serverNow < latestServerTime) return;
   latestServerTime = state.serverNow ?? latestServerTime;
-  if (state.armyCapacity === undefined)
+  if (state.armyCapacity === undefined || state.summonProtocol !== 1)
     setStatus(
       "Server vẫn chạy bản cũ: khởi động lại Node server sau khi cập nhật/build.",
     );

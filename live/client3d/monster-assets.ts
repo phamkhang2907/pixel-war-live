@@ -36,6 +36,7 @@ export type MonsterInstance = {
   action?: T.AnimationAction;
   key?: string;
   elapsed: number;
+  revealAt?: number;
   poolKey: string;
   materials: T.Material[];
 };
@@ -130,6 +131,7 @@ export class MonsterAssets {
     if (cached) {
       cached.root.visible = true;
       cached.key = undefined;
+      cached.revealAt = undefined;
       return cached;
     }
     const source = this.models.get(slot.model);

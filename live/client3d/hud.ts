@@ -224,7 +224,7 @@ export class BattleHud {
     );
     if (!this.el("rankingPanel").hidden) this.drawBoard();
     const notice = state.events.find(
-      (e) => e.kind === "gift" || e.kind === "fury",
+      (e) => e.kind === "fury",
     );
     const show = notice && (state.serverNow ?? Date.now()) - notice.at < 8000;
     this.el("giftNotice").hidden = !show;

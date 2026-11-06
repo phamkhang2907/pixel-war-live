@@ -145,6 +145,10 @@ jobs:
         working-directory: live
       - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 MONSTER_ENGINE=webkit node tools/monster-check.mjs
         working-directory: live
+      - run: node tools/native-summons-check.mjs
+        working-directory: live
+      - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 NATIVE_ENGINE=webkit node tools/native-summons-check.mjs
+        working-directory: live
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -152,3 +156,5 @@ jobs:
           path: |
             live/artifacts/monsters-*.png
             live/artifacts/monsters-*-report.json
+            live/artifacts/native-*.png
+            live/artifacts/native-*-report.json

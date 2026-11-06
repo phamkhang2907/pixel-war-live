@@ -28,6 +28,9 @@ export class KaykitUnits {
   private lod = new ArmyLOD();
   private tick = 0;
   private lowQuality = matchMedia("(pointer: coarse)").matches;
+  get ready() {
+    return this.loaded;
+  }
   setQuality(low: boolean) {
     this.lowQuality = low;
     this.lod.setQuality(low);

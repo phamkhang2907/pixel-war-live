@@ -31,6 +31,7 @@ const app = express(),
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
 const league = new League(dataDir, { asyncPersistence: true });
+game.profiles = new Map(Object.entries(league.data.profiles || {}));
 const rounds = new RoundManager(game, league);
 game.giftCatalog = new Map(
   (league.data.observedGifts || [])
@@ -277,6 +278,7 @@ app.post("/api/control", auth, async (req, res) => {
             giftName: p.giftName || "Rose",
             diamondCount: Number(p.coins ?? 0),
             giftType: p.streak ? 1 : 0,
+            giftImage: { urlList: [String(p.giftIcon || "")] },
           },
           repeatCount: p.count ?? 1,
           repeatEnd: p.repeatEnd ?? true,
