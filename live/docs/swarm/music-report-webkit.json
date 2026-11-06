@@ -1,0 +1,39 @@
+{
+  "engine": "Linux WebKit touch emulation",
+  "physicalIPad": false,
+  "unauthorizedRejected": true,
+  "invalidRejected": true,
+  "oversizeRejected": true,
+  "uploaded": {
+    "id": "8907f35b-054c-4ec9-84da-be56baeb9ad2",
+    "name": "Nhạc nền thử.wav",
+    "url": "/media/music/8907f35b-054c-4ec9-84da-be56baeb9ad2.wav",
+    "mime": "audio/wav",
+    "bytes": 352844,
+    "uploadedAt": "2026-11-06T00:45:52.631Z"
+  },
+  "rangeRequests": true,
+  "gesturePlayback": {
+    "enabled": true,
+    "muted": false,
+    "musicTrack": {
+      "id": "8907f35b-054c-4ec9-84da-be56baeb9ad2",
+      "name": "Nhạc nền thử.wav",
+      "paused": false,
+      "currentTime": 1.764716554,
+      "readyState": 4
+    },
+    "context": "running",
+    "sfxVolume": 0.65,
+    "musicVolume": 0.35,
+    "activeVoices": 1,
+    "maxVoices": 12,
+    "played": 2,
+    "dropped": 0,
+    "buffers": 16
+  },
+  "persistenceAfterRestart": true,
+  "suspendedContextResumedByTap": true,
+  "defaultRestored": true,
+  "errors": []
+}

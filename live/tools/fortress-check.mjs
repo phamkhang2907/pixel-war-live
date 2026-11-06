@@ -37,7 +37,7 @@ try {
       break;
     await sleep(100);
   }
-  await cmd("auto");
+
   await cmd("pause");
   browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",

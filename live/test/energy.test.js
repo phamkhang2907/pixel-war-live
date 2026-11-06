@@ -26,6 +26,7 @@ test("all milestones grant Heavy Soldier, rain projectiles and 20% haste for 15 
   const { b } = setup();
   b.likes({ id: "a", count: 5000 });
   assert.deepEqual(b.claimed[0], [100, 300, 500, 1000, 3000, 5000]);
+  b.drainSummons(20);
   assert.ok(b.units.some((u) => u.type === "cavalry"));
   assert.equal(b.projectiles.length, 24);
   assert.equal(b.boostUntil[0], 15);
@@ -33,7 +34,8 @@ test("all milestones grant Heavy Soldier, rain projectiles and 20% haste for 15 
   const u = b.units.at(-1);
   Object.assign(u, {
     x: WORLD.castles[1] - 60,
-    y: WORLD.ground, lane:WORLD.ground,
+    y: WORLD.ground,
+    lane: WORLD.ground,
     windup: 0,
     cd: 0,
   });

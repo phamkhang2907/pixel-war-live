@@ -18,12 +18,24 @@ const sounds = [
   "next-round",
   "music",
 ] as const;
+export type MusicTrack = {
+  id: string;
+  name: string;
+  url: string;
+  mime: string;
+  bytes: number;
+  uploadedAt: string;
+};
 type Sound = (typeof sounds)[number];
 export class BattleAudio {
   private context?: AudioContext;
   private sfx?: GainNode;
   private music?: GainNode;
   private loop?: AudioBufferSourceNode;
+  private track: MusicTrack | null = null;
+  private trackEpoch = 0;
+  private stream?: HTMLAudioElement;
+  private streamNode?: MediaElementAudioSourceNode;
   private raw = new Map<Sound, ArrayBuffer>();
   private buffers = new Map<Sound, AudioBuffer>();
   private voices = new Set<AudioBufferSourceNode>();
@@ -45,6 +57,13 @@ export class BattleAudio {
   private played = 0;
   private dropped = 0;
   constructor() {
+    const epoch = this.trackEpoch;
+    void fetch("/api/music", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { track: null }))
+      .then((p) => {
+        if (this.trackEpoch === epoch) this.setTrack(p.track);
+      })
+      .catch(() => {});
     this.ready = Promise.all(
       sounds.map(async (name) => {
         const r = await fetch("/assets/audio/" + name + ".wav");
@@ -81,7 +100,9 @@ export class BattleAudio {
       for (const voice of this.voices) voice.stop();
       this.loop?.stop();
       this.loop = undefined;
+      this.stream?.pause();
     } else if (this.enabled && !this.muted) {
+      void this.context?.resume().catch(() => {});
       this.startMusic();
     }
   };
@@ -99,6 +120,12 @@ export class BattleAudio {
         this.sfx.connect(this.context.destination);
         this.music.connect(this.context.destination);
       }
+      this.mix();
+      // Streaming play is requested inside the original gesture, before async decode.
+      if (this.track && this.musicVolume > 0)
+        this.prepareStream()
+          ?.play()
+          .catch((error) => {});
       // Invoked synchronously from a tap before awaiting network/decode (iPad Safari).
       await this.context.resume();
       if (!this.enabled) {
@@ -133,7 +160,72 @@ export class BattleAudio {
     if (this.music)
       this.music.gain.value = this.muted ? 0 : this.musicVolume * 0.35;
   }
+  setTrack(track: MusicTrack | null) {
+    if (this.track?.id === track?.id) return;
+    this.trackEpoch++;
+    this.track = track;
+    this.stream?.pause();
+    this.loop?.stop();
+    this.loop = undefined;
+    if (this.stream) {
+      this.stream.removeAttribute("src");
+      this.stream.load();
+    }
+    if (this.enabled && !this.muted) this.startMusic();
+  }
+  previewMusic() {
+    this.musicVolume = Math.max(0.35, this.musicVolume);
+    (document.getElementById("musicVolume") as HTMLInputElement).value = String(
+      this.musicVolume,
+    );
+    this.mix();
+    if (!this.enabled || this.muted) void this.toggle();
+    else {
+      // Safari can suspend/interrupt an already unlocked context after backgrounding.
+      // Request resume inside this fresh tap as well as restarting the media stream.
+      void this.context?.resume().catch(() => {});
+      this.startMusic();
+    }
+  }
+  private prepareStream() {
+    if (!this.track || !this.context || !this.music) return;
+    if (!this.stream) {
+      this.stream = new Audio();
+      this.stream.preload = "metadata";
+      this.stream.loop = true;
+      this.stream.onerror = () => {
+        document.getElementById("audioStatus")!.textContent =
+          "Không phát được tệp này trên trình duyệt. Thử MP3, WAV hoặc M4A.";
+      };
+      this.streamNode = this.context.createMediaElementSource(this.stream);
+      this.streamNode.connect(this.music);
+    }
+    if (this.stream.getAttribute("src") !== this.track.url) {
+      this.stream.src = this.track.url;
+      this.stream.load();
+    }
+    return this.stream;
+  }
   private startMusic() {
+    if (this.track) {
+      if (
+        this.enabled &&
+        !this.muted &&
+        this.musicVolume > 0 &&
+        !document.hidden
+      ) {
+        this.prepareStream()
+          ?.play()
+          .catch((error) => {
+            document.getElementById("audioStatus")!.textContent =
+              error?.name === "NotSupportedError"
+                ? "Định dạng này không phát được trên trình duyệt. Thử MP3, WAV hoặc M4A."
+                : "Chạm Nghe thử hoặc bật âm thanh để phát nhạc trên Safari.";
+          });
+      } else this.stream?.pause();
+      return;
+    }
+
     if (
       this.loop ||
       !this.context ||
@@ -318,6 +410,15 @@ export class BattleAudio {
     return {
       enabled: this.enabled,
       muted: this.muted,
+      musicTrack: this.track
+        ? {
+            id: this.track.id,
+            name: this.track.name,
+            paused: this.stream?.paused ?? true,
+            currentTime: this.stream?.currentTime ?? 0,
+            readyState: this.stream?.readyState ?? 0,
+          }
+        : null,
       context: this.context?.state ?? "locked",
       sfxVolume: this.sfxVolume,
       musicVolume: this.musicVolume,
@@ -329,6 +430,10 @@ export class BattleAudio {
     };
   }
   dispose() {
+    this.stream?.pause();
+    this.streamNode?.disconnect();
+    this.stream?.removeAttribute("src");
+    this.stream?.load();
     document.removeEventListener("visibilitychange", this.visibility);
     for (const source of this.voices) source.stop();
     this.loop?.stop();

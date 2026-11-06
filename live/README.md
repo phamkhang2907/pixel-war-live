@@ -1,5 +1,7 @@
 # PIXEL WAR 3D
 
+See [SWARM-SYSTEM.md](SWARM-SYSTEM.md) for current organic armies, FIFO summons, GPU character animation, capacity limits and admin background-music uploads. Its behavior supersedes the older formation/capacity notes below.
+
 See [FULL-3D-MIGRATION.md](FULL-3D-MIGRATION.md) for current gameplay, admin controls, gifting, audio, testing and limitations. This replaces the retired 2D setup instructions.
 
 See [STYLIZED-ENVIRONMENT.md](STYLIZED-ENVIRONMENT.md) for the current moss-green low-poly terrain, instanced KayKit scenery, screenshots and measured rendering costs. This supersedes the earlier photorealistic grass treatment.

@@ -39,6 +39,7 @@ try {
   );
 }
 const socket = io({ autoConnect: false });
+socket.on("music", (payload) => audio.setTrack(payload.track));
 socket.on("connect", () => {
   element("connectionDot").classList.add("online");
   setStatus("Connected · authoritative battle server");
@@ -52,11 +53,18 @@ let latestServerTime = 0;
 socket.on("state", (state: BattleState) => {
   if (state.serverNow && state.serverNow < latestServerTime) return;
   latestServerTime = state.serverNow ?? latestServerTime;
+  if (state.armyCapacity === undefined)
+    setStatus(
+      "Server vẫn chạy bản cũ: khởi động lại Node server sau khi cập nhật/build.",
+    );
   const liveStatus = element("liveStatus");
   if (liveStatus)
     liveStatus.textContent =
       (state as BattleState & { liveStatus?: string }).liveStatus ?? state.mode;
   battlefield?.setState(state);
+  const queueStatus = document.getElementById("summonStatus");
+  if (queueStatus)
+    queueStatus.textContent = `${state.units.length}/${state.armyCapacity ?? 1000} quân · Chờ triển khai: ${state.summonQueue?.pending ?? 0} · FIFO tiếp theo: ${state.summonQueue?.headSequence ?? "—"}`;
   hud.render(state as HudState);
   audio.update(state as HudState, battlefield?.director.camera.position.x ?? 0);
   element("round").textContent = `ROUND ${state.round}`;
@@ -101,13 +109,22 @@ element("auth").onsubmit = async (event) => {
     });
     if (!response.ok) throw Error("Invalid admin token");
     token = candidate;
-    openAdmin(await response.json(), control, () =>
-      fetch("/api/config", {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((r) => {
-        if (!r.ok) throw Error("Unauthorized");
-        return r.json();
-      }),
+    openAdmin(
+      await response.json(),
+      control,
+      () =>
+        fetch("/api/config", {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then((r) => {
+          if (!r.ok) throw Error("Unauthorized");
+          return r.json();
+        }),
+      {
+        token: () => token,
+        setTrack: (t) => audio.setTrack(t),
+        preview: () => audio.previewMusic(),
+        showArmy: () => battlefield?.select("front"),
+      },
     );
     element("demoActions").hidden = false;
     element<HTMLInputElement>("token").value = "";
@@ -203,7 +220,7 @@ if (battlefield) {
         : "");
     if (query.has("debug"))
       element("debug").textContent =
-        `FPS ${d.fps.toFixed(1)} · ${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · context ${d.contextLost ? "lost" : "ready"}\nDevelopment measurements only; no device benchmark claim.`;
+        `FPS ${d.fps.toFixed(1)} · average frame ${d.fps > 0 ? (1000 / d.fps).toFixed(1) : "—"} ms\n${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · JS heap ${d.jsHeapBytes ? (d.jsHeapBytes / 1048576).toFixed(1) + " MiB" : "unavailable"}\nContext ${d.contextLost ? "lost" : "ready"} · Development measurements only.`;
   }, 500);
 }
 function cleanup() {

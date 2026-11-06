@@ -1,0 +1,73 @@
+{
+  "device": {
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "node": "v24.22.1"
+  },
+  "simulatedSeconds": 11,
+  "samplesPerRun": 200,
+  "note": "Isolated Battle simulation and snapshot JSON; immortal ownerless fixtures hold the requested count; excludes HTTP, Socket.IO compression, persistence worker and GPU rendering.",
+  "runs": [
+    {
+      "requested": 200,
+      "remaining": 200,
+      "simulationTickMs": {
+        "p50": 0.43462299999998777,
+        "p95": 0.7732140000000101,
+        "max": 0.9292080000000169
+      },
+      "snapshotSerializeMs": {
+        "p50": 0.3066210000000069,
+        "p95": 0.4745640000000151,
+        "max": 0.7797829999999806
+      },
+      "lastSnapshotBytes": 95074
+    },
+    {
+      "requested": 500,
+      "remaining": 500,
+      "simulationTickMs": {
+        "p50": 1.5076379999999858,
+        "p95": 2.882506000000035,
+        "max": 3.5502910000000156
+      },
+      "snapshotSerializeMs": {
+        "p50": 0.5281150000000707,
+        "p95": 0.7160869999999591,
+        "max": 2.5832360000000563
+      },
+      "lastSnapshotBytes": 156058
+    },
+    {
+      "requested": 1000,
+      "remaining": 1000,
+      "simulationTickMs": {
+        "p50": 3.7227100000000064,
+        "p95": 9.40711999999985,
+        "max": 12.189536999999973
+      },
+      "snapshotSerializeMs": {
+        "p50": 0.8471040000001722,
+        "p95": 1.1301900000000842,
+        "max": 1.4098510000000033
+      },
+      "lastSnapshotBytes": 258503
+    },
+    {
+      "requested": 2000,
+      "remaining": 2000,
+      "simulationTickMs": {
+        "p50": 11.825254000000314,
+        "p95": 29.597241999999824,
+        "max": 41.06151399999999
+      },
+      "snapshotSerializeMs": {
+        "p50": 1.6735880000001089,
+        "p95": 2.028751999999713,
+        "max": 4.013446999999815
+      },
+      "lastSnapshotBytes": 467671
+    }
+  ]
+}

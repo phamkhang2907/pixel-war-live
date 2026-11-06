@@ -62,3 +62,37 @@ jobs:
             live/artifacts/grok-hud-*.png
             live/artifacts/hud-report.json
             live/artifacts/webkit-audio-report.json
+  swarm-and-music:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+        working-directory: live
+      - run: node tools/swarm-simulation.mjs
+        working-directory: live
+      - run: node tools/swarm-check.mjs
+        working-directory: live
+      - run: SWARM_ENGINE=webkit SWARM_COUNTS=200 node tools/swarm-check.mjs
+        working-directory: live
+      - run: node tools/music-check.mjs
+        working-directory: live
+      - run: MUSIC_ENGINE=webkit node tools/music-check.mjs
+        working-directory: live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swarm-and-uploaded-music-captures
+          path: |
+            live/artifacts/swarm-*.png
+            live/artifacts/swarm-report*.json
+            live/artifacts/swarm-simulation.json
+            live/artifacts/music-*.png
+            live/artifacts/music-report*.json

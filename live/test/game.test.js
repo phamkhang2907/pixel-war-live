@@ -30,10 +30,18 @@ test("six configured combat stats and name-based gift queue", () => {
       [2500, 120],
     ],
   );
-  const g = new Battle();g.choose("a",0);
-  const result=g.gift({id:"a",name:"A",giftName:"Finger Heart",count:2});
-  assert.equal(result.queued,10);g.drainSummons(20);
-  assert.equal(g.units.length,10);assert.ok(g.units.every(u=>u.type==='sword'));
+  const g = new Battle();
+  g.choose("a", 0);
+  const result = g.gift({
+    id: "a",
+    name: "A",
+    giftName: "Finger Heart",
+    count: 2,
+  });
+  assert.equal(result.queued, 10);
+  g.drainSummons(20);
+  assert.equal(g.units.length, 10);
+  assert.ok(g.units.every((u) => u.type === "sword"));
   assert.ok(new Battle().gift({ id: "x", coins: 1 }).error);
 });
 test("melee damages, hurt, death remains then is removed", () => {
@@ -94,7 +102,7 @@ test("guardian frontal shield and stomp knockback", () => {
   assert.ok(s.units[1].x > old + 20);
   assert.ok(s.units[1].hp < 100 - 35);
 });
-test("titan castle priority, enrage, stomp and 3.4x scale", () => {
+test("titan castle priority, enrage, stomp and 4x scale", () => {
   const g = pair("boss", "sword", 250),
     u = g.units[0];
   g.tick(0.05);
@@ -103,7 +111,7 @@ test("titan castle priority, enrage, stomp and 3.4x scale", () => {
   g.tick(0.05);
   assert.equal(u.state, "rage");
   assert.equal(u.rage, true);
-  assert.equal(TYPES.boss.scale, 3.4);
+  assert.equal(TYPES.boss.scale, 4);
   assert.equal(TYPES.guardian.scale, 2.5);
 });
 test("soft collisions separate overlapping ground troops but leave air free", () => {
@@ -113,13 +121,15 @@ test("soft collisions separate overlapping ground troops but leave air free", ()
     Object.assign(u, { x: 700 + i, y: WORLD.ground, windup: 0 }),
   );
   g.tick(0.05);
-  assert.ok(Math.abs(g.units[0].x - g.units[1].x) > 1);
+  assert.ok(
+    Math.hypot(g.units[0].x - g.units[1].x, g.units[0].y - g.units[1].y) > 1,
+  );
 });
-test("300 cap, invalid inputs and no recycled IDs", () => {
-  const g = new Battle();
+test("configurable capacity, invalid inputs and no recycled IDs", () => {
+  const g = new Battle({ maxUnits: 300 });
   assert.equal(g.spawn(0, "toString", 2), 0);
   assert.equal(g.spawn(7, "sword", 2), 0);
-  g.spawn(0, "boss", 350);
+  g.spawn(0, "sword", 350);
   assert.equal(g.units.length, 300);
   const id = g.units.at(-1).id;
   g.reset();
@@ -150,7 +160,7 @@ test("300 mixed-unit CPU benchmark", () => {
 test("gift streak repeats multiply unit quantity rather than promote tier", () => {
   const b = new Battle();
   b.choose("a", 0);
-  b.gift({ id: "a", name: "A", giftName:"Doughnut",coins: 50, count: 3 });
+  b.gift({ id: "a", name: "A", giftName: "Doughnut", coins: 50, count: 3 });
   b.drainSummons(20);
   assert.equal(b.units.length, 9);
   assert.ok(b.units.every((u) => u.type === "archer"));

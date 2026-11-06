@@ -95,6 +95,7 @@ export class TikTokIngest {
         this.streakRounds.delete(this.streakRounds.keys().next().value);
       return { pending: true };
     }
+    const continuedStreak = this.streakRounds.has(streakKey);
     const roundId = this.streakRounds.get(streakKey);
     this.streakRounds.delete(streakKey);
     if (
@@ -109,6 +110,7 @@ export class TikTokIngest {
       this.seen.delete(this.seen.values().next().value);
     return this.battle.gift({
       id,
+      origin: this.source === "demo" ? "demoGift" : "gift",
       name: user.nickname || user.uniqueId || "Viewer",
       coins,
       count:
@@ -117,7 +119,8 @@ export class TikTokIngest {
           : (data.repeatCount ?? 1),
       giftId,
       giftName,
-      roundId,
+      roundId: continuedStreak ? undefined : roundId,
+      continuedStreak,
       eventAt: createTime
         ? createTime < 1e12
           ? createTime * 1000

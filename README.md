@@ -2,6 +2,8 @@
 
 A portrait Three.js + TypeScript fantasy battle game driven by an authoritative Node.js / Socket.IO simulation and TikTok LIVE events.
 
+Current army behavior, animation strategy, FIFO guarantees and admin music uploads: [SWARM-SYSTEM.md](live/SWARM-SYSTEM.md).
+
 - Game and admin: `/3d/` (the root `/` redirects here).
 - Admin shortcut: `/admin` → `/3d/?admin=1`; existing server token required.
 - Capture: `/3d/?overlay=1` (1080 × 1920 layout).

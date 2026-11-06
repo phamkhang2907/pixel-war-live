@@ -1,32 +1,47 @@
+import { seeded } from "./spatial.js";
 export const WORLD = {
   width: 4800,
-  height: 2400,
+  height: 3200,
   castles: [180, 4620],
-  ground: 1100,
-  laneMin: 540,
-  laneMax: 1660,
+  ground: 1600,
+  laneMin: 100,
+  laneMax: 3100,
   rows: 15,
   rowGap: 80,
 };
+// Rendering and authoritative capacity use the same explicit budgets.
+export const ARMY = Object.freeze({
+  maxUnits: 2000,
+  defaultUnits: 1000,
+  // 15% smaller normals; Heavy grows slightly and the existing Giant keeps its height.
+  normalHeight: 1.53,
+  normalSpeed: 110,
+  deploymentBatch: 8,
+});
 export const formation = (team, slot, type = "sword") => {
-  const row = slot % WORLD.rows,
-    column = Math.floor(slot / WORLD.rows) % 20;
-  const x = WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + column * 84);
+  // Deterministic continuous samples, never a row/column layout.
+  const a = seeded(slot + 1, team * 9137 + 37),
+    b = seeded(slot + 1, team * 5723 + 71);
+  const radius = TYPES[type]?.radius ?? 9;
+  const y =
+    WORLD.laneMin + radius + b * (WORLD.laneMax - WORLD.laneMin - 2 * radius);
   return {
-    x,
-    y: WORLD.laneMin + row * WORLD.rowGap,
-    lane: WORLD.laneMin + row * WORLD.rowGap,
+    x: WORLD.castles[team] + (team === 0 ? 1 : -1) * (260 + a * 1020),
+    y,
+    lane: y,
   };
 };
+export const renderScale = (type) =>
+  (ARMY.normalHeight / 1.8) * TYPES[type].scale;
 export const TYPES = {
   sword: {
     name: "Small Soldier",
     hp: 100,
     damage: 15,
     range: 38,
-    speed: 65,
+    speed: ARMY.normalSpeed,
     cooldown: 0.85,
-    radius: 14,
+    radius: 13,
     scale: 1,
     air: false,
     antiAir: false,
@@ -36,7 +51,7 @@ export const TYPES = {
     hp: 65,
     damage: 20,
     range: 280,
-    speed: 53,
+    speed: ARMY.normalSpeed * 0.9,
     cooldown: 1.3,
     radius: 13,
     scale: 1,
@@ -49,10 +64,10 @@ export const TYPES = {
     hp: 180,
     damage: 35,
     range: 48,
-    speed: 48,
+    speed: ARMY.normalSpeed * 0.65,
     cooldown: 1.2,
     radius: 21,
-    scale: 1.3,
+    scale: 1.6,
     air: false,
     antiAir: false,
   },
@@ -61,10 +76,10 @@ export const TYPES = {
     hp: 100,
     damage: 50,
     range: 230,
-    speed: 60,
+    speed: ARMY.normalSpeed * 0.9,
     cooldown: 2,
-    radius: 16,
-    scale: 1.1,
+    radius: 13,
+    scale: 1,
     air: true,
     antiAir: true,
     projectile: "fireball",
@@ -87,10 +102,10 @@ export const TYPES = {
     hp: 2500,
     damage: 120,
     range: 100,
-    speed: 38,
+    speed: ARMY.normalSpeed * 0.4,
     cooldown: 2.2,
     radius: 70,
-    scale: 3.4,
+    scale: 4,
     air: false,
     antiAir: false,
   },

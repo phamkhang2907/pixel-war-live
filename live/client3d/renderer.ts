@@ -6,7 +6,7 @@ import { KaykitUnits } from "./kaykit-units";
 import { CombatEffects } from "./combat-effects";
 import { GroundContacts } from "./ground-contacts";
 import { loadKaykitWorld } from "./kaykit-world";
-import { CASTLE_X, type BattleState } from "./state";
+import { CASTLE_X, worldX, worldZ, type BattleState } from "./state";
 
 export class BattlefieldRenderer {
   readonly scene = new T.Scene();
@@ -137,9 +137,13 @@ export class BattlefieldRenderer {
         this.lastBufferScale = bufferScale;
         this.resize();
       }
-      this.kaykit.update(this.state, dt, this.director.camera.position);
+      this.kaykit.update(
+        this.state,
+        Math.min(wallDt, 1),
+        this.director.camera.position,
+      );
       this.effects.update(this.state, dt);
-      this.contacts.update(this.state, dt);
+      this.contacts.update(this.state, Math.min(wallDt, 1));
       this.renderer.render(this.scene, this.director.camera);
       this.frames++;
       this.totalFrames++;
@@ -213,8 +217,21 @@ export class BattlefieldRenderer {
   diagnostics() {
     const project = (x: number) =>
       new T.Vector3(x, 0, 0).project(this.director.camera).toArray();
+    const visibility = { inFrame: [0, 0], clearHud: [0, 0] },
+      v = new T.Vector3();
+    for (const u of this.state?.units ?? []) {
+      if (u.hp <= 0) continue;
+      v.set(worldX(u.x), u.type === "mage" ? 3.4 : 0.7, worldZ(u.y)).project(
+        this.director.camera,
+      );
+      if (Math.abs(v.x) <= 1 && Math.abs(v.y) <= 1 && Math.abs(v.z) <= 1) {
+        visibility.inFrame[u.team]++;
+        if (v.y <= 0.3 && v.y >= -0.88) visibility.clearHud[u.team]++;
+      }
+    }
     return {
       ...this.director.diagnostics(),
+      estimatedVisibleUnitCenters: visibility,
       fortresses: this.fortresses.map((f) => ({
         name: f.name,
         modules: f.children.length,
@@ -245,6 +262,10 @@ export class BattlefieldRenderer {
       listenerX: this.director.camera.position.x,
       adaptiveScale: this.adaptiveScale,
       contextLost: this.lost,
+      renderMemory: { ...this.renderer.info.memory },
+      jsHeapBytes:
+        (performance as Performance & { memory?: { usedJSHeapSize: number } })
+          .memory?.usedJSHeapSize ?? null,
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
       units: this.state?.units.length ?? 0,
