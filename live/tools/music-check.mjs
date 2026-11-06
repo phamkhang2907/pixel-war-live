@@ -163,6 +163,8 @@ try {
   await page.screenshot({ path: "artifacts/music-upload-admin.png" });
   await stop();
   await boot();
+  // Owner sessions are intentionally in-memory: a restart requires sign-in.
+  await page.request.post(base + "/owner/login", { form: { password: token } });
   const persisted = await fetch(base + "/api/music").then((r) => r.json());
   assert.equal(persisted.track.id, manifest.track.id);
   r = await fetch(base + "/api/admin/music", { method: "DELETE" });
