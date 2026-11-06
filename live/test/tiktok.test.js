@@ -10,7 +10,7 @@ test("native nested TikTok chat and completed streak; deduplicate message", () =
   const gift = {
     user,
     common: { msgId: "gift-1" },
-    giftDetails: { giftName:"Rose",giftType: 1, diamondCount: 5 },
+    giftDetails: { giftName: "Rose", giftType: 1, diamondCount: 5 },
     repeatCount: 10,
     repeatEnd: false,
   };
@@ -44,5 +44,6 @@ test("native likeCount is per-event, team selected by chat, duplicate IDs ignore
   a.like(d);
   a.like(d);
   assert.deepEqual(b.energy, [0, 100]);
+  b.drainSummons();
   assert.equal(b.units.length, 3);
 });

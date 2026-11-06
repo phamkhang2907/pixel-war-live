@@ -6,11 +6,13 @@ import {
 } from "./gifts.js";
 import { TikTokIngest } from "./tiktok.js";
 import { hudSnapshot } from "./hud-data.js";
-import { WORLD } from "./characters.js";
+import { WORLD, ARMY, formation } from "./characters.js";
 import { League } from "./league.js";
 import { RoundManager } from "./rounds.js";
 import { TikTokService } from "./tiktok-connection.js";
+import { seeded } from "./spatial.js";
 import express from "express";
+import { mountMusic } from "./music.js";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
@@ -20,13 +22,16 @@ import { Battle, TYPES } from "./game.js";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = express(),
   http = createServer(app),
-  io = new Server(http, { maxHttpBufferSize: 16000 });
+  io = new Server(http, {
+    maxHttpBufferSize: 16000,
+    perMessageDeflate: { threshold: 1024, zlibDeflateOptions: { level: 1 } },
+  });
 const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
 const league = new League(dataDir, { asyncPersistence: true });
 const rounds = new RoundManager(game, league);
 const tiktok = new TikTokService(game);
-let auto = true,
+let auto = false,
   speed = 1;
 const token = process.env.ADMIN_TOKEN || randomBytes(18).toString("hex");
 try {
@@ -69,6 +74,9 @@ app.get("/health", (_, r) =>
     ok: true,
     units: game.units.length,
     mode: tiktok.mode,
+    armyCapacity: game.maxUnits,
+    pendingSummons: game.summonQueue.reduce((n, q) => n + q.remaining, 0),
+    memory: process.memoryUsage(),
     phase: rounds.phase,
     persistenceError: league.persistenceError,
     performance: { tickMs, maxTickMs, eventLoopDelayMs },
@@ -98,12 +106,23 @@ function auth(req, res, next) {
   }
   next();
 }
+const music = await mountMusic(app, {
+  auth,
+  directory: dataDir,
+  changed: (payload) => io.emit("music", payload),
+});
 app.get("/api/config", auth, (_, r) =>
   r.json({
+    music: music.manifest(),
     giftMappings: game.giftMappings,
     giftCatalog: [...game.giftCatalog.values()],
     summonable: SUMMONABLE,
     guardian: CASTLE_GUARDIAN,
+    army: {
+      capacity: game.maxUnits,
+      max: ARMY.maxUnits,
+      pending: game.summonQueue.reduce((n, q) => n + q.remaining, 0),
+    },
     roundConfig: league.data.config,
     mode: tiktok.mode,
     auto,
@@ -188,24 +207,31 @@ app.post("/api/control", auth, async (req, res) => {
         break;
       case "burst":
         if (tiktok.mode !== "demo") throw Error("Demo mode required");
-        if (![100, 200, 300].includes(p.count ?? 200))
-          throw Error("Use 100, 200 or 300 units");
-        for (let i = 0; i < (p.count ?? 200); i++)
-          game.spawn(
-            i % 2,
-            SUMMONABLE[Math.floor(i / 2) % SUMMONABLE.length],
-            1,
+        if (![100, 200, 300, 500, 1000, 2000].includes(p.count ?? 200))
+          throw Error("Use 100–2000 units in Demo mode");
+        game.maxUnits = Math.max(game.maxUnits, p.count ?? 200);
+        for (const team of [0, 1])
+          game.enqueue(
+            team,
+            "sword",
+            (p.count ?? 200) / 2,
             "Demo army",
-            "demo:army:" + (i % 2) + ":" + (i % 12),
+            null,
+            "demo",
           );
         break;
       case "cameraScenario": {
         if (
           tiktok.mode !== "demo" ||
-          !["balanced", "red", "blue", "boss"].includes(p.scenario) ||
-          (p.count !== undefined && ![50, 100, 300].includes(p.count))
+          !["balanced", "red", "blue", "boss", "swarm"].includes(p.scenario) ||
+          (p.count !== undefined &&
+            ![50, 100, 200, 300, 500, 1000, 2000].includes(p.count))
         )
           throw Error("Choose a valid Demo camera scenario");
+        if (game.summonQueue.length)
+          throw Error(
+            "Pending accepted summons must deploy before replacing a Demo scenario",
+          );
         rounds.start();
         rounds.config.prepare = 0;
         rounds.config.duration = Math.max(120, rounds.config.duration);
@@ -228,31 +254,43 @@ app.post("/api/control", auth, async (req, res) => {
             ? [4190, 4360]
             : p.scenario === "blue"
               ? [440, 610]
-              : [2260, 2500];
+              : p.layout === "march"
+                ? [WORLD.castles[0] + 1020, WORLD.castles[1] - 1020]
+                : [2260, 2500];
+        game.maxUnits = Math.max(ARMY.defaultUnits, p.count ?? 300);
+        game.spawnZone = (team, slot, type) => {
+          const v = formation(team, slot, type),
+            available =
+              team === 0
+                ? fronts[team] - (WORLD.castles[0] + 120)
+                : WORLD.castles[1] - 120 - fronts[team],
+            depth = Math.min(available, 1200, 120 + (p.count ?? 300) * 0.55);
+          v.x =
+            fronts[team] +
+            (team === 0 ? -1 : 1) * seeded(slot + 1, 981 + team * 821) * depth;
+          return v;
+        };
         for (let team = 0; team < 2; team++)
           for (let i = 0; i < counts[team]; i++) {
             const type =
-              i % 12 === 0
-                ? "cavalry"
-                : i % 8 === 0
-                  ? "mage"
-                  : i % 4 === 0
-                    ? "archer"
-                    : "sword";
+              p.scenario === "swarm" && i === 0
+                ? "boss"
+                : i % 12 === 0
+                  ? "cavalry"
+                  : i % 8 === 0
+                    ? "mage"
+                    : i % 4 === 0
+                      ? "archer"
+                      : "sword";
             game.spawn(
               team,
               type,
               1,
               "Demo " + (team === 0 ? "Red" : "Blue"),
-              "demo:scenario:" + team + ":" + (i % 12),
+              null,
             );
-            const u = game.units.at(-1);
-            u.x =
-              fronts[team] +
-              (team === 0 ? -1 : 1) * Math.floor(i / WORLD.rows) * 84;
-            const event = game.cameraEvents.at(-1);
-            if (event) event.x = u.x;
           }
+        game.spawnZone = null;
         if (p.scenario === "boss") {
           game.spawn(0, "boss", 1, "Titan Commander", "demo:titan");
           const u = game.units.at(-1);
@@ -309,22 +347,25 @@ app.post("/api/control", auth, async (req, res) => {
           !SUMMONABLE.includes(p.type) ||
           !Number.isInteger(p.count) ||
           p.count < 1 ||
-          p.count > 50
+          p.count > 1000
         )
           throw Error("Invalid troop request");
-        game.spawn(
-          p.team,
-          p.type,
-          p.count,
-          p.name || "Demo",
-          "demo:" + p.team + ":" + String(p.userId || p.name || "Demo"),
-        );
+        game.enqueue(p.team, p.type, p.count, p.name || "Demo", null, "demo");
         break;
       case "demo":
         await tiktok.disconnect();
         break;
       case "connect":
         await tiktok.connect(p.username);
+        // Demo stress armies/test requests cannot enter the real LIVE simulation.
+        game.units = game.units.filter(
+          (u) => !["demo", "demoGift"].includes(u.origin),
+        );
+        game.summonQueue = game.summonQueue.filter(
+          (q) => !["demo", "demoGift"].includes(q.origin),
+        );
+        game.spawnGridDirty = true;
+        game.queueChanged();
         auto = false;
         speed = 1;
         break;
@@ -339,6 +380,7 @@ app.post("/api/control", auth, async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+let lastBroadcast = 0;
 let lastHud = null,
   lastHudAt = 0,
   lastHudRound = "",
@@ -386,7 +428,10 @@ app.get("/api/history", auth, (req, res) => {
       })),
   });
 });
-io.on("connection", (socket) => socket.emit("state", state()));
+io.on("connection", (socket) => {
+  socket.emit("state", state());
+  socket.emit("music", music.manifest());
+});
 let previous = performance.now();
 let tickMs = 0,
   maxTickMs = 0,
@@ -415,6 +460,7 @@ const tickTimer = setInterval(() => {
     game.gift({
       id,
       name,
+      origin: "demoGift",
       giftName: ["Rose", "Finger Heart", "Doughnut", "Perfume"][
         Math.floor(Math.random() * 4)
       ],
@@ -422,13 +468,17 @@ const tickTimer = setInterval(() => {
   }
   rounds.settle();
   league.checkpoint();
-  io.emit("state", state());
+  if (game.units.length <= 500 || Date.now() - lastBroadcast >= 100) {
+    io.emit("state", state());
+    lastBroadcast = Date.now();
+  }
   tickMs = performance.now() - now;
   maxTickMs = Math.max(maxTickMs, tickMs);
 }, 50);
-for (let team = 0; team < 2; team++)
-  for (const type of ["sword", "archer", "cavalry", "mage"])
-    game.spawn(team, type, 3, "Founders", null);
+if (!game.summonQueue.length)
+  for (let team = 0; team < 2; team++)
+    for (const type of ["sword", "archer", "cavalry", "mage"])
+      game.spawn(team, type, 3, "Founders", null);
 league.checkpoint();
 for (const signal of ["SIGTERM", "SIGINT"])
   process.on(signal, async () => {

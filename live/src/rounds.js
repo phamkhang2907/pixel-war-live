@@ -7,6 +7,12 @@ export class RoundManager {
     this.result = null;
     game.onCombat = (e) => league.event(e);
     game.acceptReceipt = (key) => league.receipt(key);
+    game.restoreQueue(league.data.summons);
+    game.onQueue = (saved) => {
+      league.data.summons = saved;
+      league.dirty = true;
+      league.checkpoint();
+    };
     if (league.data.active && !league.data.active.finished)
       league.finish({
         winner: null,
@@ -88,11 +94,7 @@ export class RoundManager {
     };
     this.paused = false;
     this.phase = "results";
-    this.game.queueStats.expired += this.game.summonQueue.reduce(
-      (n, q) => n + q.remaining,
-      0,
-    );
-    this.game.summonQueue = [];
+    // Accepted summons wait through results and retain FIFO order into the next round.
     this.phaseElapsed = 0;
     g.winner = winner;
     this.gates();

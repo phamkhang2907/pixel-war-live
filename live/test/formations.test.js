@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Battle } from "../src/game.js";
 import { WORLD } from "../src/characters.js";
-for (const count of [50, 100, 300])
-  test(`${count} troops keep broad lanes through engagement`, () => {
+for (const count of [200, 500, 1000])
+  test(`${count} troops keep an organic broad front through engagement`, () => {
     const b = new Battle();
     for (const team of [0, 1]) {
       b.spawn(team, "sword", count / 2);
@@ -22,8 +22,8 @@ for (const count of [50, 100, 300])
       const span =
         Math.max(...units.map((u) => u.y)) - Math.min(...units.map((u) => u.y));
       assert.ok(span > 650, `frontage collapsed: ${span}`);
-      assert.ok(new Set(units.map((u) => Math.round(u.y / 80))).size >= 10);
+      assert.ok(new Set(units.map((u) => u.lane)).size > units.length * 0.9);
     }
-    assert.equal(b.castle(0, WORLD.laneMin).y, WORLD.laneMin);
-    assert.equal(b.castle(1, WORLD.laneMax).y, WORLD.laneMax);
+    assert.equal(b.castle(0, WORLD.laneMin).y, WORLD.ground - 900);
+    assert.equal(b.castle(1, WORLD.laneMax).y, WORLD.ground + 900);
   });

@@ -68,7 +68,7 @@ test("real server restart retains completed history, LIVE and season merit/wins/
   };
   try {
     await start();
-    await command("auto");
+
     await command("roundConfig", {
       config: {
         duration: 1,
@@ -80,9 +80,9 @@ test("real server restart retains completed history, LIVE and season merit/wins/
       },
     });
     await command("newRound");
-    await command("troop", {
+    await command("demoGift", {
       team: 0,
-      type: "sword",
+      giftName: "Rose",
       count: 1,
       name: "Persistent Player",
       userId: "persistent",
@@ -97,10 +97,10 @@ test("real server restart retains completed history, LIVE and season merit/wins/
     await start();
     assert.equal(latest.roundState.sessionId, session);
     for (const scope of ["live", "season"]) {
-      const boards = await fetch(base+"/api/leaderboards",{headers}).then(r=>r.json());
-      const p = boards[scope].find(
-        (p) => p.id === "demo:0:persistent",
+      const boards = await fetch(base + "/api/leaderboards", { headers }).then(
+        (r) => r.json(),
       );
+      const p = boards[scope].find((p) => p.id === "demo:0:persistent");
       assert.equal(p.points, 5);
       assert.equal(p.draws, 1);
       assert.equal(p.rounds, 1);

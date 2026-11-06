@@ -114,6 +114,7 @@ test("projectile owner survives shooter death; splash and like powers retain use
   assert.equal(league.data.active.players.a.unitDamage, 100);
   game.choose("h", 0, "Hearts");
   game.likes({ id: "h", name: "Hearts", count: 1000 });
+  game.drainSummons(20);
   assert.equal(game.units.filter((u) => u.userId === "h").length, 6);
   assert.equal(league.data.active.players.h.summoned, 6);
   assert.ok(league.data.active.players.h.castleDamage > 0);
@@ -157,7 +158,7 @@ test("durable season/session/history and gift receipts survive restart", () => {
     adapter.chat({ user, comment: "1" });
     const gift = {
       user,
-      giftDetails: { giftName:"Rose",diamondCount: 1000, giftType: 0 },
+      giftDetails: { giftName: "Rose", diamondCount: 1000, giftType: 0 },
       repeatCount: 1,
       common: { msgId: "persistent" },
     };

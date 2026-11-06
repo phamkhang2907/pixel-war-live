@@ -41,7 +41,7 @@ try {
     if (i === 99) throw Error("Server startup failed: " + logs);
     await sleep(100);
   }
-  await control("auto");
+
   await control("pause");
   browser = await chromium.launch({
     executablePath:
@@ -273,7 +273,7 @@ try {
     body: '{"action":"reset"}',
   });
   assert.equal(denied.status, 401);
-  assert.equal((await fetch(base + "/legacy/")).status,410);
+  assert.equal((await fetch(base + "/legacy/")).status, 410);
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
   const report = {

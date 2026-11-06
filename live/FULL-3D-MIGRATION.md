@@ -1,3 +1,5 @@
+> Historical migration report. Current army capacity, organic movement, queued late gifts and uploaded music are documented in [SWARM-SYSTEM.md](SWARM-SYSTEM.md).
+
 # 3D-only gameplay migration — 2026-11-05
 
 ## What caused the round-end problems

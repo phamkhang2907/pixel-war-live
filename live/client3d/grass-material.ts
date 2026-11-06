@@ -1,4 +1,7 @@
 import * as T from "three";
+import { WORLD } from "../src/characters.js";
+export const MEADOW_CLEARANCE =
+  Math.max(WORLD.ground - WORLD.laneMin, WORLD.laneMax - WORLD.ground) / 50 + 4;
 
 export const TERRAIN_PALETTE = {
   main: 0x718c4a,
@@ -8,7 +11,11 @@ export const TERRAIN_PALETTE = {
 };
 // Keep navigation and castle foundations level; relief starts outside all lanes.
 export function terrainHeight(x: number, z: number) {
-  const edge = T.MathUtils.smoothstep(Math.abs(z), 16, 50);
+  const edge = T.MathUtils.smoothstep(
+    Math.abs(z),
+    MEADOW_CLEARANCE + 2,
+    MEADOW_CLEARANCE + 36,
+  );
   return (
     -0.035 +
     edge *

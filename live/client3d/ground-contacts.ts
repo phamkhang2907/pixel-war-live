@@ -1,7 +1,7 @@
 import * as T from "three";
 import { terrainHeight } from "./grass-material";
 import { worldX, worldZ, type BattleState } from "./state";
-import { TYPES } from "../src/characters.js";
+import { TYPES, ARMY, renderScale } from "../src/characters.js";
 // One shared, generated soft disk: contact shading without a screen-space AO pass.
 export class GroundContacts {
   readonly group = new T.Group();
@@ -33,7 +33,11 @@ export class GroundContacts {
       depthWrite: false,
       toneMapped: false,
     });
-    this.units = new T.InstancedMesh(this.geometry, this.material, 300);
+    this.units = new T.InstancedMesh(
+      this.geometry,
+      this.material,
+      ARMY.maxUnits,
+    );
     this.units.name = "Unit ground contact shadows";
     this.units.instanceMatrix.setUsage(T.DynamicDrawUsage);
     this.units.count = 0;
@@ -64,7 +68,7 @@ export class GroundContacts {
   update(state: BattleState | null, dt: number) {
     let count = 0;
     const ids = new Set<number>();
-    for (const u of state?.units.slice(0, 300) ?? []) {
+    for (const u of state?.units.slice(0, ARMY.maxUnits) ?? []) {
       if (u.hp <= 0) continue;
       ids.add(u.id);
       const x = worldX(u.x),
@@ -77,7 +81,7 @@ export class GroundContacts {
       p.x = T.MathUtils.lerp(p.x, x, 1 - Math.exp(-16 * dt));
       p.z = T.MathUtils.lerp(p.z, z, 1 - Math.exp(-16 * dt));
       p.y = terrainHeight(p.x, p.z) + 0.021;
-      const radius = TYPES[u.type].scale * (u.type === "mage" ? 0.66 : 0.52);
+      const radius = renderScale(u.type) * (u.type === "mage" ? 0.66 : 0.52);
       this.scale.set(radius, 1, radius * 0.75);
       this.matrix.compose(p, this.rotation, this.scale);
       this.units.setMatrixAt(count++, this.matrix);

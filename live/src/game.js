@@ -1,11 +1,20 @@
 import { DEFAULT_GIFT_MAPPINGS, resolveGift, SUMMONABLE } from "./gifts.js";
 import { safeAvatar } from "./hud-data.js";
-import { TYPES, WORLD, LIKE_REWARDS, formation } from "./characters.js";
+import { TYPES, WORLD, LIKE_REWARDS, formation, ARMY } from "./characters.js";
+import { SpatialGrid, seeded } from "./spatial.js";
 export { TYPES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export class Battle {
-  constructor({ clock = () => Date.now() / 1000 } = {}) {
+  constructor({
+    clock = () => Date.now() / 1000,
+    maxUnits = ARMY.defaultUnits,
+  } = {}) {
     this.onCombat = () => {};
+    this.onQueue = () => {};
+    this.maxUnits = Math.min(ARMY.maxUnits, Math.max(1, Math.floor(maxUnits)));
+    this.nextSummonSequence = 1;
+    this.spawnGrid = new SpatialGrid(70);
+    this.spawnGridDirty = true;
     this.acceptReceipt = () => true;
     this.combatEventId = 1;
     this.clock = clock;
@@ -20,18 +29,23 @@ export class Battle {
   }
   reset() {
     this.roundStartedAt = Date.now();
-    this.summonQueue = [];
+    this.summonQueue = this.summonQueue?.filter((q) => q.remaining > 0) ?? [];
     this.giftRates = new Map();
     this.globalGiftRate = { at: this.clock(), count: 0 };
     this.queueStats = { accepted: 0, spawned: 0, rejected: 0, expired: 0 };
     this.inputOpen = true;
     this.combatOpen = true;
     this.pendingPowers = [];
-    this.committedTeams = new Map();
+    this.committedTeams = new Map(
+      this.summonQueue.map((q) => [String(q.userId), q.team]),
+    );
+    for (const q of this.summonQueue)
+      if (q.userId !== null) this.teams.set(String(q.userId), q.team);
     this.spawnSlots = [0, 0];
     this.cameraEvents = [];
     this.cameraEventId ??= 1;
     this.units = [];
+    this.spawnGridDirty = true;
     this.projectiles = [];
     this.effects = [];
     this.events = [];
@@ -59,7 +73,7 @@ export class Battle {
     });
   }
   choose(id, team, name = String(id)) {
-    if (!this.inputOpen || ![0, 1].includes(team) || id === undefined) return;
+    if (![0, 1].includes(team) || id === undefined) return;
     if (
       this.committedTeams.has(String(id)) &&
       this.committedTeams.get(String(id)) !== team
@@ -68,7 +82,15 @@ export class Battle {
     this.teams.set(String(id), team);
     this.onCombat({ kind: "join", userId: id, name, team });
   }
-  spawn(team, type, count, name = "Demo", userId = name) {
+  spawn(
+    team,
+    type,
+    count,
+    name = "Demo",
+    userId = name,
+    sequenceStart = null,
+    origin = "demo",
+  ) {
     if (
       !this.inputOpen ||
       this.winner !== null ||
@@ -78,20 +100,52 @@ export class Battle {
     )
       return 0;
     const t = TYPES[type];
-    count = clamp(Math.floor(count), 0, 300 - this.units.length);
+    count = clamp(Math.floor(count), 0, this.maxUnits - this.units.length);
+    if (this.spawnGridDirty) {
+      this.spawnGrid.build(this.units);
+      this.spawnGridDirty = false;
+    }
+    let deployed = 0;
     for (let i = 0; i < count; i++) {
+      let position = null;
+      for (let attempt = 0; attempt < 96; attempt++) {
+        const slot = this.spawnSlots[team]++;
+        const candidate = this.spawnZone
+          ? this.spawnZone(team, slot, type)
+          : formation(team, slot, type);
+        let free = true;
+        this.spawnGrid.query(candidate.x, candidate.y, t.radius + 73, (v) => {
+          if (TYPES[v.type].air !== t.air) return;
+          if (
+            Math.hypot(v.x - candidate.x, v.y - candidate.y) <
+            t.radius + TYPES[v.type].radius + 3
+          ) {
+            free = false;
+            return false;
+          }
+        });
+        if (free) {
+          position = candidate;
+          break;
+        }
+      }
+      if (!position) break; // Capacity/space backpressure: caller retains undeployed quantities.
       const unitId = this.nextId++;
-      const position = formation(team, this.spawnSlots[team]++, type);
+      const summonSequence =
+        sequenceStart === null ? this.nextSummonSequence++ : sequenceStart + i;
       this.units.push({
         id: unitId,
         team,
         type,
         name: String(name).slice(0, 24),
         userId,
+        summonSequence,
+        origin,
+        attackId: 0,
         ...position,
         hp: t.hp,
         maxHp: t.hp,
-        cd: Math.random() * 0.5,
+        cd: seeded(unitId, 113) * 0.5,
         state: "idle",
         hurt: 0,
         dead: 0,
@@ -101,6 +155,8 @@ export class Battle {
         chargeUntil: 0,
         rage: false,
       });
+      this.spawnGrid.add(this.units.at(-1));
+      deployed++;
       this.cameraEvent({
         kind: "spawn",
         type,
@@ -111,7 +167,23 @@ export class Battle {
       if (userId !== null) this.committedTeams.set(String(userId), team);
       this.onCombat({ kind: "spawn", unitId, source: { userId, name, team } });
     }
-    return count;
+    if (sequenceStart === null) this.queueChanged();
+    return deployed;
+  }
+  queueChanged() {
+    this.onQueue({
+      nextSequence: this.nextSummonSequence,
+      requests: this.summonQueue,
+    });
+  }
+  restoreQueue(saved) {
+    if (saved?.requests) {
+      this.summonQueue = saved.requests.filter((q) => q.remaining > 0);
+      this.nextSummonSequence = this.summonQueue.reduce(
+        (n, q) => Math.max(n, q.sequenceStart + q.quantity),
+        saved.nextSequence || 1,
+      );
+    }
   }
   cameraEvent(data) {
     this.cameraEvents.push({
@@ -155,6 +227,8 @@ export class Battle {
     giftName = "",
     roundId,
     eventAt,
+    origin = "gift",
+    continuedStreak = false,
   }) {
     const team = this.teams.get(String(id));
     const reject = (error) => {
@@ -162,11 +236,9 @@ export class Battle {
       return { error };
     };
     if (team === undefined) return reject("Choose a team with 1 or 2 first");
-    if (!this.inputOpen || this.winner !== null)
-      return reject("Round closed; gift is not carried to the next round");
     if (
       (roundId && roundId !== this.roundId) ||
-      (eventAt && eventAt < this.roundStartedAt - 1000)
+      (eventAt && !continuedStreak && eventAt < this.roundStartedAt - 1000)
     )
       return reject("Late gift from an earlier round");
     const rule = resolveGift(this.giftMappings, { giftId, giftName, coins });
@@ -174,8 +246,7 @@ export class Battle {
     const repeats = Number(count ?? 1);
     if (!Number.isInteger(repeats) || repeats < 1 || repeats > 10000)
       return reject("Invalid streak count");
-    const quantity = rule.count * repeats,
-      pending = this.summonQueue.reduce((n, q) => n + q.remaining, 0);
+    const quantity = rule.count * repeats;
     const now = this.clock();
     if (now - this.globalGiftRate.at >= 1)
       this.globalGiftRate = { at: now, count: 0 };
@@ -184,15 +255,8 @@ export class Battle {
       rate = { at: now, count: 0 };
       this.giftRates.set(String(id), rate);
     }
-    if (
-      this.globalGiftRate.count >= 200 ||
-      rate.count >= 40 ||
-      this.summonQueue.length >= 500 ||
-      pending + quantity > 5000
-    )
-      return reject(
-        "Summon queue/rate limit reached; no units or coins credited",
-      );
+    // Completed, deduplicated gifts are compact queue records, not per-unit objects.
+    // Deployment is rate-limited; accepted quantities are never silently discarded.
     if (this.giftRates.size > 5000)
       this.giftRates.delete(this.giftRates.keys().next().value);
     rate.count++;
@@ -203,17 +267,28 @@ export class Battle {
       Number.isFinite(Number(coins)) && Number(coins) > 0
         ? Math.min(Number(coins), 100000) * repeats
         : 0;
-    this.score(id, name, team).coins += value;
-    this.teamScore[team] += value;
+    const deferCoins = !this.inputOpen || this.winner !== null;
+    if (!deferCoins) {
+      this.score(id, name, team).coins += value;
+      this.teamScore[team] += value;
+    }
+    const sequenceStart = this.nextSummonSequence;
+    this.nextSummonSequence += quantity;
     this.summonQueue.push({
       team,
       type: rule.type,
       remaining: quantity,
+      quantity,
+      sequenceStart,
+      sourceRound: this.roundId,
+      creditOnDeploy: deferCoins ? value : 0,
+      origin,
       name,
-      userId: id,
+      userId: String(id),
       roundId: this.roundId,
     });
     this.queueStats.accepted += quantity;
+    this.queueChanged();
     this.event({
       name,
       team,
@@ -225,26 +300,64 @@ export class Battle {
       giftName: giftName || rule.giftName,
       giftId,
     });
-    return { queued: quantity, spawned: 0 };
+    return {
+      queued: quantity,
+      spawned: 0,
+      sequenceStart,
+      sequenceEnd: sequenceStart + quantity - 1,
+    };
   }
-  drainSummons(budget = 8) {
+  enqueue(team, type, quantity, name = "Demo", userId = null, origin = "demo") {
+    if (
+      !this.inputOpen ||
+      ![0, 1].includes(team) ||
+      !SUMMONABLE.includes(type) ||
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > 500000
+    )
+      return { error: "Invalid summon" };
+    const sequenceStart = this.nextSummonSequence;
+    this.nextSummonSequence += quantity;
+    this.summonQueue.push({
+      team,
+      type,
+      quantity,
+      remaining: quantity,
+      name,
+      userId,
+      origin,
+      sequenceStart,
+      sourceRound: this.roundId,
+    });
+    this.queueStats.accepted += quantity;
+    this.queueChanged();
+    return {
+      queued: quantity,
+      sequenceStart,
+      sequenceEnd: sequenceStart + quantity - 1,
+    };
+  }
+  drainSummons(budget = ARMY.deploymentBatch) {
     if (!this.inputOpen) return 0;
     let spawned = 0,
       checked = 0;
     while (this.summonQueue.length && budget > 0 && checked++ < 500) {
       const q = this.summonQueue[0];
-      if (q.roundId !== this.roundId) {
-        this.queueStats.expired += q.remaining;
-        this.summonQueue.shift();
-        continue;
-      }
       const n = this.spawn(
         q.team,
         q.type,
         Math.min(q.remaining, budget),
         q.name,
         q.userId,
+        q.sequenceStart + (q.quantity - q.remaining),
+        q.origin,
       );
+      if (n > 0 && q.creditOnDeploy) {
+        this.score(q.userId, q.name, q.team).coins += q.creditOnDeploy;
+        this.teamScore[q.team] += q.creditOnDeploy;
+        q.creditOnDeploy = 0;
+      }
       q.remaining -= n;
       budget -= n;
       spawned += n;
@@ -252,6 +365,7 @@ export class Battle {
       else if (n === 0) break;
     }
     this.queueStats.spawned += spawned;
+    if (spawned) this.queueChanged();
     return spawned;
   }
   likes({ id, name = "Viewer", count }) {
@@ -281,17 +395,17 @@ export class Battle {
       unlocked.push(r.at);
       switch (r.at) {
         case 100:
-          this.spawn(team, "sword", 3, name, id);
+          this.enqueue(team, "sword", 3, name, id, "likes");
           break;
         case 300:
-          this.spawn(team, "archer", 2, name, id);
+          this.enqueue(team, "archer", 2, name, id, "likes");
           break;
         case 500:
           this.castles[team] = Math.min(10000, this.castles[team] + 100);
           this.effect("heal", WORLD.castles[team], WORLD.ground, { team });
           break;
         case 1000:
-          this.spawn(team, "cavalry", 1, name, id);
+          this.enqueue(team, "cavalry", 1, name, id, "likes");
           break;
         case 3000:
           this.arrowRain(team, { userId: id, name, team });
@@ -369,7 +483,7 @@ export class Battle {
       castle: true,
       team,
       x: WORLD.castles[team],
-      y: clamp(lane, WORLD.laneMin, WORLD.laneMax),
+      y: clamp(lane, WORLD.ground - 900, WORLD.ground + 900),
       hp: this.castles[team],
     };
   }
@@ -520,24 +634,11 @@ export class Battle {
     this.units = this.units.filter((u) => u.dead < 0.95);
     if (this.winner !== null) return;
     this.time += dt;
-    const cells = new Map(),
-      key = (x, y) => `${Math.floor(x / 160)},${Math.floor(y / 160)}`;
-    for (const u of this.units)
-      if (u.hp > 0) {
-        const k = key(u.x, u.y);
-        if (!cells.has(k)) cells.set(k, []);
-        cells.get(k).push(u);
-      }
-    const neighbors = (u, r = 1) => {
-      const list = [];
-      const cx = Math.floor(u.x / 160),
-        cy = Math.floor(u.y / 160);
-      for (let dx = -r; dx <= r; dx++)
-        for (let dy = -r; dy <= r; dy++)
-          for (const v of cells.get(`${cx + dx},${cy + dy}`) || [])
-            list.push(v);
-      return list;
-    };
+    const grid = new SpatialGrid(100).build(this.units),
+      byId = new Map(this.units.map((u) => [u.id, u]));
+    const enemies = [new SpatialGrid(100), new SpatialGrid(100)];
+    for (const u of this.units) if (u.hp > 0) enemies[u.team].add(u);
+    const engaged = new Map();
     for (const u of this.units) {
       if (this.winner !== null) break;
       if (u.hp <= 0) continue;
@@ -560,19 +661,42 @@ export class Battle {
         u.state = "rage";
         continue;
       }
-      let target = null,
+      let target = byId.get(u.targetId),
         best = Infinity;
-      const near = neighbors(u, Math.ceil(t.range / 160) + 1);
-      for (const v of near) {
-        if (v.team === u.team || v.hp <= 0 || (TYPES[v.type].air && !t.antiAir))
-          continue;
-        if (Math.abs(v.y - u.y) > WORLD.rowGap * 1.4) continue;
-        const d = Math.hypot(v.x - u.x, (v.y - u.y) * 1.2);
-        if (d < best) {
-          best = d;
-          target = v;
-        }
+      const valid = (v) =>
+        v && v.hp > 0 && v.team !== u.team && (!TYPES[v.type].air || t.antiAir);
+      if (valid(target))
+        best = Math.hypot(target.x - u.x, (target.y - u.y) * 1.15);
+      u.retarget = (u.retarget ?? seeded(u.id, 79) * 0.25) - dt;
+      if (
+        !valid(target) ||
+        best > Math.max(340, t.range + 120) ||
+        u.retarget <= 0
+      ) {
+        target = null;
+        best = Infinity;
+        let cost = Infinity;
+        enemies[1 - u.team].query(
+          u.x,
+          u.y,
+          Math.max(240, t.range + 80),
+          (v) => {
+            if (!valid(v)) return;
+            const d = Math.hypot(v.x - u.x, (v.y - u.y) * 1.15),
+              candidate = d + (engaged.get(v.id) || 0) * 12;
+            if (candidate < cost) {
+              cost = candidate;
+              best = d;
+              target = v;
+            }
+          },
+          128,
+          u.id,
+        );
+        u.targetId = target?.id;
+        u.retarget = 0.2 + seeded(u.id, 89) * 0.15;
       }
+      if (target) engaged.set(target.id, (engaged.get(target.id) || 0) + 1);
       // Titan prioritizes the enemy fortress, only engaging blockers already in melee range.
       if (
         !target ||
@@ -589,6 +713,7 @@ export class Battle {
         if (u.cd <= 0) {
           const boost = this.boostUntil[u.team] > this.time ? 1.2 : 1;
           u.cd = t.cooldown / boost / (u.rage ? 1.2 : 1);
+          u.attackId++;
           let amount = t.damage * (u.rage ? 1.25 : 1);
           if (t.projectile)
             this.addProjectile(u, target, amount, t.projectile, t.splash || 0);
@@ -623,12 +748,21 @@ export class Battle {
         const velocity = t.speed;
         if (best > 0) {
           u.x += ((target.x - u.x) / best) * velocity * dt;
-          const goalY = clamp(
-            target.y,
-            (u.lane ?? u.y) - WORLD.rowGap * 0.45,
-            (u.lane ?? u.y) + WORLD.rowGap * 0.45,
+          const wander =
+            Math.sin(
+              this.time * (0.7 + seeded(u.id, 271) * 0.45) +
+                seeded(u.id, 291) * Math.PI * 2,
+            ) * 48;
+          const goalY =
+            target.castle && Math.abs(target.x - u.x) > 650
+              ? clamp((u.lane ?? u.y) + wander, WORLD.laneMin, WORLD.laneMax)
+              : target.y;
+          const lateral = clamp(
+            (goalY - u.y) * 0.8,
+            -velocity * 0.65,
+            velocity * 0.65,
           );
-          u.y += ((goalY - u.y) / best) * velocity * dt;
+          u.y += lateral * dt;
         }
       }
       if (u.stomping > 0) {
@@ -639,31 +773,38 @@ export class Battle {
       let sx = 0,
         sy = 0,
         n = 0;
-      for (const v of neighbors(u)) {
-        if (v === u || v.hp <= 0 || TYPES[v.type].air !== t.air) continue;
-        const ax = u.x - v.x,
-          ay = u.y - v.y,
-          d = Math.hypot(ax, ay),
-          r = Math.max(25, t.radius) + Math.max(25, TYPES[v.type].radius);
-        if (d <= 0.01) {
-          sx += (u.id < v.id ? -1 : 1) * r * 0.6;
-          n++;
-        } else if (d < r) {
-          sx += (ax / d) * (r - d);
-          sy += (ay / d) * (r - d);
-          n++;
-        }
-      }
+      grid.query(
+        u.x,
+        u.y,
+        t.radius + 85,
+        (v) => {
+          if (v === u || v.hp <= 0 || TYPES[v.type].air !== t.air) return;
+          const ax = u.x - v.x,
+            ay = u.y - v.y,
+            d = Math.hypot(ax, ay),
+            r = t.radius + TYPES[v.type].radius + 3;
+          if (d <= 0.01) {
+            sx += (u.id < v.id ? -1 : 1) * r * 0.6;
+            n++;
+          } else if (d < r) {
+            sx += (ax / d) * (r - d);
+            sy += (ay / d) * (r - d);
+            n++;
+          }
+        },
+        64,
+        u.id,
+      );
       if (n) {
         u.x += (sx / n) * dt * 3;
         u.y += (sy / n) * dt * 4;
       }
-      // Lane restoration prevents pursuit and separation from collapsing the frontage.
-      if (u.lane !== undefined) u.y += clamp(u.lane - u.y, -35, 35) * dt * 0.6;
+      // No row restoration: local separation and individually varied routes keep a swarm.
       u.x = clamp(u.x, WORLD.castles[0] + 60, WORLD.castles[1] - 60);
       u.y = clamp(u.y, WORLD.laneMin, WORLD.laneMax);
     }
-    const alive = new Map(this.units.map((u) => [u.id, u]));
+    this.spawnGridDirty = true;
+    const alive = byId;
     const pending = [];
     for (const p of this.projectiles) {
       if (this.winner !== null) break;
@@ -715,7 +856,7 @@ export class Battle {
     const now = this.clock();
     return {
       units: this.units.map(
-        ({ id, team, type, name, x, y, hp, maxHp, state, charge, rage }) => ({
+        ({
           id,
           team,
           type,
@@ -727,6 +868,24 @@ export class Battle {
           state,
           charge,
           rage,
+          summonSequence,
+          origin,
+          attackId,
+        }) => ({
+          id,
+          team,
+          type,
+          name,
+          x: Math.round(x * 10) / 10,
+          y: Math.round(y * 10) / 10,
+          hp,
+          maxHp,
+          state,
+          charge,
+          rage,
+          summonSequence,
+          origin,
+          attackId,
         }),
       ),
       cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),
@@ -738,10 +897,17 @@ export class Battle {
       round: this.round,
       energy: this.energy,
       teamScore: this.teamScore,
+      armyCapacity: this.maxUnits,
       summonQueue: {
         ...this.queueStats,
         pending: this.summonQueue.reduce((n, q) => n + q.remaining, 0),
         batches: this.summonQueue.length,
+        headSequence: this.summonQueue[0]
+          ? this.summonQueue[0].sequenceStart +
+            this.summonQueue[0].quantity -
+            this.summonQueue[0].remaining
+          : null,
+        nextSequence: this.nextSummonSequence,
       },
       claimed: this.claimed,
       boost: this.boostUntil.map((t) => Math.max(0, t - this.time)),

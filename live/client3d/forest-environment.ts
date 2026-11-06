@@ -1,6 +1,6 @@
 import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { terrainHeight } from "./grass-material";
+import { terrainHeight, MEADOW_CLEARANCE } from "./grass-material";
 
 export const forestCatalog = [
   { kind: "grass", file: "Grass_1_B_Color1.gltf", count: 100 },
@@ -57,15 +57,15 @@ export async function buildForest(scene: T.Scene) {
     for (let i = 0; i < asset.count; i++) {
       const side = i % 2 === 0 ? -1 : 1;
       let x = (random() - 0.5) * 116,
-        z = side * (14.5 + random() * 13),
+        z = side * (MEADOW_CLEARANCE + random() * 19),
         height = 0.45 + random() * 0.35;
       if (asset.kind === "shrub") {
         height = 0.4 + random() * 0.65;
-        z = side * (19 + random() * 18);
+        z = side * (MEADOW_CLEARANCE + 4 + random() * 18);
       }
       if (asset.kind === "stone") {
         height = 0.23 + random() * 0.48;
-        z = side * (16 + random() * 15);
+        z = side * (MEADOW_CLEARANCE + 1 + random() * 15);
       }
       if (asset.kind === "cliff") {
         const far = i >= 34;
@@ -87,8 +87,8 @@ export async function buildForest(scene: T.Scene) {
       }
       const radius = radiusFactor * height;
       // Conservative footprint clearance, including the entire fortress envelope.
-      if (Math.abs(x) < 61 + radius && Math.abs(z) - radius < 14.2)
-        z = Math.sign(z) * (14.2 + radius + random() * 2);
+      if (Math.abs(x) < 61 + radius && Math.abs(z) - radius < MEADOW_CLEARANCE)
+        z = Math.sign(z) * (MEADOW_CLEARANCE + radius + random() * 6);
       if (
         Math.abs(x) > 39 - radius &&
         Math.abs(x) < 61 + radius &&
@@ -196,7 +196,7 @@ export async function buildForest(scene: T.Scene) {
     batches,
     placements,
     instances: placements.length,
-    clearance: 14.2,
+    clearance: MEADOW_CLEARANCE,
   };
   scene.add(root);
   return { root, contacts };

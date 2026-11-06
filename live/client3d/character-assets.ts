@@ -1,4 +1,5 @@
 import * as T from "three";
+import { originalAttacks, onceClip } from "./unit-animation";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { clone as cloneRig } from "three/addons/utils/SkeletonUtils.js";
 import type { Team, UnitKind } from "./state";
@@ -198,6 +199,11 @@ export class CharacterAssets {
           },
         ),
       );
+      const base = this.templates.get("Knight"),
+        idle = this.clips.get("Idle_A");
+      if (base && idle)
+        for (const clip of originalAttacks(base, idle))
+          this.clips.set(clip.name, clip);
     } catch (error) {
       for (const model of characterNames)
         this.reports.set(model, {
@@ -340,7 +346,9 @@ export function playClip(
   previous?: T.AnimationAction,
 ) {
   const action = instance.mixer.clipAction(clip);
-  const once = /Death|Hit|Use_Item|Throw/.test(clip.name);
+  const once = onceClip(clip.name) || /Use_Item|Throw/.test(clip.name);
+  action.stopFading().setEffectiveWeight(1).setEffectiveTimeScale(1);
+  action.enabled = true;
   action.reset().setLoop(once ? T.LoopOnce : T.LoopRepeat, once ? 1 : Infinity);
   action.clampWhenFinished = once;
   action.play();

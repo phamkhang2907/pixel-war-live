@@ -1,3 +1,4 @@
+import type { MusicTrack } from "./audio";
 type Send = (
   action: string,
   data?: Record<string, unknown>,
@@ -16,6 +17,7 @@ type Config = {
   giftCatalog: { giftId: string; giftName: string; coins: number | null }[];
   roundConfig: { duration: number; prepare: number; final: number };
   guardian: { reason: string };
+  music: { track: MusicTrack | null };
 };
 const labels: Record<string, string> = {
   sword: "Small Soldier · Knight",
@@ -28,21 +30,33 @@ export function openAdmin(
   config: Config,
   send: Send,
   reload: () => Promise<Config>,
+  media: {
+    token: () => string;
+    setTrack: (t: MusicTrack | null) => void;
+    preview: () => void;
+    showArmy: () => void;
+  },
 ) {
+  if (!config.music)
+    throw Error(
+      "Server vẫn chạy bản cũ. Cần khởi động lại Node server sau khi cập nhật/build; tải lại Safari chưa đủ.",
+    );
   const root = document.getElementById("adminWorkspace")!;
   root.hidden = false;
   root.innerHTML = `<h2>3D LIVE controls</h2><form id="liveConnect"><label>TikTok username<input id="liveUsername" required pattern="[\\w.]{2,40}"></label><button>Connect LIVE</button><button type="button" id="demoMode">Demo mode</button></form><p id="liveStatus"></p>
+ <h3>Nhạc nền</h3><p id="musicTrackName"></p><form id="musicUpload"><label>Tệp MP3 / WAV / M4A / OGG (tối đa 12 MiB)<input id="musicFile" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,.mp3,.wav,.m4a,.ogg" required></label><button>Tải nhạc nền lên</button></form><button id="musicPreview" type="button">Nghe thử / bật nhạc</button><button id="musicDefault" type="button">Dùng nhạc mặc định</button><p id="musicUploadStatus" role="status">Nhạc chỉ phát sau thao tác bật âm thanh. Điều chỉnh âm lượng tại Music.</p>
  <h3>Round settings</h3><form id="roundSettings"><label>Round seconds<input id="roundDuration" type="number" min="1" max="7200"></label><label>Preparation<input id="roundPrepare" type="number" min="0"></label><label>Final battle<input id="roundFinal" type="number" min="0"></label><button>Save next round</button></form><p>Results: 7 seconds. The next round starts directly after results.</p>
  <div class="options"><label>Demo speed<select id="simSpeed"><option>1</option><option>2</option><option>4</option><option>8</option></select></label><button id="autoDemo">Toggle auto demo gifts</button><button id="shortRound">Test 12-second round + 7-second results</button></div>
- <h3>Spawn / gift simulator · Demo only</h3><form id="spawnUnit"><label>Team<select id="unitTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Unit<select id="unitKind">${Object.entries(
+ <h3>Spawn / gift simulator · Demo only</h3><p id="summonStatus" role="status">Đang đọc hàng đợi FIFO…</p><form id="spawnUnit"><label>Team<select id="unitTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Unit<select id="unitKind">${Object.entries(
    labels,
  )
    .map(([k, v]) => `<option value="${k}">${v}</option>`)
    .join(
      "",
-   )}</select></label><label>Quantity<input id="unitCount" type="number" min="1" max="50" value="10"></label><button>Spawn</button></form>
+   )}</select></label><label>Quantity<input id="unitCount" type="number" min="1" max="1000" value="100"></label><button>Spawn</button></form>
  <form id="giftSimulator"><label>Team<select id="giftTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Viewer<input id="giftViewer" maxlength="24" value="Demo Viewer"></label><label>Gift name<input id="demoGiftName" value="Rose" list="observedGiftNames"></label><datalist id="observedGiftNames"><option>Rose</option><option>Finger Heart</option><option>Doughnut</option><option>Perfume</option></datalist><label>Actual gift ID (optional)<input id="demoGiftId"></label><label>Coins per gift (0 = unknown/demo)<input id="demoGiftCoins" type="number" min="0" max="100000" value="0"></label><label>Streak quantity<input id="demoGiftRepeats" type="number" min="1" max="1000" value="1"></label><button>Simulate streak + completion</button></form>
  <form id="likesSimulator"><label>Team<select id="likeTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>New likes<input id="likeCount" type="number" min="1" max="100000" value="500"></label><button>Simulate likes / Fury</button></form>
+ <div class="options" id="swarmScenarios"><button type="button" data-army="200">200 quân</button><button type="button" data-army="500">500 quân</button><button type="button" data-army="1000">1.000 quân</button><button type="button" data-army="2000">2.000 quân · thử nghiệm</button></div><p>Demo armies are authoritative combat units with no fabricated gifts or contribution credit. LIVE armies use accepted summons.</p>
  <h3>Gift → summon mappings</h3><p>Exact gift ID takes priority. Names are matched against connector metadata. No official prices are assumed. Configure Heavy / Giant with actual gift IDs or your chosen coin thresholds. Guardian and dragons are unavailable as gifts.</p><div id="giftMappingRows"></div><button id="addGiftMapping">Add mapping</button><button id="saveGiftMappings">Save mappings</button><button id="refreshGiftCatalog">Refresh observed gift metadata</button><pre id="giftCatalog"></pre><p id="guardianStatus"></p>`;
   const el = <T extends HTMLElement = HTMLElement>(id: string) =>
     root.querySelector("#" + id) as T;
@@ -104,6 +118,67 @@ export function openAdmin(
     );
     el("giftMappingRows").append(wrap);
   }
+  const trackLabel = (track: MusicTrack | null) => {
+    el("musicTrackName").textContent = track
+      ? "Đang chọn: " + track.name
+      : "Nhạc mặc định của game";
+  };
+  trackLabel(config.music.track);
+  el("musicUpload").onsubmit = async (e) => {
+    e.preventDefault();
+    const file = el<HTMLInputElement>("musicFile").files?.[0];
+    if (!file) return;
+    if (file.size > 12 * 1024 * 1024) {
+      el("musicUploadStatus").textContent = "Tệp vượt quá 12 MiB.";
+      return;
+    }
+    el("musicUploadStatus").textContent = "Đang tải nhạc lên…";
+    try {
+      const r = await fetch("/api/admin/music", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + media.token(),
+          "Content-Type": file.type || "application/octet-stream",
+          "X-Filename": encodeURIComponent(file.name),
+        },
+        body: file,
+      });
+      const result = await r.json();
+      if (!r.ok) throw Error(result.error || "Upload failed");
+      media.setTrack(result.track);
+      trackLabel(result.track);
+      el("musicUploadStatus").textContent =
+        "Đã lưu nhạc. Bấm Nghe thử để phát; âm lượng nằm tại Music.";
+    } catch (error) {
+      el("musicUploadStatus").textContent = String(error);
+    }
+  };
+  el("musicPreview").onclick = () => media.preview();
+  el("musicDefault").onclick = async () => {
+    try {
+      const r = await fetch("/api/admin/music", {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + media.token() },
+      });
+      const p = await r.json();
+      if (!r.ok) throw Error(p.error);
+      media.setTrack(p.track);
+      trackLabel(p.track);
+      el("musicUploadStatus").textContent = "Đã khôi phục nhạc mặc định.";
+    } catch (e) {
+      el("musicUploadStatus").textContent = String(e);
+    }
+  };
+  for (const b of root.querySelectorAll<HTMLButtonElement>("[data-army]"))
+    b.onclick = async () => {
+      if (
+        await send("cameraScenario", {
+          scenario: "swarm",
+          count: Number(b.dataset.army),
+        })
+      )
+        media.showArmy();
+    };
   config.giftMappings.forEach(add);
   const readMappings = () =>
     [...root.querySelectorAll<HTMLElement>(".gift-mapping")].map((row) => {

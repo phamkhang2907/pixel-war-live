@@ -18,6 +18,9 @@ export interface UnitState {
   hp: number;
   maxHp: number;
   state: string;
+  attackId?: number;
+  summonSequence?: number;
+  origin?: string;
 }
 export interface BattleState {
   round: number;
@@ -26,6 +29,8 @@ export interface BattleState {
   paused: boolean;
   castles: [number, number];
   units: UnitState[];
+  armyCapacity?: number;
+  summonQueue?: { pending: number; headSequence: number | null };
   serverNow?: number;
   roundState: {
     id: string;

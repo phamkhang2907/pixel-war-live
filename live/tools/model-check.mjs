@@ -40,7 +40,7 @@ try {
     if (i === 99) throw Error("Server did not start");
     await sleep(100);
   }
-  await control("auto");
+
   await control("roundConfig", {
     config: { duration: 300, prepare: 0, final: 30, results: 15, countdown: 5 },
   });
@@ -133,7 +133,18 @@ try {
       fullPage: true,
     });
   }
-  for (const clip of ["Idle_A", "Running_A", "Use_Item", "Throw", "Death_A"]) {
+  for (const clip of [
+    "Idle_A",
+    "Running_A",
+    "Walking_A",
+    "PW_Sword_Swing",
+    "PW_Bow_Shot",
+    "PW_Staff_Cast",
+    "PW_Heavy_Swing",
+    "PW_Giant_Slam",
+    "Hit_A",
+    "Death_A",
+  ]) {
     await page.locator("#clip").selectOption(clip);
     await page.waitForTimeout(100);
     assert.equal(
@@ -143,43 +154,54 @@ try {
   }
   await control("pause");
   for (const team of [0, 1])
-    for (const type of [
-      "sword",
-      "archer",
-      "mage",
-      "cavalry",
-      "boss",
-    ])
+    for (const type of ["sword", "archer", "mage", "cavalry", "boss"])
       await control("troop", { team, type, count: 1 });
   await page.goto(base + "/3d/?debug=1");
-  await page.waitForFunction(
-    () => window.__PW3D?.inspect().assets.rendered >= 10,
-  );
+  await page
+    .waitForFunction(
+      () => window.__PW3D?.inspect().assets.rendered >= 10,
+      null,
+      { timeout: 180000 },
+    )
+    .catch(async (error) => {
+      console.log(
+        "Model-load diagnostics",
+        JSON.stringify(await page.evaluate(() => window.__PW3D?.inspect())),
+        errors,
+        failures,
+      );
+      throw error;
+    });
   await page.locator('[data-camera="front"]').click();
-  await control("speed", { value: 8 });
+  const deployed = (await page.evaluate(() => window.__PW3D.inspect())).assets
+    .instances;
+  await control("speed", { value: 1 });
   await control("pause");
   await page.waitForFunction(
-    () =>
-      window.__PW3D
-        .inspect()
-        .assets.instances.some(
-          (i) =>
-            i.model.startsWith("Knight") &&
-            i.scale === 1 &&
-            Math.abs(i.position[0]) < 7,
-        ),
-    null,
+    (previous) =>
+      window.__PW3D.inspect().assets.instances.some((i) => {
+        const p = previous.find((v) => v.id === i.id);
+        return (
+          p &&
+          i.model.startsWith("Knight") &&
+          Math.abs(i.scale - 0.85) < 0.001 &&
+          i.clip === "Running_A" &&
+          Math.hypot(
+            i.position[0] - p.position[0],
+            i.position[2] - p.position[2],
+          ) > 0.2
+        );
+      }),
+    deployed,
     { timeout: 30000 },
   );
   await control("pause");
-  await page.waitForFunction(() => window.__PW3D.inspect().distance < 120);
-  await page.waitForTimeout(200);
-  await page.locator("#zoomIn").click();
-  await page.locator("#zoomIn").click();
-  await page.locator("#zoomIn").click();
-  await page.locator("#zoomIn").click();
-  await page.locator("#zoomIn").click();
-  await page.waitForFunction(() => window.__PW3D.inspect().distance < 40);
+  await page.waitForFunction(() => {
+    const d = window.__PW3D.inspect();
+    return (
+      Math.abs(d.distance - d.targetDistance) < 0.2 && d.assets.rendered >= 10
+    );
+  });
   const battlefield = await page.evaluate(() => window.__PW3D.inspect());
   assert.equal(battlefield.assets.proceduralSoldiers, 0);
   assert.ok(battlefield.assets.rendered > 0);

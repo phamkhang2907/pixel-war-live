@@ -1,0 +1,1122 @@
+{
+  "browser": "155.0.8059.79",
+  "device": "Linux Chromium / SwiftShader software WebGL, touch emulation; NOT physical iPad or desktop GPU",
+  "physicalIPad": false,
+  "measurements": [
+    {
+      "requested": 200,
+      "actual": 200,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "adaptiveScale": 0.5,
+      "frames": 15,
+      "elapsedMs": 8380.6,
+      "fps": 1.789847982244708,
+      "frameMs": [
+        480.89999999999964,
+        516.6000000000004,
+        666.7000000000007,
+        566.5999999999985,
+        449.90000000000146,
+        533.3999999999996,
+        600,
+        566.6000000000004,
+        600,
+        600,
+        600,
+        583.2999999999993,
+        549.8999999999996,
+        550,
+        516.7000000000007
+      ],
+      "drawCalls": 73,
+      "triangles": 270042,
+      "jsHeapBytes": 29662221,
+      "renderMemory": {
+        "geometries": 78,
+        "textures": 104
+      },
+      "visibleCenters": {
+        "inFrame": [
+          100,
+          100
+        ],
+        "clearHud": [
+          94,
+          92
+        ]
+      },
+      "server": {
+        "tickMs": 0.4174480000001495,
+        "maxTickMs": 36.662992999999915,
+        "eventLoopDelayMs": 1.9316629999993893
+      },
+      "serverMemory": {
+        "rss": 109977600,
+        "heapTotal": 34656256,
+        "heapUsed": 16208144,
+        "external": 5116609,
+        "arrayBuffers": 1111740
+      },
+      "fullRigs": 4,
+      "gpuAnimated": 196,
+      "heights": {
+        "normal": 1.53,
+        "heavy": 2.4480000000000004,
+        "giant": 6.12
+      },
+      "animation": {
+        "strategy": "vertex-animation-textures",
+        "rendered": 196,
+        "states": {
+          "Running_A": 164,
+          "Jump_Idle": 16,
+          "Walking_A": 16
+        },
+        "time": 8.5164,
+        "textureBytes": 5799936,
+        "models": [
+          {
+            "key": "Knight:0",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Knight:1",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Ranger:0",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Ranger:1",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Mage:0",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Mage:1",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Barbarian:0",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          },
+          {
+            "key": "Barbarian:1",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          }
+        ],
+        "capacity": 2000
+      }
+    },
+    {
+      "requested": 500,
+      "actual": 500,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "adaptiveScale": 0.5,
+      "frames": 9,
+      "elapsedMs": 8406.59999999404,
+      "fps": 1.070587395618488,
+      "frameMs": [
+        956.8999999940388,
+        983.2000000000007,
+        1100,
+        1000,
+        966.5999999999985,
+        716.6000000000022,
+        716.7000000000007,
+        966.5999999999985,
+        1000
+      ],
+      "drawCalls": 73,
+      "triangles": 510360,
+      "jsHeapBytes": 31054009,
+      "renderMemory": {
+        "geometries": 83,
+        "textures": 125
+      },
+      "visibleCenters": {
+        "inFrame": [
+          250,
+          250
+        ],
+        "clearHud": [
+          245,
+          247
+        ]
+      },
+      "server": {
+        "tickMs": 0.7813049999967916,
+        "maxTickMs": 44.199297000002844,
+        "eventLoopDelayMs": 0.3067780000055791
+      },
+      "serverMemory": {
+        "rss": 125550592,
+        "heapTotal": 51695616,
+        "heapUsed": 29941264,
+        "external": 13102798,
+        "arrayBuffers": 9097929
+      },
+      "fullRigs": 4,
+      "gpuAnimated": 496,
+      "heights": {
+        "normal": 1.53,
+        "heavy": 2.4480000000000004,
+        "giant": 6.12
+      },
+      "animation": {
+        "strategy": "vertex-animation-textures",
+        "rendered": 496,
+        "states": {
+          "Running_A": 414,
+          "Jump_Idle": 42,
+          "Walking_A": 40
+        },
+        "time": 16.8661,
+        "textureBytes": 5799936,
+        "models": [
+          {
+            "key": "Knight:0",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Knight:1",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Ranger:0",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Ranger:1",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Mage:0",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Mage:1",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Barbarian:0",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          },
+          {
+            "key": "Barbarian:1",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          }
+        ],
+        "capacity": 2000
+      }
+    },
+    {
+      "requested": 1000,
+      "actual": 1000,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "adaptiveScale": 0.5,
+      "frames": 5,
+      "elapsedMs": 8096.699999994038,
+      "fps": 0.617535539170734,
+      "frameMs": [
+        1413.699999994038,
+        1833.2000000000044,
+        1666.5999999999985,
+        1666.5999999999985,
+        1516.5999999999985
+      ],
+      "drawCalls": 79,
+      "triangles": 911763,
+      "jsHeapBytes": 41630180,
+      "renderMemory": {
+        "geometries": 94,
+        "textures": 132
+      },
+      "visibleCenters": {
+        "inFrame": [
+          500,
+          500
+        ],
+        "clearHud": [
+          500,
+          500
+        ]
+      },
+      "server": {
+        "tickMs": 1.5851239999974496,
+        "maxTickMs": 50.18939099999989,
+        "eventLoopDelayMs": 0.6171299999987241
+      },
+      "serverMemory": {
+        "rss": 137854976,
+        "heapTotal": 59617280,
+        "heapUsed": 25913664,
+        "external": 8384186,
+        "arrayBuffers": 4379317
+      },
+      "fullRigs": 4,
+      "gpuAnimated": 996,
+      "heights": {
+        "normal": 1.53,
+        "heavy": 2.4480000000000004,
+        "giant": 6.12
+      },
+      "animation": {
+        "strategy": "vertex-animation-textures",
+        "rendered": 996,
+        "states": {
+          "Walking_A": 84,
+          "Running_A": 828,
+          "Jump_Idle": 84
+        },
+        "time": 21.8661,
+        "textureBytes": 5799936,
+        "models": [
+          {
+            "key": "Knight:0",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Knight:1",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Ranger:0",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Ranger:1",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Mage:0",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Mage:1",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Barbarian:0",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          },
+          {
+            "key": "Barbarian:1",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          }
+        ],
+        "capacity": 2000
+      }
+    },
+    {
+      "requested": 2000,
+      "actual": 2000,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "adaptiveScale": 0.5,
+      "frames": 3,
+      "elapsedMs": 9994.89999999851,
+      "fps": 0.30015307806986036,
+      "frameMs": [
+        2995.099999998507,
+        3483.199999999997,
+        3516.600000000006
+      ],
+      "drawCalls": 91,
+      "triangles": 1714676,
+      "jsHeapBytes": 51268804,
+      "renderMemory": {
+        "geometries": 99,
+        "textures": 137
+      },
+      "visibleCenters": {
+        "inFrame": [
+          1000,
+          1000
+        ],
+        "clearHud": [
+          1000,
+          1000
+        ]
+      },
+      "server": {
+        "tickMs": 0.0059489999985089526,
+        "maxTickMs": 76.18583899999794,
+        "eventLoopDelayMs": 0.06065899999521207
+      },
+      "serverMemory": {
+        "rss": 193122304,
+        "heapTotal": 95010816,
+        "heapUsed": 27446488,
+        "external": 13020950,
+        "arrayBuffers": 9021624
+      },
+      "fullRigs": 4,
+      "gpuAnimated": 1996,
+      "heights": {
+        "normal": 1.53,
+        "heavy": 2.4480000000000004,
+        "giant": 6.12
+      },
+      "animation": {
+        "strategy": "vertex-animation-textures",
+        "rendered": 1996,
+        "states": {
+          "Walking_A": 168,
+          "Running_A": 1662,
+          "Jump_Idle": 166
+        },
+        "time": 24.8661,
+        "textureBytes": 5799936,
+        "models": [
+          {
+            "key": "Knight:0",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Knight:1",
+            "triangles": 822,
+            "vertices": 670,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Sword_Swing"
+            ],
+            "runPoseDisplacement": 0.743721705781447,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02334888885241428,
+              "Running_A": 0.743721705781447,
+              "Walking_A": 0.807546852391702,
+              "Jump_Idle": 0.1345486274894471,
+              "Hit_A": 0.3856140135634768,
+              "Death_A": 2.8465920973973122,
+              "PW_Sword_Swing": 1.1485565466717955
+            }
+          },
+          {
+            "key": "Ranger:0",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Ranger:1",
+            "triangles": 737,
+            "vertices": 614,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Bow_Shot"
+            ],
+            "runPoseDisplacement": 0.8730626931776638,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.014439079112635981,
+              "Running_A": 0.8730626931776638,
+              "Walking_A": 0.6474841369908183,
+              "Jump_Idle": 0.1611199184970045,
+              "Hit_A": 0.4403614307406584,
+              "Death_A": 2.3751245867837003,
+              "PW_Bow_Shot": 1.2549270156237473
+            }
+          },
+          {
+            "key": "Mage:0",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Mage:1",
+            "triangles": 706,
+            "vertices": 568,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Staff_Cast"
+            ],
+            "runPoseDisplacement": 0.7481742783573407,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.019829630972193996,
+              "Running_A": 0.7481742783573407,
+              "Walking_A": 0.7820204235150354,
+              "Jump_Idle": 0.13779984653113028,
+              "Hit_A": 0.44036311174280535,
+              "Death_A": 2.4830139182293522,
+              "PW_Staff_Cast": 0.9460109615845285
+            }
+          },
+          {
+            "key": "Barbarian:0",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          },
+          {
+            "key": "Barbarian:1",
+            "triangles": 753,
+            "vertices": 669,
+            "clips": [
+              "Idle_A",
+              "Running_A",
+              "Walking_A",
+              "Jump_Idle",
+              "Hit_A",
+              "Death_A",
+              "PW_Heavy_Swing",
+              "PW_Giant_Slam"
+            ],
+            "runPoseDisplacement": 0.8283410908770719,
+            "clipPoseDisplacements": {
+              "Idle_A": 0.02374356916995486,
+              "Running_A": 0.8283410908770719,
+              "Walking_A": 0.9357228383375595,
+              "Jump_Idle": 0.13446387075825983,
+              "Hit_A": 0.37690139691410646,
+              "Death_A": 2.9474341213282895,
+              "PW_Heavy_Swing": 1.2666448093523142,
+              "PW_Giant_Slam": 1.315947821485224
+            }
+          }
+        ],
+        "capacity": 2000
+      }
+    }
+  ],
+  "combat": {
+    "units": 963,
+    "animations": {
+      "Running_A": 569,
+      "Hit_A": 44,
+      "PW_Staff_Cast": 53,
+      "Death_A": 37,
+      "PW_Sword_Swing": 95,
+      "Jump_Idle": 31,
+      "Walking_A": 72,
+      "PW_Bow_Shot": 55,
+      "PW_Heavy_Swing": 5
+    },
+    "drawCalls": 50,
+    "triangles": 871105,
+    "visibility": {
+      "inFrame": [
+        463,
+        463
+      ],
+      "clearHud": [
+        381,
+        392
+      ]
+    }
+  },
+  "errors": []
+}
