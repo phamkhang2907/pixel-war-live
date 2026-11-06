@@ -74,7 +74,7 @@ try {
   if (e.code !== "ENOENT") throw e;
 }
 for (const row of DEFAULT_GIFT_MAPPINGS.filter((r) =>
-  ["lion-frost", "dragon-fire", "ice-summon"].includes(r.key),
+  ["lion-frost", "dragon-fire", "dragon-flame", "ice-summon"].includes(r.key),
 ))
   if (!game.giftMappings.some((r) => r.key === row.key))
     game.giftMappings.push(structuredClone(row));

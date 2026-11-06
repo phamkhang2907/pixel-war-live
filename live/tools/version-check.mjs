@@ -74,7 +74,8 @@ try {
   assert.equal(await page.locator("#refreshBuild").isVisible(), false);
   await page.waitForFunction(
     () =>
-      window.__PW3D?.inspect().environment?.instances === 426 &&
+      window.__PW3D?.inspect().environment?.instances === 592 &&
+      window.__PW3D.inspect().nature?.instances === 404 &&
       window.__PW3D.inspect().assets.rendered >= 24,
   );
   assert.equal(
@@ -127,7 +128,8 @@ try {
     userInitiatedCacheBustingReload: true,
     liveScene: {
       environment: "fantasy-visual-upgrade",
-      decorations: 426,
+      decorations: 592,
+      importedNaturePlacements: 404,
       realCharacters: true,
     },
     pageErrors: errors,
