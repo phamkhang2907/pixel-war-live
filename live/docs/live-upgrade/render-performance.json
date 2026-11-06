@@ -1,0 +1,146 @@
+{
+  "browser": "155.0.8059.79",
+  "device": "Linux Chromium / SwiftShader software WebGL, touch emulation; NOT physical iPad or desktop GPU",
+  "physicalIPad": false,
+  "glDriver": {
+    "vendor": "Google Inc. (Google)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "contextLost": false
+  },
+  "errors": [],
+  "measurements": [
+    {
+      "requested": 200,
+      "actual": 200,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "fps": 1.6829957324018694,
+      "elapsedMs": 8318.500000008942,
+      "drawCalls": 73,
+      "triangles": 270042,
+      "jsHeapBytes": 36003543,
+      "renderMemory": {
+        "geometries": 99,
+        "textures": 124
+      },
+      "server": {
+        "tickMs": 0.3920399999988149,
+        "maxTickMs": 40.25993000000017,
+        "eventLoopDelayMs": 0.8449470000014117
+      },
+      "serverMemory": {
+        "rss": 100716544,
+        "heapTotal": 33869824,
+        "heapUsed": 18774944,
+        "external": 6327229,
+        "arrayBuffers": 2322360
+      }
+    },
+    {
+      "requested": 500,
+      "actual": 500,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "fps": 1.1049181132901287,
+      "elapsedMs": 8145.4000000059605,
+      "drawCalls": 73,
+      "triangles": 510360,
+      "jsHeapBytes": 38341188,
+      "renderMemory": {
+        "geometries": 101,
+        "textures": 142
+      },
+      "server": {
+        "tickMs": 1.1734339999966323,
+        "maxTickMs": 40.959882000002835,
+        "eventLoopDelayMs": 0
+      },
+      "serverMemory": {
+        "rss": 117501952,
+        "heapTotal": 51695616,
+        "heapUsed": 22777080,
+        "external": 7998405,
+        "arrayBuffers": 3993536
+      }
+    },
+    {
+      "requested": 1000,
+      "actual": 1000,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "fps": 0.7747562284859131,
+      "elapsedMs": 9035.10000000894,
+      "drawCalls": 79,
+      "triangles": 911763,
+      "jsHeapBytes": 33500886,
+      "renderMemory": {
+        "geometries": 101,
+        "textures": 142
+      },
+      "server": {
+        "tickMs": 0.015593000003718771,
+        "maxTickMs": 57.88654700000188,
+        "eventLoopDelayMs": 2.98549799999455
+      },
+      "serverMemory": {
+        "rss": 148316160,
+        "heapTotal": 71462912,
+        "heapUsed": 40204400,
+        "external": 16134789,
+        "arrayBuffers": 12129920
+      }
+    },
+    {
+      "requested": 2000,
+      "actual": 2000,
+      "viewport": [
+        1080,
+        1920
+      ],
+      "drawingBuffer": [
+        552,
+        983
+      ],
+      "fps": 0.35845720020991173,
+      "elapsedMs": 8369.200000008947,
+      "drawCalls": 101,
+      "triangles": 1722750,
+      "jsHeapBytes": 44219180,
+      "renderMemory": {
+        "geometries": 102,
+        "textures": 151
+      },
+      "server": {
+        "tickMs": 0.02002000001084525,
+        "maxTickMs": 139.35771400000522,
+        "eventLoopDelayMs": 0.20513499999651685
+      },
+      "serverMemory": {
+        "rss": 188014592,
+        "heapTotal": 159993856,
+        "heapUsed": 24068592,
+        "external": 11034199,
+        "arrayBuffers": 7034873
+      }
+    }
+  ]
+}

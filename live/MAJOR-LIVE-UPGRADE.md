@@ -87,6 +87,17 @@ LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1
 
 Actual Linux browser captures: [1,000 soldiers at 1080×1920](docs/live-upgrade/battle-1080x1920.png), [fine grass detail](docs/live-upgrade/grass-detail.png), [public controls](docs/live-upgrade/public-controls.png), [honest connector error](docs/live-upgrade/owner-live-error.png). Assertions: [Chromium](docs/live-upgrade/chromium-report.json), [WebKit](docs/live-upgrade/webkit-report.json), [deployment throughput](docs/live-upgrade/deployment-throughput.json). These captures are from running servers with actual simulation/model rendering, not mockups.
 
+Current render measurements ([JSON](docs/live-upgrade/render-performance.json)): Linux Chromium 155.0.8059.79, SwiftShader software WebGL, 1080×1920 CSS, adaptive buffer about 552×983, low preset, eight-second moving-army samples.
+
+| Authoritative troops | FPS | Draw calls | JS heap MiB |
+| --- | --- | --- | --- |
+| 200 | 1.68 | 73 | 34.3 |
+| 500 | 1.1 | 73 | 36.6 |
+| 1000 | 0.77 | 79 | 31.9 |
+| 2000 | 0.36 | 101 | 42.2 |
+
+These low software-rendered FPS numbers do **not** meet the hardware/mobile target; they must not be represented as iPad or desktop GPU results. They verify bounded batching/real animated rendering and do not establish a controlled hardware before/after FPS comparison. The new three 1K maps add about 2.34 MiB transferred JPEG data and an estimated 16 MiB GPU RGBA storage with mipmaps, without adding grass draw calls. Physical-device performance remains an open verification item.
+
 ## Codespaces and physical iPad
 
 After updating the correct branch, restart the Node server while retaining DATA_DIR and owner credentials. GitHub merging does not restart a private Codespace. A terminal can be closed with its trash icon on iPad; Ctrl+C is not required. Open **Ports → 3000 → Open in Browser → `/3d/`**, not the editor `.github.dev` URL. Choose Demo to try gifts without credentials; use Owner sign in for production controls. Server environment variables are not automatically loaded from `.env` unless Node is launched with the documented env-file option.
