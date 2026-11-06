@@ -125,7 +125,7 @@ try {
   );
   await api("resumeBattle");
   const rows = page.locator(".gift-mapping");
-  assert.equal(await rows.count(), 9);
+  assert.equal(await rows.count(), 10);
   await rows.nth(4).locator("[data-field=giftId]").fill("900001");
   await rows.nth(4).locator("[data-field=enabled]").check();
   await rows.nth(5).locator("[data-field=giftId]").fill("900002");

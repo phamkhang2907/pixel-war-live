@@ -113,6 +113,7 @@ export class CharacterAssets {
               if (o instanceof T.Mesh) {
                 meshes.push(o.name);
                 o.castShadow = true;
+                o.receiveShadow = true;
                 o.frustumCulled = false;
                 for (const mat of Array.isArray(o.material)
                   ? o.material
@@ -242,7 +243,7 @@ export class CharacterAssets {
         materials.push(mat);
         if (
           mat instanceof T.MeshStandardMaterial &&
-          /Cape|Body|Hat/.test(object.name)
+          /Cape|Hat/.test(object.name)
         ) {
           mat.color.setHex(team === 0 ? 0xff7474 : 0x74baff);
         }

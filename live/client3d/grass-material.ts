@@ -4,23 +4,28 @@ export const MEADOW_CLEARANCE =
   Math.max(WORLD.ground - WORLD.laneMin, WORLD.laneMax - WORLD.ground) / 50 + 4;
 
 export const TERRAIN_PALETTE = {
-  main: 0x718c4a,
-  dark: 0x4e713c,
-  light: 0x93a85a,
+  main: 0x73a44c,
+  dark: 0x386440,
+  light: 0xa2c45a,
   dirt: 0xa49b65,
 };
-// Keep navigation and castle foundations level; relief starts outside all lanes.
+// One render-height field shared by ground, characters, shadows and projectiles.
+// Only elevation changes: server lanes, movement, blockers and attack ranges remain X/Z.
 export function terrainHeight(x: number, z: number) {
-  const edge = T.MathUtils.smoothstep(
-    Math.abs(z),
-    MEADOW_CLEARANCE + 2,
-    MEADOW_CLEARANCE + 36,
-  );
-  return (
-    -0.035 +
-    edge *
-      (1.1 + Math.sin(x * 0.08 + z * 0.05) * 0.65 + Math.cos(z * 0.14) * 0.45)
-  );
+  const foundation =
+    T.MathUtils.smoothstep(Math.abs(x), 31, 38) *
+    (1 - T.MathUtils.smoothstep(Math.abs(x), 61, 68)) *
+    (1 - T.MathUtils.smoothstep(Math.abs(z), 23, 29));
+  const meadow =
+    0.48 +
+    Math.sin(x * 0.105) * 0.32 * Math.cos(z * 0.075) +
+    Math.sin(z * 0.16 + x * 0.03) * 0.23 +
+    Math.cos(x * 0.15 - z * 0.12) * 0.12;
+  const terrace = T.MathUtils.smoothstep(Math.abs(z), 34, 43);
+  const hills =
+    T.MathUtils.smoothstep(Math.abs(z), 52, 78) *
+    (3.5 + Math.sin(x * 0.065 + z * 0.045) * 1.8 + Math.cos(z * 0.11) * 1.2);
+  return -0.035 + (3.0 + meadow) * (1 - foundation) * (1 - terrace) + hills;
 }
 export interface TerrainSurface {
   grass: T.MeshStandardMaterial;
@@ -40,10 +45,24 @@ export function terrainMaterials(): TerrainSurface {
     name: "Fine grass · ambientCG Grass001 CC0",
     roughness: 1,
     metalness: 0,
-    normalScale: new T.Vector2(0.35, -0.35),
+    normalScale: new T.Vector2(0.16, -0.16),
     color: 0xffffff,
     vertexColors: true,
   });
+  // Retain legal fine surface detail, while vertex colors determine the stylized biome.
+  grass.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <map_fragment>",
+      `
+#ifdef USE_MAP
+ vec4 texel = texture2D(map,vMapUv);
+ float grain = dot(texel.rgb,vec3(.2126,.7152,.0722));
+ diffuseColor *= vec4(vec3(.82 + grain*.30),texel.a);
+#endif
+`,
+    );
+  };
+  grass.customProgramCacheKey = () => "fantasy-grass-grain-v1";
   const dirt = new T.MeshLambertMaterial({
     name: "Feathered stylized dirt",
     color: 0xffffff,
@@ -98,7 +117,7 @@ export function terrainMaterials(): TerrainSurface {
     ready,
     inspect: () => ({
       status,
-      style: "photographic-pbr-grass",
+      style: "stylized-fantasy-pbr-grain",
       errors,
       maps: maps.map((m) => ({
         name: m.name,

@@ -126,7 +126,7 @@ try {
     bfcacheRestoreDetectsUpdate: true,
     userInitiatedCacheBustingReload: true,
     liveScene: {
-      environment: "native-summons-monsters",
+      environment: "fantasy-visual-upgrade",
       decorations: 426,
       realCharacters: true,
     },

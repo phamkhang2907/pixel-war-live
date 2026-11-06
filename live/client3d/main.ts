@@ -109,8 +109,9 @@ document
 element("zoomIn").onclick = () => battlefield?.director.zoom(0.8);
 element("zoomOut").onclick = () => battlefield?.director.zoom(1.25);
 const quality = element<HTMLSelectElement>("quality");
-quality.value = matchMedia("(pointer: coarse)").matches ? "low" : "balanced";
-quality.onchange = () => battlefield?.setQuality(quality.value === "low");
+quality.value = matchMedia("(pointer: coarse)").matches ? "low" : "medium";
+quality.onchange = () =>
+  battlefield?.setQuality(quality.value as import("./quality").Quality);
 
 // HTTP-only session: browser JavaScript never receives the owner password or bearer secret.
 void fetch("/api/owner/session")
@@ -230,7 +231,7 @@ if (battlefield) {
       );
     if (query.has("debug"))
       element("debug").textContent =
-        `FPS ${d.fps.toFixed(1)} · average frame ${d.fps > 0 ? (1000 / d.fps).toFixed(1) : "—"} ms\n${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · JS heap ${d.jsHeapBytes ? (d.jsHeapBytes / 1048576).toFixed(1) + " MiB" : "unavailable"}\nContext ${d.contextLost ? "lost" : "ready"} · Development measurements only.`;
+        `FPS ${d.fps.toFixed(1)} · average frame ${d.fps > 0 ? (1000 / d.fps).toFixed(1) : "—"} ms\n${d.drawCalls} draw calls · ${d.triangles.toLocaleString()} triangles\n${d.units} server units · camera ${d.mode} · X ${d.x.toFixed(1)}\nBuffer ${d.drawingBuffer.join(" × ")} · JS heap ${d.jsHeapBytes ? (d.jsHeapBytes / 1048576).toFixed(1) + " MiB" : "unavailable"}\nQuality ${d.quality.toUpperCase()} · bloom ${d.postprocessing.enabled ? "on" : "off"} · shadow ${d.lighting.shadows ? d.lighting.shadowMap[0] : "contacts"}\nParticles ${d.particles.active + d.monsters.particles + d.summons.particles} · arrows ${d.combatEffects.arrows}\nContext ${d.contextLost ? "lost" : "ready"} · Development measurements only.`;
   }, 500);
 }
 function cleanup() {

@@ -23,6 +23,6 @@ export function buildInfo() {
     shortRevision: revision.slice(0, 7),
     dirty,
     builtAt: new Date().toISOString(),
-    environment: "native-summons-monsters",
+    environment: "fantasy-visual-upgrade",
   };
 }

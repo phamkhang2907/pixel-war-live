@@ -75,6 +75,15 @@ export const DEFAULT_GIFT_MAPPINGS = [
     enabled: false,
   },
   {
+    key: "dragon-flame",
+    giftId: "7610",
+    giftName: "Dragon Flame",
+    type: "fireDragon",
+    count: 1,
+    enabled: false,
+    pendingVerification: true,
+  },
+  {
     key: "ice-summon",
     giftId: "6646",
     giftName: "Triệu hồi rồng băng",

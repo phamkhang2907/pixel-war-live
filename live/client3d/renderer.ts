@@ -1,8 +1,12 @@
+import { KenneyParticles } from "./kenney-particles";
+import { QUALITY, type Quality } from "./quality";
+import { natureQuality } from "./stylized-nature";
+import { CinematicBloom } from "./postprocessing";
 import { NativeSummons } from "./native-summons";
 import { MonsterUnits } from "./monster-units";
 import * as T from "three";
 import { BattlefieldCamera, type CameraMode } from "./camera";
-import type { TerrainSurface } from "./grass-material";
+import { terrainHeight, type TerrainSurface } from "./grass-material";
 import { buildWorld } from "./world";
 import { KaykitUnits } from "./kaykit-units";
 import { CombatEffects } from "./combat-effects";
@@ -14,10 +18,15 @@ export class BattlefieldRenderer {
   readonly scene = new T.Scene();
   readonly director = new BattlefieldCamera();
   readonly renderer: T.WebGLRenderer;
-  private effects = new CombatEffects();
+  private bloom: CinematicBloom;
+  private quality: Quality = matchMedia("(pointer: coarse)").matches
+    ? "low"
+    : "medium";
+  private particles = new KenneyParticles();
+  private effects = new CombatEffects(this.particles);
   private contacts = new GroundContacts();
   private summons: NativeSummons;
-  private monsters = new MonsterUnits();
+  private monsters = new MonsterUnits(this.particles);
   private kaykit = new KaykitUnits(() => {});
   private state: BattleState | null = null;
   private resizeObserver: ResizeObserver;
@@ -36,6 +45,8 @@ export class BattlefieldRenderer {
   private sun: T.DirectionalLight;
   private terrain: TerrainSurface;
   private fortresses: T.Group[] = [];
+  private shadowCasters: T.Mesh[] = [];
+  private shadowAge = 1;
   private pointers = new Map<
     number,
     { x: number; y: number; button: number }
@@ -55,9 +66,10 @@ export class BattlefieldRenderer {
         matchMedia("(pointer: coarse)").matches ? 1 : 1.5,
       ),
     );
+    this.renderer.info.autoReset = false;
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.9;
+    this.renderer.toneMappingExposure = 0.95;
     this.renderer.shadowMap.type = T.PCFSoftShadowMap;
     this.renderer.shadowMap.enabled = !matchMedia("(pointer: coarse)").matches;
     this.renderer.domElement.setAttribute(
@@ -66,26 +78,47 @@ export class BattlefieldRenderer {
     );
     this.renderer.domElement.tabIndex = 0;
     this.host.append(this.renderer.domElement);
+    this.bloom = new CinematicBloom(
+      this.renderer,
+      this.scene,
+      this.director.camera,
+    );
     const world = buildWorld(this.scene);
     this.sun = world.sun;
     this.terrain = world.terrain;
-    this.summons = new NativeSummons(this.host.parentElement!);
+    this.summons = new NativeSummons(this.host.parentElement!, this.particles);
     this.scene.add(this.summons.group);
     this.scene.add(
+      this.particles.group,
       this.monsters.group,
       this.kaykit.group,
       this.effects.group,
       this.contacts.group,
     );
+    this.applyQuality();
     void loadKaykitWorld(this.scene, this.contacts)
       .then((forts) => {
         this.fortresses = forts;
+        this.scene.updateMatrixWorld(true);
+        this.scene.traverse((o) => {
+          if (
+            o instanceof T.Mesh &&
+            o.castShadow &&
+            !(o instanceof T.SkinnedMesh)
+          ) {
+            o.userData.shadowOrigin = o.getWorldPosition(new T.Vector3());
+            this.shadowCasters.push(o);
+          }
+        });
+        this.applyQuality();
       })
       .catch((error) => this.status("Environment load failed: " + error));
     this.resizeObserver = new ResizeObserver(() => {
       this.resize();
-      if (!this.lost && !this.disposed)
-        this.renderer.render(this.scene, this.director.camera);
+      if (!this.lost && !this.disposed) {
+        this.renderer.info.reset();
+        this.bloom.render();
+      }
     });
     this.resizeObserver.observe(host);
     this.resize();
@@ -102,6 +135,8 @@ export class BattlefieldRenderer {
     this.frame = requestAnimationFrame(this.animate);
   }
   setState(state: BattleState) {
+    if (this.state?.roundState.id !== state.roundState.id)
+      this.particles.clear();
     this.summons.sync(state);
     this.state = state;
     this.fortresses.forEach((fort, team) => {
@@ -111,22 +146,35 @@ export class BattlefieldRenderer {
   select(mode: CameraMode) {
     this.director.select(mode);
   }
-  setQuality(low: boolean) {
-    this.lowQuality = low;
-    this.kaykit.setQuality(low);
+  setQuality(value: boolean | Quality) {
+    this.quality =
+      typeof value === "boolean" ? (value ? "low" : "medium") : value;
+    this.applyQuality();
+  }
+  private applyQuality() {
+    const preset = QUALITY[this.quality];
+    this.lowQuality = this.quality === "low";
+    this.kaykit.setQuality(this.lowQuality, preset.shadowActors);
+    this.effects.setQuality(this.quality);
+    this.particles.setQuality(this.quality);
+    this.summons?.setParticleBudget(preset.summonParticles);
     this.adaptiveScale = 1;
     this.lastBufferScale = -1;
-    this.renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio, low ? 1 : 1.5),
-    );
-    this.renderer.shadowMap.enabled = !low;
-    this.sun.castShadow = !low;
-    this.scene.traverse((object) => {
-      if (object instanceof T.Mesh) {
-        const materials = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-        for (const material of materials) material.needsUpdate = true;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, preset.dpr));
+    this.renderer.shadowMap.enabled = !!preset.shadows;
+    this.sun.castShadow = !!preset.shadows;
+    if (preset.shadows && this.sun.shadow.mapSize.x !== preset.shadows) {
+      this.sun.shadow.mapSize.set(preset.shadows, preset.shadows);
+      this.sun.shadow.map?.dispose();
+      this.sun.shadow.map = null;
+    }
+    this.bloom.setEnabled(preset.bloom);
+    const nature = this.scene.getObjectByName("Imported Stylized Nature");
+    if (nature) natureQuality(nature, preset.nature);
+    this.scene.traverse((o) => {
+      if (o instanceof T.Mesh) {
+        for (const m of Array.isArray(o.material) ? o.material : [o.material])
+          m.needsUpdate = true;
       }
     });
     this.resize();
@@ -135,6 +183,7 @@ export class BattlefieldRenderer {
     const { width, height } = this.host.getBoundingClientRect();
     if (!width || !height) return;
     this.renderer.setSize(Math.round(width), Math.round(height), false);
+    this.bloom?.resize(width, height);
     this.director.camera.aspect = width / height;
     this.director.camera.updateProjectionMatrix();
   }
@@ -146,11 +195,32 @@ export class BattlefieldRenderer {
     if (!document.hidden) {
       this.director.follow(this.state);
       this.director.update(Math.min(wallDt, 1));
+      // Track the camera focus with the shadow frustum, rather than shadowing the whole world.
+      const focus = this.director.diagnostics();
+      this.sun.target.position.set(focus.x, 0, focus.z);
+      this.shadowAge += wallDt;
+      if (this.shadowAge > 0.5) {
+        this.shadowAge = 0;
+        for (const o of this.shadowCasters) {
+          const p = o.userData.shadowOrigin as T.Vector3;
+          o.castShadow =
+            !this.lowQuality &&
+            Math.abs(p.x - focus.x) < (this.quality === "high" ? 42 : 34) &&
+            Math.abs(p.z - focus.z) < 62;
+        }
+      }
+      if (!this.sun.target.parent) this.scene.add(this.sun.target);
+      this.sun.position.set(
+        this.sun.target.position.x - 36,
+        78,
+        this.sun.target.position.z + 32,
+      );
+      this.sun.target.updateMatrixWorld();
       const resultPhase = ["results", "countdown"].includes(
         this.state?.roundState.phase ?? "",
       );
       const bufferScale =
-        Math.min(window.devicePixelRatio, this.lowQuality ? 1 : 1.5) *
+        Math.min(window.devicePixelRatio, QUALITY[this.quality].dpr) *
         Math.min(this.adaptiveScale, resultPhase ? 0.6 : 1);
       if (Math.abs(bufferScale - this.lastBufferScale) > 0.02) {
         this.renderer.setPixelRatio(bufferScale);
@@ -162,7 +232,10 @@ export class BattlefieldRenderer {
         Math.min(wallDt, 1),
         this.director.camera.position,
       );
-      this.monsters.setQuality(this.lowQuality);
+      this.monsters.setQuality(
+        this.lowQuality,
+        QUALITY[this.quality].monsterParticles,
+      );
       this.monsters.update(
         this.state,
         Math.min(wallDt, 1),
@@ -178,8 +251,14 @@ export class BattlefieldRenderer {
           ),
       );
       this.effects.update(this.state, dt);
+      this.particles.update(
+        dt,
+        this.director.camera,
+        this.renderer.getDrawingBufferSize(new T.Vector2()).y,
+      );
       this.contacts.update(this.state, Math.min(wallDt, 1));
-      this.renderer.render(this.scene, this.director.camera);
+      this.renderer.info.reset();
+      this.bloom.render();
       this.frames++;
       this.totalFrames++;
       this.maxFrameMs = Math.max(this.maxFrameMs, wallDt * 1000);
@@ -305,7 +384,34 @@ export class BattlefieldRenderer {
           : [],
         visible: f.visible,
       })),
-      terrain: this.terrain.inspect(),
+      quality: this.quality,
+      lighting: {
+        toneMapping: "ACESFilmic",
+        output: "sRGB",
+        exposure: this.renderer.toneMappingExposure,
+        sunIntensity: this.sun.intensity,
+        sunColor: this.sun.color.getHexString(),
+        shadows: this.renderer.shadowMap.enabled,
+        shadowMap: this.sun.shadow.mapSize.toArray(),
+        shadowBias: this.sun.shadow.bias,
+        normalBias: this.sun.shadow.normalBias,
+      },
+      postprocessing: this.bloom.diagnostics(),
+      nature:
+        this.scene.getObjectByName("Imported Stylized Nature")?.userData ??
+        null,
+      terrain: {
+        ...this.terrain.inspect(),
+        heightSamples: [
+          [0, 0],
+          [-20, 10],
+          [20, -10],
+          [0, 38],
+          [0, 44],
+          [50, 0],
+        ].map(([x, z]) => ({ x, z, y: terrainHeight(x, z) })),
+      },
+      shadowCasters: this.shadowCasters.filter((o) => o.castShadow).length,
       environment:
         this.scene.getObjectByName("Instanced KayKit fantasy environment")
           ?.userData ?? null,
@@ -318,6 +424,8 @@ export class BattlefieldRenderer {
       },
       monsters: this.monsters.diagnostics(),
       summons: this.summons.diagnostics(),
+      particles: this.particles.diagnostics(),
+      combatEffects: this.effects.diagnostics(),
       fps: this.fps,
       totalFrames: this.totalFrames,
       maxFrameMs: this.maxFrameMs,
@@ -374,7 +482,9 @@ export class BattlefieldRenderer {
     }
     for (const texture of textures) texture.dispose();
     this.sun.shadow.dispose();
+    this.bloom.dispose();
     this.effects.dispose();
+    this.particles.dispose();
     this.kaykit.dispose();
     this.monsters.dispose();
     this.summons.dispose();

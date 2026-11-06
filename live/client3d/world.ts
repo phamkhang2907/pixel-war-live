@@ -10,32 +10,32 @@ import { CASTLE_X } from "./state";
 // Purely visual terrain. The authoritative walkable lanes and castle targets do not change.
 export function buildWorld(scene: T.Scene) {
   const surfaces = terrainMaterials();
-  scene.background = new T.Color(0xc5d4c4);
-  scene.fog = new T.Fog(0xc5d4c4, 190, 560);
-  scene.add(new T.HemisphereLight(0xf0f4ec, 0x56634a, 1.15));
-  const sun = new T.DirectionalLight(0xfffdf5, 1.55);
-  sun.position.set(-35, 75, 35);
+  scene.background = new T.Color(0xb8ced1);
+  scene.fog = new T.Fog(0xb8ced1, 370, 760);
+  scene.add(new T.HemisphereLight(0xc5dcff, 0x253a55, 1.25));
+  const sun = new T.DirectionalLight(0xffe5b0, 2.45);
+  sun.position.set(-36, 78, 32);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
   Object.assign(sun.shadow.camera, {
-    left: -70,
-    right: 70,
-    top: 42,
-    bottom: -42,
+    left: -82,
+    right: 82,
+    top: 60,
+    bottom: -60,
     near: 1,
     far: 180,
   });
-  sun.shadow.bias = -0.001;
-  sun.shadow.normalBias = 0.15;
+  sun.shadow.bias = -0.00025;
+  sun.shadow.normalBias = 0.055;
   scene.add(sun);
 
-  const geometry = new T.PlaneGeometry(320, 320, 106, 106);
+  const geometry = new T.PlaneGeometry(320, 320, 160, 160);
   geometry.rotateX(-Math.PI / 2);
   const p = geometry.getAttribute("position"),
     colors: number[] = [];
-  const main = new T.Color(0xf0f0f0),
-    dark = new T.Color(0xb9c7b0),
-    light = new T.Color(0xffffff),
+  const main = new T.Color(TERRAIN_PALETTE.main),
+    dark = new T.Color(TERRAIN_PALETTE.dark),
+    light = new T.Color(TERRAIN_PALETTE.light),
     c = new T.Color();
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i),
@@ -55,6 +55,10 @@ export function buildWorld(scene: T.Scene) {
       new T.Color(0x87916c),
       T.MathUtils.smoothstep(Math.abs(z), 22, 50) * 0.18,
     );
+    const cliff =
+      T.MathUtils.smoothstep(Math.abs(z), 35, 38) *
+      (1 - T.MathUtils.smoothstep(Math.abs(z), 42, 46));
+    c.lerp(new T.Color(0x536078), cliff * 0.92);
     colors.push(c.r, c.g, c.b);
   }
   geometry.setAttribute("color", new T.Float32BufferAttribute(colors, 3));
@@ -135,7 +139,8 @@ export function buildWorld(scene: T.Scene) {
       ring.rotation.x = -Math.PI / 2;
       ring.position.set(
         CASTLE_X[team] + (siege ? 0 : team === 0 ? 8 : -8),
-        0.01,
+        terrainHeight(CASTLE_X[team] + (siege ? 0 : team === 0 ? 8 : -8), 0) +
+          0.045,
         0,
       );
       scene.add(ring);

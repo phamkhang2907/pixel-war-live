@@ -1,0 +1,36 @@
+export type Quality = "low" | "medium" | "high";
+export const QUALITY = {
+  low: {
+    dpr: 1,
+    shadows: 0,
+    bloom: false,
+    particles: 240,
+    summonParticles: 80,
+    monsterParticles: 80,
+    arrows: 80,
+    nature: 0,
+    shadowActors: 4,
+  },
+  medium: {
+    dpr: 1.25,
+    shadows: 1024,
+    bloom: false,
+    particles: 600,
+    summonParticles: 160,
+    monsterParticles: 160,
+    arrows: 160,
+    nature: 1,
+    shadowActors: 8,
+  },
+  high: {
+    dpr: 1.5,
+    shadows: 2048,
+    bloom: true,
+    particles: 1000,
+    summonParticles: 240,
+    monsterParticles: 220,
+    arrows: 240,
+    nature: 2,
+    shadowActors: 12,
+  },
+} as const;

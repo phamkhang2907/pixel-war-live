@@ -1,3 +1,4 @@
+import { terrainHeight } from "./grass-material";
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 import { worldX, type BattleState, CASTLE_X } from "./state";
 
@@ -29,7 +30,7 @@ export class BattlefieldCamera {
     this.mode = mode;
     this.desiredElevation = 52;
     this.desiredYaw = MathUtils.degToRad(
-      mode === "red" ? 38 : mode === "blue" ? -38 : 0,
+      mode === "red" ? 38 : mode === "blue" ? -38 : mode === "front" ? 16 : 0,
     );
     this.desiredFocus.set(
       mode === "red"
@@ -40,9 +41,9 @@ export class BattlefieldCamera {
       0,
       0,
     );
-    this.desiredFocus.z = mode === "front" ? -5.5 : 0;
+    this.desiredFocus.z = mode === "front" ? -9 : 0;
     this.desiredDistance =
-      mode === "overview" ? 310 : mode === "red" || mode === "blue" ? 115 : 100;
+      mode === "overview" ? 310 : mode === "red" || mode === "blue" ? 115 : 145;
   }
   orbit(dx: number, dy: number) {
     this.mode = "manual";
@@ -106,17 +107,21 @@ export class BattlefieldCamera {
       -40,
       40,
     );
-    this.desiredFocus.z = -5.5;
+    this.desiredFocus.z = -9;
     this.desiredDistance = MathUtils.clamp(
       (2 * Math.max(this.desiredFocus.x - min, max - this.desiredFocus.x) +
         16) /
         0.42,
-      100,
+      145,
       250,
     );
   }
 
   update(dt: number) {
+    this.desiredFocus.y = terrainHeight(
+      this.desiredFocus.x,
+      this.desiredFocus.z,
+    );
     const alpha = 1 - Math.exp(-5 * dt);
     this.focus.lerp(this.desiredFocus, alpha);
     this.distance = MathUtils.lerp(this.distance, this.desiredDistance, alpha);
@@ -129,7 +134,8 @@ export class BattlefieldCamera {
       this.focus.x,
       Math.max(
         16,
-        this.distance * Math.sin(MathUtils.degToRad(this.elevation)),
+        this.focus.y +
+          this.distance * Math.sin(MathUtils.degToRad(this.elevation)),
       ),
       this.distance * Math.cos(MathUtils.degToRad(this.elevation)),
     );

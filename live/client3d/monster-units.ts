@@ -1,3 +1,5 @@
+import type { KenneyParticles } from "./kenney-particles";
+import { terrainHeight } from "./grass-material";
 import * as T from "three";
 import {
   MonsterAssets,
@@ -16,6 +18,7 @@ type Particle = {
   position: T.Vector3;
   velocity: T.Vector3;
   age: number;
+  born: number;
   life: number;
   color: T.Color;
   size: number;
@@ -47,8 +50,10 @@ export class MonsterUnits {
     64,
   );
   private low = true;
+  private particleBudget = 80;
   private age = 0;
-  constructor() {
+  private roundId = "";
+  constructor(private kenney?: KenneyParticles) {
     this.group.name = "Quaternius monsters · exact three-model allowlist";
     for (const m of [this.particleMesh, this.projectileMesh]) {
       m.count = 0;
@@ -57,10 +62,20 @@ export class MonsterUnits {
       this.group.add(m);
     }
   }
-  setQuality(low: boolean) {
+  setQuality(low: boolean, particleBudget = low ? 80 : 160) {
+    this.particleBudget = particleBudget;
+    if (this.particles.length > particleBudget)
+      this.particles.length = particleBudget;
     this.low = low;
   }
   update(state: BattleState | null, dt: number, camera: T.Vector3) {
+    if (state && this.roundId !== state.roundState.id) {
+      this.roundId = state.roundState.id;
+      this.particles = [];
+      this.seen.clear();
+      this.particleMesh.count = 0;
+      this.projectileMesh.count = 0;
+    }
     const units = state?.units.filter((u) => !isSoldier(u)) ?? [],
       ids = new Set(units.map((u) => u.id));
     for (const [id, i] of this.instances)
@@ -83,7 +98,8 @@ export class MonsterUnits {
         if (!i) continue;
         i.root.position.set(
           worldX(u.x),
-          type === "mushroomKing" ? 0 : 5.6,
+          terrainHeight(worldX(u.x), worldZ(u.y)) +
+            (type === "mushroomKing" ? 0 : 5.6),
           worldZ(u.y),
         );
         if (u.summonRequest !== undefined && type !== "mushroomKing")
@@ -93,10 +109,18 @@ export class MonsterUnits {
       }
       const target = new T.Vector3(
         worldX(u.x),
-        type === "mushroomKing" ? 0 : 5.6,
+        terrainHeight(worldX(u.x), worldZ(u.y)) +
+          (type === "mushroomKing" ? 0 : 5.6),
         worldZ(u.y),
       );
       i.root.position.lerp(target, 1 - Math.exp(-16 * dt));
+      const nearShadow =
+        !this.low &&
+        Math.hypot(i.root.position.x - camera.x, i.root.position.z - camera.z) <
+          120;
+      i.root.traverse((o) => {
+        if (o instanceof T.SkinnedMesh) o.castShadow = nearShadow;
+      });
       const emerging =
         i.revealAt === undefined
           ? 1
@@ -156,6 +180,7 @@ export class MonsterUnits {
         x: number;
         y: number;
         age: number;
+        born: number;
         flightTime: number;
         startGroundY: number;
         endGroundY: number;
@@ -187,9 +212,37 @@ export class MonsterUnits {
             start.addScaledVector(direction.normalize(), 1.1);
           start.y -= 0.25;
         }
+        const flow = end.clone().sub(start).normalize().multiplyScalar(8);
+        this.kenney?.emit(
+          e.element === "ice" ? "star_01" : "flame_01",
+          start,
+          e.element === "ice" ? 0x78e9ff : 0xff8c2a,
+          32,
+          { size: 1.1, life: 0.65, spread: 0.4, velocity: flow, gravity: 0 },
+        );
+        this.kenney?.emit(
+          "smoke_04",
+          start,
+          e.element === "ice" ? 0x8fc3e6 : 0x713391,
+          15,
+          {
+            size: 2.5,
+            life: 1,
+            spread: 0.6,
+            velocity: flow.clone().multiplyScalar(0.4),
+          },
+        );
+        this.kenney?.emit(
+          e.element === "ice" ? "magic_01" : "fire_01",
+          end,
+          e.element === "ice" ? 0x76e3ff : 0xff9239,
+          18,
+          { size: 1.8, life: 0.7, spread: 1.2 },
+        );
         for (
           let j = 0;
-          j < (this.low ? 24 : 44) && this.particles.length < 220;
+          j < (this.low ? 24 : 44) &&
+          this.particles.length < this.particleBudget;
           j++
         ) {
           const f = j / (this.low ? 24 : 44),
@@ -200,17 +253,19 @@ export class MonsterUnits {
             position: p,
             velocity: end.clone().sub(start).multiplyScalar(0.5),
             age: 0,
+            born: performance.now() / 1000,
             life: 0.55 + (j % 4) * 0.08,
             color,
             size: 1 + f * 1.8,
           });
         }
       }
-    if (!frozen)
-      for (const p of this.particles) {
-        p.age += Math.min(dt, 0.08);
-        p.position.addScaledVector(p.velocity, Math.min(dt, 0.08));
-      }
+    for (const p of this.particles) {
+      const age = performance.now() / 1000 - p.born,
+        step = Math.min(0.08, Math.max(0, age - p.age));
+      p.age = age;
+      if (!frozen) p.position.addScaledVector(p.velocity, step);
+    }
     this.particles = this.particles.filter((p) => p.age < p.life);
     this.particles.forEach((p, k) => {
       this.scale.setScalar(p.size * (1 - p.age / p.life));
@@ -228,9 +283,10 @@ export class MonsterUnits {
       const f = Math.min(1, p.age / p.flightTime),
         position = new T.Vector3(
           worldX(p.x),
-          Math.max(0.3, p.lift / 50) + Math.sin(f * Math.PI) * 0.7,
+          T.MathUtils.lerp(p.lift / 50, 0.9, f) + Math.sin(f * Math.PI) * 0.7,
           worldZ(T.MathUtils.lerp(p.startGroundY, p.endGroundY, f)),
         );
+      position.y += terrainHeight(position.x, position.z);
       this.scale.setScalar(2.4);
       this.matrix.compose(position, this.quaternion, this.scale);
       this.projectileMesh.setMatrixAt(n, this.matrix);
