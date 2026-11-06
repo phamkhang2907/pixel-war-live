@@ -56,22 +56,26 @@ No real broadcast was available: tests using connector metadata fixtures prove b
 
 The build and **87 server/asset tests** pass, including all original gameplay suites, native gift metadata/streak/accounting tests, the new 7610 binding test, every Nature glTF dependency/ZIP hash, atlas provenance, cold extraction without Pillow and a deliberate conflicting-file overwrite rejection. Browser tests run real Chromium/SwiftShader and Linux WebKit/llvmpipe at **1080×1920 CSS pixels**, exercising quality changes, shadows/bloom, imported meshes, 300/500 real units, real combat/dragon effects, HUD and camera. Standard model, native summon, 3D/context-recovery and gameplay regressions remain in CI. The model test verifies a normal skeletal runner in isolation before adding mixed classes and asserting the near-rig limit plus real VAT coverage; it no longer incorrectly assumes every small-army soldier must be a skeletal clone.
 
-A Linux WebKit run reported ANGLE 0x502/context loss during the second bloom activation. Retaining passes and shrinking inactive attachments before increasing their pixel ratio avoids transient full-size HDR reallocations. The complete strict WebKit sequence subsequently passed, including the second HIGH activation. The same ANGLE error also surfaced in older swarm/monster CI suites. CI now consistently limits Mesa software rasterization to two worker threads; this does not change the browser game or skip assertions. Browser errors are still asserted, not filtered. Physical iPad Safari, Windows hardware and real LIVE remain unverified. No stable 30/60 FPS or thousand-unit claim is made. Software-renderer measurements are short development samples, including actual buffer resolution and renderer strings; they must not be used as physical-device benchmarks. The old baseline draw counter omitted some passes, so its draw-call count is not an apples-to-apples full-frame performance comparison.
+Linux WebKit/llvmpipe repeatedly reported ANGLE 0x502/context loss in headless compositing; bounding Mesa to two workers alone did not eliminate it. CI now sets `WEBKIT_DISABLE_COMPOSITING_MODE=1`, disabling the Linux accelerated compositor while **keeping WebGL, real meshes, PCF shadows and HIGH HDR bloom enabled**. The complete strict local visual sequence then passed, including the second HIGH activation; console/network/context errors remain failures. This is a software test environment workaround, not a claim that physical Safari was tested or that every driver issue is solved. Physical iPad Safari, Windows hardware and real LIVE remain unverified.
+
+The renderer separately removes avoidable allocation churn: asynchronous forest completion no longer resets adaptive DPR, unchanged ResizeObserver calls no longer resize the canvas, drawing-buffer size/DPR update atomically, and bloom target resizes are cached. The old model/defender tests also assumed every small-army unit was a near skeletal clone and that an already-fired projectile must still exist after an HTTP Pause; they now verify bounded near/VAT coverage and sample a visible staff projectile atomically before Pause. No gameplay damage is fabricated for these assertions.
+
+No stable 30/60 FPS or thousand-unit claim is made. Software-renderer measurements are short development samples, including actual buffer resolution and renderer strings; they must not be used as physical-device benchmarks. The old baseline draw counter omitted some passes, so its draw-call count is not an apples-to-apples full-frame performance comparison.
 
 Short software-GPU samples (approximately five seconds, 1080×1920 CSS viewport; scenes with 100/300/500 troops include four automatic defenders):
 
 | Actual test environment | Quality | Server units | FPS | Mean ms/frame | Full-frame calls | Triangles | Buffer pixels |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Chromium / SwiftShader | LOW | 104 | 1.60 | 626 | 149 | 439,094 | 552×983 |
-| Chromium / SwiftShader | MEDIUM | 104 | 0.60 | 1669 | 305 | 910,885 | 552×983 |
-| Chromium / SwiftShader | HIGH | 104 | 0.80 | 1251 | 402 | 1,190,868 | 552×983 |
+| Chromium / SwiftShader | LOW | 104 | 1.40 | 716 | 149 | 439,094 | 552×983 |
+| Chromium / SwiftShader | MEDIUM | 104 | 0.60 | 1668 | 305 | 910,885 | 552×983 |
+| Chromium / SwiftShader | HIGH | 104 | 0.60 | 1670 | 402 | 1,190,868 | 552×983 |
 | Chromium / SwiftShader | LOW | 304 | 1.00 | 1002 | 144 | 601,560 | 552×983 |
 | Chromium / SwiftShader | LOW | 504 | 0.80 | 1251 | 147 | 760,492 | 552×983 |
-| Linux WebKit / llvmpipe | LOW | 104 | 3.75 | 266 | 149 | 439,094 | 552×983 |
-| Linux WebKit / llvmpipe | MEDIUM | 104 | 2.30 | 435 | 305 | 910,885 | 552×983 |
-| Linux WebKit / llvmpipe | HIGH | 104 | 2.46 | 406 | 402 | 1,190,868 | 552×983 |
-| Linux WebKit / llvmpipe | LOW | 304 | 3.19 | 314 | 144 | 601,560 | 552×983 |
-| Linux WebKit / llvmpipe | LOW | 504 | 2.82 | 354 | 147 | 760,492 | 552×983 |
+| Linux WebKit / llvmpipe | LOW | 104 | 3.59 | 279 | 149 | 439,094 | 552×983 |
+| Linux WebKit / llvmpipe | MEDIUM | 104 | 2.00 | 501 | 305 | 910,885 | 552×983 |
+| Linux WebKit / llvmpipe | HIGH | 104 | 2.35 | 425 | 402 | 1,190,868 | 552×983 |
+| Linux WebKit / llvmpipe | LOW | 304 | 3.07 | 326 | 144 | 601,560 | 552×983 |
+| Linux WebKit / llvmpipe | LOW | 504 | 2.92 | 342 | 147 | 760,492 | 552×983 |
 
 These rates are low: this VM uses CPU software rasterization, not a physical gaming GPU. HIGH is materially more expensive than LOW. Both browser engines completed the scenes, but these samples do **not** establish mobile playability or a stable hardware FPS target. Linux WebKit's privacy-masked renderer string says “Apple GPU”; the launch environment explicitly uses llvmpipe, so it is not an Apple-device test. Reports record the pre-commit working-tree revision with `dirty: true`; the screenshots were captured from that modified build rather than the unmodified base revision.
 

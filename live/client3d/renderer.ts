@@ -60,12 +60,6 @@ export class BattlefieldRenderer {
       antialias: true,
       powerPreference: "high-performance",
     });
-    this.renderer.setPixelRatio(
-      Math.min(
-        window.devicePixelRatio,
-        matchMedia("(pointer: coarse)").matches ? 1 : 1.5,
-      ),
-    );
     this.renderer.info.autoReset = false;
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.ACESFilmicToneMapping;
@@ -110,7 +104,11 @@ export class BattlefieldRenderer {
             this.shadowCasters.push(o);
           }
         });
-        this.applyQuality();
+        // Async scenery must inherit the selected density without resetting
+        // adaptive DPR or reallocating the live drawing buffer during uploads.
+        const nature = this.scene.getObjectByName("Imported Stylized Nature");
+        if (nature) natureQuality(nature, QUALITY[this.quality].nature);
+        this.shadowAge = 1;
       })
       .catch((error) => this.status("Environment load failed: " + error));
     this.resizeObserver = new ResizeObserver(() => {
@@ -160,7 +158,6 @@ export class BattlefieldRenderer {
     this.summons?.setParticleBudget(preset.summonParticles);
     this.adaptiveScale = 1;
     this.lastBufferScale = -1;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, preset.dpr));
     this.renderer.shadowMap.enabled = !!preset.shadows;
     this.sun.castShadow = !!preset.shadows;
     if (preset.shadows && this.sun.shadow.mapSize.x !== preset.shadows) {
@@ -180,9 +177,26 @@ export class BattlefieldRenderer {
     this.resize();
   }
   private resize() {
-    const { width, height } = this.host.getBoundingClientRect();
+    const rect = this.host.getBoundingClientRect(),
+      width = Math.round(rect.width),
+      height = Math.round(rect.height);
     if (!width || !height) return;
-    this.renderer.setSize(Math.round(width), Math.round(height), false);
+    const resultPhase = ["results", "countdown"].includes(
+        this.state?.roundState.phase ?? "",
+      ),
+      ratio =
+        Math.min(window.devicePixelRatio, QUALITY[this.quality].dpr) *
+        Math.min(this.adaptiveScale, resultPhase ? 0.6 : 1),
+      size = this.renderer.getSize(new T.Vector2());
+    // setPixelRatio() already calls setSize(); calling both reallocates twice.
+    // Set CSS dimensions and DPR atomically, and ignore unchanged observers.
+    if (
+      size.x !== width ||
+      size.y !== height ||
+      this.renderer.getPixelRatio() !== ratio
+    )
+      this.renderer.setDrawingBufferSize(width, height, ratio);
+    this.lastBufferScale = ratio;
     this.bloom?.resize(width, height);
     this.director.camera.aspect = width / height;
     this.director.camera.updateProjectionMatrix();
@@ -223,8 +237,6 @@ export class BattlefieldRenderer {
         Math.min(window.devicePixelRatio, QUALITY[this.quality].dpr) *
         Math.min(this.adaptiveScale, resultPhase ? 0.6 : 1);
       if (Math.abs(bufferScale - this.lastBufferScale) > 0.02) {
-        this.renderer.setPixelRatio(bufferScale);
-        this.lastBufferScale = bufferScale;
         this.resize();
       }
       this.kaykit.update(

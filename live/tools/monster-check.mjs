@@ -221,17 +221,17 @@ try {
     return d.mode === "red" && Math.abs(d.x - d.targetX) < 1;
   });
   await wait(() => latest.units.some((u) => u.type === "sword" && u.hp < 2000));
-  await page.waitForFunction(
-    () =>
-      window.__PW3D.inspect().monsters.rendered === 4 &&
-      window.__PW3D.inspect().monsters.projectiles > 0,
-  );
+  // Sample a visible staff projectile in the same browser frame. A subsequent
+  // HTTP pause can arrive after this short-lived projectile has already hit.
+  const gateFrame = await page.waitForFunction(() => {
+    const m = window.__PW3D.inspect().monsters;
+    return m.rendered === 4 && m.projectiles > 0 ? m : false;
+  });
+  const gate = await gateFrame.jsonValue();
+  await gateFrame.dispose();
+  assert.ok(gate.projectiles > 0);
   await command("pauseBattle");
-  await page.waitForFunction(
-    () => window.__PW3D.inspect().monsters.projectiles > 0,
-  );
   await page.screenshot({ path: `artifacts/${prefix}-gate-1080x1920.png` });
-  const gate = await page.evaluate(() => window.__PW3D.inspect().monsters);
   await wait(() => latest.units.some((u) => u.type === "sword" && u.hp < 2000));
   for (const king of latest.units.filter((u) => u.type === "mushroomKing")) {
     assert.equal(king.x, king.team ? 4290 : 510);

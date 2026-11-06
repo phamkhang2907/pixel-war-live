@@ -3,6 +3,9 @@ on: [push, pull_request]
 env:
   # Bound Mesa software raster workers on CI; browsers still assert all GL errors.
   LP_NUM_THREADS: 2
+  # Avoid Linux WebKit/ANGLE compositor texture-copy errors on headless Mesa.
+  # WebGL, PCF shadows and HDR bloom remain enabled and strictly verified.
+  WEBKIT_DISABLE_COMPOSITING_MODE: 1
 jobs:
   build-and-play:
     runs-on: ubuntu-latest

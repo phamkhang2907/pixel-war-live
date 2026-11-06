@@ -12,3 +12,5 @@ All PNGs are actual 1080×1920 browser screenshots. No generated mockups are use
 - [Chromium measurements](chromium-report.json), [Linux WebKit measurements](webkit-report.json).
 
 Read [the implementation and verification report](../../FANTASY-VISUAL-UPGRADE.md) for asset licenses, source audit, exact quality budgets, test limitations and measured software-renderer rates. These are Linux virtual-machine tests, not physical iPad or Windows performance claims. Baseline is the unmodified `bbbc8e0` source. After captures identify the modified working tree in `sourceBuild`; future CI artifacts identify their own checked-out commit.
+
+The final local WebKit captures use `LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 LP_NUM_THREADS=2`. The compositor flag is a Linux test-host workaround; the captured WebGL scene, PCF shadows and HIGH bloom still run. Browser runtime features are not stubbed, and console errors are asserted.

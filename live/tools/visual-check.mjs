@@ -245,6 +245,15 @@ try {
         engine: kit ? "Linux WebKit" : "Linux Chromium",
         physicalIPad: false,
         presets,
+        softwareEnvironment: Object.fromEntries(
+          [
+            "LIBGL_ALWAYS_SOFTWARE",
+            "GALLIUM_DRIVER",
+            "WEBKIT_DISABLE_DMABUF_RENDERER",
+            "WEBKIT_DISABLE_COMPOSITING_MODE",
+            "LP_NUM_THREADS",
+          ].map((name) => [name, process.env[name] ?? null]),
+        ),
         sourceBuild,
         graphics,
         viewport: [1080, 1920],
