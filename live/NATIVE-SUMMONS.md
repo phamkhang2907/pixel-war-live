@@ -8,6 +8,14 @@ The existing TikTokIngest and public isolated Demo pipeline retain final-streak 
 
 Normal gift troops use small randomized cohorts of at most 16 units within the existing team spawn bands. Large creatures use smaller cohorts. Placement checks existing blockers and neighbors. If a compact area is saturated, bounded attempts fall back to the broad spawn band, preserving FIFO progress and accepted counts. Ordinary bulk Demo deployment retains broad bands. Partial batches combine their actual counts; recent record IDs suppress replayed visual effects after reconnect. Late or overflowing cosmetic presentations never change simulation or reward totals.
 
+## Round changes and slow loading
+
+Round IDs scope the native presentation. On a new round, active gift cards, queued notifications, nameplates and pending/active portals are returned to their existing pools immediately. This does not change the authoritative summon queue: previously accepted units still waiting for a slot carry over and get a new presentation only when actually deployed in the new round. Deployment records from a different round are ignored by the renderer.
+
+A waiting summon wave expires five seconds after its server creation time, using a local monotonic deadline for the remaining lifetime. Loading models slowly or returning from a hidden tab cannot restart an expired portal. The regular notification queue still combines/drains normally within the current round; accepted gifts, units and contribution accounting are not removed by cosmetic expiration.
+
+Browser regression coverage first reproduced the old-round card leak, then verifies twelve distinct queued notifications are cleared at a round boundary, a fresh gift can reuse the card pool, and delaying an actual MushroomKing model response does not replay an old wave after loading. Repeated server snapshots still count the gift once, and the actual summoned soldier plus four defenders remain present. [Fresh-round capture](docs/native-summons/fresh-round-1080x1920.png) and the browser reports below record the checks.
+
 ## Presentation and budgets
 
 - Right-side fantasy notification: existing Grok frame PNG, circular avatar (initials fallback), username, gift image/icon and ×N. Slide/flash, short glow, fade. Two DOM cards reused; pending queue capped at 24, repeated viewer/team/gift entries combine. Extreme overflow combines into an explicitly labeled Gift storm summary.
