@@ -1,0 +1,433 @@
+{
+  "engine": "Linux Chromium / SwiftShader",
+  "physicalIPad": false,
+  "gallery": {
+    "reports": {
+      "Dragon": {
+        "status": "ready",
+        "sourceHeight": 1.51045351054042,
+        "meshes": 1,
+        "bones": 13,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "Dragon_Evolved": {
+        "status": "ready",
+        "sourceHeight": 2.834310361150489,
+        "meshes": 1,
+        "bones": 46,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "MushroomKing": {
+        "status": "ready",
+        "sourceHeight": 3.415424298565054,
+        "meshes": 2,
+        "bones": 43,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Duck",
+          "HitReact",
+          "Idle",
+          "Jump",
+          "Jump_Idle",
+          "Jump_Land",
+          "No",
+          "Punch",
+          "Run",
+          "Walk",
+          "Wave",
+          "Weapon",
+          "Yes"
+        ]
+      }
+    },
+    "frames": 6,
+    "drawCalls": 8,
+    "triangles": 18720,
+    "instances": [
+      {
+        "model": "Dragon frostDragon 0",
+        "clip": "Flying_Idle",
+        "time": 0.2,
+        "bounds": [
+          13.055135665074513,
+          4.5,
+          7.301444810892297
+        ]
+      },
+      {
+        "model": "Dragon_Evolved fireDragon 0",
+        "clip": "Flying_Idle",
+        "time": 0.2,
+        "bounds": [
+          7.735091054887299,
+          5,
+          4.713626258965985
+        ]
+      },
+      {
+        "model": "MushroomKing mushroomKing 0",
+        "clip": "Idle",
+        "time": 0.2,
+        "bounds": [
+          3.9135936478010604,
+          3.9799999999999995,
+          2.3896890250352127
+        ]
+      }
+    ]
+  },
+  "poseDisplacements": [
+    {
+      "model": "frostDragon",
+      "clip": "move",
+      "delta": 1.0485973871067258
+    },
+    {
+      "model": "frostDragon",
+      "clip": "attack",
+      "delta": 0.3673116562387757
+    },
+    {
+      "model": "frostDragon",
+      "clip": "death",
+      "delta": 0.40235804786126084
+    },
+    {
+      "model": "fireDragon",
+      "clip": "move",
+      "delta": 1.0560569081132993
+    },
+    {
+      "model": "fireDragon",
+      "clip": "attack",
+      "delta": 0.5962856153054481
+    },
+    {
+      "model": "fireDragon",
+      "clip": "death",
+      "delta": 1.1675126381001795
+    },
+    {
+      "model": "mushroomKing",
+      "clip": "move",
+      "delta": 1.088113565708652
+    },
+    {
+      "model": "mushroomKing",
+      "clip": "attack",
+      "delta": 0.6805768434065679
+    },
+    {
+      "model": "mushroomKing",
+      "clip": "death",
+      "delta": 1.1223695992532643
+    }
+  ],
+  "performance": {
+    "frames": 13,
+    "elapsedMs": 8074.800000005962,
+    "fps": 1.6099469955900334,
+    "units": 214,
+    "monsters": 6,
+    "drawCalls": 120,
+    "triangles": 318218,
+    "buffer": [
+      552,
+      983
+    ],
+    "jsHeapBytes": 73569148,
+    "contextLost": false,
+    "particles": 108,
+    "viewport": [
+      1080,
+      1920
+    ],
+    "software": true,
+    "physicalIPad": false
+  },
+  "publicDemo": {
+    "twoButtons": true,
+    "teamIndependent": true,
+    "flying": true,
+    "duplicateProtected": true,
+    "productionIsolated": true
+  },
+  "breath": {
+    "reports": {
+      "Dragon": {
+        "status": "ready",
+        "sourceHeight": 1.51045351054042,
+        "meshes": 1,
+        "bones": 13,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "Dragon_Evolved": {
+        "status": "ready",
+        "sourceHeight": 2.834310361150489,
+        "meshes": 1,
+        "bones": 46,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "MushroomKing": {
+        "status": "ready",
+        "sourceHeight": 3.415424298565054,
+        "meshes": 2,
+        "bones": 43,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Duck",
+          "HitReact",
+          "Idle",
+          "Jump",
+          "Jump_Idle",
+          "Jump_Land",
+          "No",
+          "Punch",
+          "Run",
+          "Walk",
+          "Wave",
+          "Weapon",
+          "Yes"
+        ]
+      }
+    },
+    "rendered": 6,
+    "particles": 48,
+    "projectiles": 0,
+    "animationHz": 15,
+    "instances": [
+      {
+        "id": 29,
+        "model": "MushroomKing mushroomKing 0",
+        "clip": "Idle",
+        "time": 0.2164999999999988,
+        "position": [
+          -37.800000000000004,
+          0,
+          -3
+        ],
+        "rootBoneId": "bb204266-e724-4f07-bb30-f542db699cc0"
+      },
+      {
+        "id": 30,
+        "model": "MushroomKing mushroomKing 0",
+        "clip": "Idle",
+        "time": 0.2164999999999988,
+        "position": [
+          -37.800000000000004,
+          0,
+          3
+        ],
+        "rootBoneId": "2d43ec7d-64bb-424d-b04e-c2787aa40959"
+      },
+      {
+        "id": 31,
+        "model": "MushroomKing mushroomKing 1",
+        "clip": "Idle",
+        "time": 0.2164999999999988,
+        "position": [
+          37.800000000000004,
+          0,
+          -3
+        ],
+        "rootBoneId": "094eb42c-1376-4f2c-82d4-b1047aed0ad1"
+      },
+      {
+        "id": 32,
+        "model": "MushroomKing mushroomKing 1",
+        "clip": "Idle",
+        "time": 0.2164999999999988,
+        "position": [
+          37.800000000000004,
+          0,
+          3
+        ],
+        "rootBoneId": "dee91ae7-7970-4fd1-98d5-fedabfff23c6"
+      },
+      {
+        "id": 33,
+        "model": "Dragon frostDragon 0",
+        "clip": "Flying_Idle",
+        "time": 0.7999333730697635,
+        "position": [
+          -4,
+          5.6,
+          -3.4
+        ],
+        "rootBoneId": "80daf444-66eb-46a3-b88c-371fbd9807c8"
+      },
+      {
+        "id": 38,
+        "model": "Dragon_Evolved fireDragon 1",
+        "clip": "Flying_Idle",
+        "time": 0.4666000000000004,
+        "position": [
+          4,
+          5.6,
+          3.4
+        ],
+        "rootBoneId": "a1f5b654-53f4-43b1-b171-276c6e839578"
+      }
+    ]
+  },
+  "gate": {
+    "reports": {
+      "Dragon": {
+        "status": "ready",
+        "sourceHeight": 1.51045351054042,
+        "meshes": 1,
+        "bones": 13,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "Dragon_Evolved": {
+        "status": "ready",
+        "sourceHeight": 2.834310361150489,
+        "meshes": 1,
+        "bones": 46,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Fast_Flying",
+          "Flying_Idle",
+          "Headbutt",
+          "HitReact",
+          "No",
+          "Punch",
+          "Yes"
+        ]
+      },
+      "MushroomKing": {
+        "status": "ready",
+        "sourceHeight": 3.415424298565054,
+        "meshes": 2,
+        "bones": 43,
+        "textures": 1,
+        "clips": [
+          "Death",
+          "Duck",
+          "HitReact",
+          "Idle",
+          "Jump",
+          "Jump_Idle",
+          "Jump_Land",
+          "No",
+          "Punch",
+          "Run",
+          "Walk",
+          "Wave",
+          "Weapon",
+          "Yes"
+        ]
+      }
+    },
+    "rendered": 4,
+    "particles": 24,
+    "projectiles": 0,
+    "animationHz": 15,
+    "instances": [
+      {
+        "id": 43,
+        "model": "MushroomKing mushroomKing 0",
+        "clip": "Idle",
+        "time": 0,
+        "position": [
+          -37.800000000000004,
+          0,
+          -3
+        ],
+        "rootBoneId": "2d43ec7d-64bb-424d-b04e-c2787aa40959"
+      },
+      {
+        "id": 44,
+        "model": "MushroomKing mushroomKing 0",
+        "clip": "Idle",
+        "time": 0,
+        "position": [
+          -37.800000000000004,
+          0,
+          3
+        ],
+        "rootBoneId": "bb204266-e724-4f07-bb30-f542db699cc0"
+      },
+      {
+        "id": 45,
+        "model": "MushroomKing mushroomKing 1",
+        "clip": "Idle",
+        "time": 0,
+        "position": [
+          37.800000000000004,
+          0,
+          -3
+        ],
+        "rootBoneId": "dee91ae7-7970-4fd1-98d5-fedabfff23c6"
+      },
+      {
+        "id": 46,
+        "model": "MushroomKing mushroomKing 1",
+        "clip": "Idle",
+        "time": 0,
+        "position": [
+          37.800000000000004,
+          0,
+          3
+        ],
+        "rootBoneId": "094eb42c-1376-4f2c-82d4-b1047aed0ad1"
+      }
+    ]
+  },
+  "verifiedRealLiveIds": [],
+  "liveBroadcastTested": false,
+  "errors": []
+}

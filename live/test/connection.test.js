@@ -60,3 +60,28 @@ test("switching to demo cancels a pending connection", async () => {
   await assert.rejects(pending);
   assert.equal(s.mode, "demo");
 });
+test("MOCK native availableGifts are imported as catalog metadata, not reward events", async () => {
+  const b = new Battle(),
+    row = {
+      key: "fixture-only",
+      giftId: "990031",
+      giftName: "Fixture Dragon",
+      type: "fireDragon",
+      count: 1,
+      enabled: false,
+      pendingVerification: true,
+    };
+  b.giftMappings.push(row);
+  const c = stub();
+  c.availableGifts = [{ id: 990031, name: "Fixture Dragon", diamond_count: 0 }];
+  const service = new TikTokService(b, { factory: async () => c });
+  await service.connect("test");
+  assert.equal(row.enabled, true);
+  assert.equal(
+    b.giftCatalog.get("990031").evidence,
+    "connector-room-gift-list",
+  );
+  assert.equal(b.units.length, 0);
+  assert.deepEqual(b.teamScore, [0, 0]);
+  await service.disconnect();
+});

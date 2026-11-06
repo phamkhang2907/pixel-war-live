@@ -125,7 +125,7 @@ try {
   );
   await api("resumeBattle");
   const rows = page.locator(".gift-mapping");
-  assert.equal(await rows.count(), 6);
+  assert.equal(await rows.count(), 9);
   await rows.nth(4).locator("[data-field=giftId]").fill("900001");
   await rows.nth(4).locator("[data-field=enabled]").check();
   await rows.nth(5).locator("[data-field=giftId]").fill("900002");
@@ -280,12 +280,12 @@ try {
     );
   await wait(() => latest?.units.length >= 100);
   const health = await fetch(base + "/health").then((r) => r.json());
-  assert.ok(latest.units.length <= 1000);
+  assert.ok(latest.units.length <= 1004);
   assert.ok(latest.summonQueue.pending > 0);
   assert.ok(spam.every((r) => r.status === 200));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForFunction(
-    () => window.__PW3D.inspect().assets.rendered === 1000,
+    () => window.__PW3D.inspect().assets.rendered === 1004,
     {},
     { timeout: 120000 },
   );

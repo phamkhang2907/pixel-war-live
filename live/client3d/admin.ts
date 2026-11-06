@@ -11,6 +11,7 @@ type Mapping = {
   count: number;
   enabled: boolean;
   minCoins?: number;
+  pendingVerification?: boolean;
 };
 type Config = {
   giftMappings: Mapping[];
@@ -26,6 +27,8 @@ const labels: Record<string, string> = {
   archer: "Archer · Ranger",
   mage: "Mage",
   boss: "Giant · enlarged Barbarian",
+  frostDragon: "Frost Dragon · Dragon",
+  fireDragon: "Fire Dragon · Dragon_Evolved",
 };
 export function openAdmin(
   config: Config,
@@ -58,7 +61,7 @@ export function openAdmin(
  <form id="giftSimulator"><label>Team<select id="giftTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Viewer<input id="giftViewer" maxlength="24" value="Demo Viewer"></label><label>Gift name<input id="demoGiftName" value="Rose" list="observedGiftNames"></label><datalist id="observedGiftNames"><option>Rose</option><option>Finger Heart</option><option>Doughnut</option><option>Perfume</option></datalist><label>Actual gift ID (optional)<input id="demoGiftId"></label><label>Coins per gift (0 = unknown/demo)<input id="demoGiftCoins" type="number" min="0" max="100000" value="0"></label><label>Streak quantity<input id="demoGiftRepeats" type="number" min="1" max="1000" value="1"></label><button>Simulate streak + completion</button></form>
  <form id="likesSimulator"><label>Team<select id="likeTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>New likes<input id="likeCount" type="number" min="1" max="100000" value="500"></label><button>Simulate likes / Fury</button></form>
  <div class="options" id="swarmScenarios"><button type="button" data-army="200">200 quân</button><button type="button" data-army="500">500 quân</button><button type="button" data-army="1000">1.000 quân</button><button type="button" data-army="2000">2.000 quân · thử nghiệm</button></div><p>Demo armies are authoritative combat units with no fabricated gifts or contribution credit. LIVE armies use accepted summons.</p>
- <h3>Gift → summon mappings</h3><p>Exact gift ID takes priority. Names are matched against connector metadata. No official prices are assumed. Configure Heavy / Giant with actual gift IDs or your chosen coin thresholds. Guardian and dragons are unavailable as gifts.</p><div id="giftMappingRows"></div><button id="addGiftMapping">Add mapping</button><button id="saveGiftMappings">Save mappings</button><button id="refreshGiftCatalog">Refresh observed gift metadata</button><pre id="giftCatalog"></pre><p id="guardianStatus"></p>`;
+ <h3>Gift → summon mappings</h3><p>Exact gift ID takes priority. Names are matched against connector metadata. No official prices are assumed. Configure Heavy / Giant with actual gift IDs or your chosen coin thresholds. Mushroom Kings defend gates automatically and cannot be gifts. Lion auto-verifies its exact ID on the first real Lion event when its ID slot is empty. To disable it, keep the verified ID and uncheck Enabled. Configured by owner: 13604 → Fire Dragon, 6646 → Frost Dragon (Frost Summon, not assumed to be Lion). These slots auto-enable only after the connector confirms their IDs and actual names. Premium dragon LIVE mappings require an exact ID/name already observed by the LIVE connector; select the intended premium dragon gift, not a guessed ID or price.</p><div id="giftMappingRows"></div><button id="addGiftMapping">Add mapping</button><button id="saveGiftMappings">Save mappings</button><button id="refreshGiftCatalog">Refresh observed gift metadata</button><p id="dragonBindingStatus"></p><pre id="giftCatalog"></pre><p id="guardianStatus"></p>`;
   const el = <T extends HTMLElement = HTMLElement>(id: string) =>
     root.querySelector("#" + id) as T;
   const value = (id: string) => el<HTMLInputElement>(id).value;
@@ -76,6 +79,7 @@ export function openAdmin(
     const wrap = document.createElement("div");
     wrap.className = "gift-mapping";
     wrap.dataset.key = row.key;
+    wrap.dataset.pendingVerification = String(row.pendingVerification === true);
     const enabled = input("Enabled", "", "checkbox");
     enabled.input.checked = row.enabled;
     enabled.input.dataset.field = "enabled";
@@ -198,6 +202,9 @@ export function openAdmin(
         type: field("type").value,
         count: Number(field("count").value),
         enabled: field("enabled").checked,
+        pendingVerification:
+          !field("enabled").checked &&
+          row.dataset.pendingVerification === "true",
         ...(field("minCoins").value
           ? { minCoins: Number(field("minCoins").value) }
           : {}),
@@ -216,6 +223,13 @@ export function openAdmin(
     void send("giftMappings", { mappings: readMappings() });
   };
   const catalog = (c: Config) => {
+    el("dragonBindingStatus").textContent = c.giftMappings
+      .filter((r) => r.type === "frostDragon" || r.type === "fireDragon")
+      .map(
+        (r) =>
+          `${r.giftId || "Lion ID pending"} → ${r.type}: ${r.enabled ? "connector-confirmed / enabled" : r.pendingVerification ? "owner-supplied ID · awaiting connector" : "disabled / awaiting metadata"}`,
+      )
+      .join(" · ");
     el("giftCatalog").textContent = c.giftCatalog.length
       ? JSON.stringify(c.giftCatalog, null, 2)
       : "No LIVE gift metadata observed yet. Demo entries are for testing only.";
@@ -223,13 +237,16 @@ export function openAdmin(
   catalog(config);
   el("refreshGiftCatalog").onclick = async () => {
     try {
-      catalog(await reload());
+      const current = await reload();
+      catalog(current);
+      el("giftMappingRows").replaceChildren();
+      current.giftMappings.forEach(add);
     } catch {
       el("giftCatalog").textContent = "Could not refresh metadata";
     }
   };
   el("guardianStatus").textContent =
-    "Castle Guardian: reserved, disabled — " + config.guardian.reason;
+    "Castle defenders: 2 Mushroom Kings per gate, automatic and not gift summons; embedded rig, staff and 14 clips.";
   for (const [id, k] of [
     ["roundDuration", "duration"],
     ["roundPrepare", "prepare"],

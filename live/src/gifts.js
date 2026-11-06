@@ -1,5 +1,13 @@
 // Names are fallbacks from connector metadata; no unverified official IDs/prices.
-export const SUMMONABLE = ["sword", "cavalry", "archer", "mage", "boss"];
+export const SUMMONABLE = [
+  "sword",
+  "cavalry",
+  "archer",
+  "mage",
+  "boss",
+  "frostDragon",
+  "fireDragon",
+];
 export const DEFAULT_GIFT_MAPPINGS = [
   {
     key: "rose",
@@ -49,6 +57,32 @@ export const DEFAULT_GIFT_MAPPINGS = [
     count: 1,
     enabled: false,
   },
+  {
+    key: "lion-frost",
+    giftId: "",
+    giftName: "Lion",
+    type: "frostDragon",
+    count: 1,
+    enabled: false,
+  },
+  {
+    key: "dragon-fire",
+    giftId: "13604",
+    giftName: "Rồng lửa",
+    pendingVerification: true,
+    type: "fireDragon",
+    count: 1,
+    enabled: false,
+  },
+  {
+    key: "ice-summon",
+    giftId: "6646",
+    giftName: "Triệu hồi rồng băng",
+    type: "frostDragon",
+    count: 1,
+    enabled: false,
+    pendingVerification: true,
+  },
 ];
 export const CASTLE_GUARDIAN = Object.freeze({
   enabled: false,
@@ -58,11 +92,23 @@ export const CASTLE_GUARDIAN = Object.freeze({
 });
 export const normalizeGiftName = (name) =>
   String(name || "")
-    .normalize("NFKC")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
     .replace(/^donut$/, "doughnut");
-export function validateGiftMappings(input) {
+export const isDragon = (type) =>
+  type === "frostDragon" || type === "fireDragon";
+export function verifiedDragonGift(row, catalog) {
+  const observed = catalog?.get(String(row.giftId));
+  return !!(
+    row.giftId &&
+    observed?.source === "live" &&
+    normalizeGiftName(observed.giftName) === normalizeGiftName(row.giftName)
+  );
+}
+export function validateGiftMappings(input, catalog = new Map()) {
   if (!Array.isArray(input) || input.length > 40)
     throw Error("Use at most 40 gift mappings");
   const keys = new Set(),
@@ -87,7 +133,19 @@ export function validateGiftMappings(input) {
       (minCoins !== null &&
         (!Number.isInteger(minCoins) || minCoins < 1 || minCoins > 100000))
     )
-      throw Error("Invalid mapping: Guardian and dragons are not summonable");
+      throw Error(
+        "Invalid mapping: automatic castle defenders cannot be gift summons",
+      );
+    if (
+      row.enabled &&
+      isDragon(row.type) &&
+      (row.count !== 1 ||
+        minCoins !== null ||
+        !verifiedDragonGift(row, catalog))
+    )
+      throw Error(
+        "Dragon LIVE mappings require an exact ID/name observed by the LIVE connector, count 1, and no coin threshold. Demo metadata cannot verify IDs.",
+      );
     if (
       row.enabled &&
       !giftId &&
@@ -115,6 +173,9 @@ export function validateGiftMappings(input) {
       type: row.type,
       count: row.count,
       enabled: row.enabled,
+      ...(!row.enabled && row.pendingVerification === true
+        ? { pendingVerification: true }
+        : {}),
       ...(minCoins !== null ? { minCoins } : {}),
     };
   });

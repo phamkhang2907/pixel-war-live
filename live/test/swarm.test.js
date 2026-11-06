@@ -1,3 +1,4 @@
+// These existing unit fixtures isolate summon/scoring behavior; monster tests cover default automatic defenders.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -86,7 +87,7 @@ test("pending accepted quantities and sequence survive a real graceful storage r
   try {
     let l = new League(dir),
       b = new Battle({ maxUnits: 2 }),
-      r = new RoundManager(b, l);
+      r = new RoundManager(b, l, { defenders: false });
     b.choose("owner", 0, "Owner");
     b.gift({ id: "owner", name: "Owner", giftName: "Finger Heart", count: 3 });
     b.drainSummons();
@@ -94,7 +95,7 @@ test("pending accepted quantities and sequence survive a real graceful storage r
     await l.close();
     l = new League(dir);
     b = new Battle();
-    r = new RoundManager(b, l);
+    r = new RoundManager(b, l, { defenders: false });
     assert.equal(b.summonQueue[0].remaining, 13);
     b.drainSummons(20);
     assert.deepEqual(

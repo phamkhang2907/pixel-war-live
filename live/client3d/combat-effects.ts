@@ -1,5 +1,5 @@
 import * as T from "three";
-import { worldX, worldZ, type BattleState, type UnitState } from "./state";
+import { worldX, worldZ, isSoldier, type BattleState, type UnitState } from "./state";
 
 // Lightweight procedural VFX: no external textures, licenses or extra downloads.
 type Particle = { mesh: T.Mesh; velocity: T.Vector3; age: number; life: number; origin: number };
@@ -49,7 +49,7 @@ export class CombatEffects {
       const units = state.units.filter(u => u.hp > 0).slice(0, 300);
       const ids = new Set(state.units.map(u => u.id));
       for (const id of this.previous.keys()) if (!ids.has(id)) this.previous.delete(id);
-      for (const unit of state.units.slice(0, 300)) {
+      for (const unit of state.units.filter(isSoldier).slice(0, 300)) {
         const old = this.previous.get(unit.id);
         const at = this.position(unit);
         if (old && unit.hp < old.hp) {

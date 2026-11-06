@@ -5,7 +5,12 @@ import {
   playClip,
   type CharacterInstance,
 } from "./character-assets";
-import { worldX, worldZ, type UnitState, type UnitKind } from "./state";
+import {
+  worldX,
+  worldZ,
+  type SoldierState as UnitState,
+  type SoldierKind as UnitKind,
+} from "./state";
 import { ARMY, renderScale } from "../src/characters.js";
 import { animationFor, onceClip } from "./unit-animation";
 

@@ -92,7 +92,7 @@ async function run(label, directory, port) {
     await page
       .waitForFunction(
         () =>
-          window.__PW3D?.inspect().assets.rendered === 50 &&
+          window.__PW3D?.inspect().assets.rendered === 54 &&
           window.__PW3D.inspect().fortresses.length === 2,
       )
       .catch(async (e) => {
@@ -146,7 +146,7 @@ async function run(label, directory, port) {
             "blocked fortress " + p.file,
           );
       }
-      assert.equal(initial.contacts.units, 50);
+      assert.equal(initial.contacts.units, 54);
       assert.ok(initial.contacts.static > 100);
       assert.equal(initial.contacts.shadowPasses, 0);
       assert.ok(
@@ -213,7 +213,7 @@ async function run(label, directory, port) {
         await control("cameraScenario", { scenario: "balanced", count });
         await control("pause");
         await page.waitForFunction(
-          (n) => window.__PW3D.inspect().assets.rendered === n,
+          (n) => window.__PW3D.inspect().assets.rendered === n + 4,
           count,
         );
         await mode("front");

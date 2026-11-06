@@ -1,3 +1,4 @@
+// These existing unit fixtures isolate summon/scoring behavior; monster tests cover default automatic defenders.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -41,7 +42,7 @@ test("STOP survives clocks and graceful storage restart; Reset waits for explici
   try {
     let l = new League(dir),
       b = new Battle(),
-      r = new RoundManager(b, l);
+      r = new RoundManager(b, l, { defenders: false });
     r.configure({
       duration: 3,
       prepare: 0,
@@ -67,7 +68,7 @@ test("STOP survives clocks and graceful storage restart; Reset waits for explici
     await l.close();
     l = new League(dir);
     b = new Battle();
-    r = new RoundManager(b, l);
+    r = new RoundManager(b, l, { defenders: false });
     assert.equal(r.phase, "stopped");
     r.advance(100);
     assert.equal(r.phase, "stopped");

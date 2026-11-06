@@ -1,5 +1,8 @@
 import * as T from "three";
-import type { UnitState, UnitKind } from "./state";
+import type {
+  SoldierState as UnitState,
+  SoldierKind as UnitKind,
+} from "./state";
 // Original MIT bone-keyframe attack motions. The free pack has movement/hit/death,
 // but no dedicated weapon attack clips; do not relabel Use_Item as sword combat.
 export function originalAttacks(root: T.Object3D, idle: T.AnimationClip) {

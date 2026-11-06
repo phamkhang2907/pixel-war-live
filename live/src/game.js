@@ -1,6 +1,20 @@
-import { DEFAULT_GIFT_MAPPINGS, resolveGift, SUMMONABLE } from "./gifts.js";
+import { tickMonster } from "./monster-combat.js";
+import {
+  DEFAULT_GIFT_MAPPINGS,
+  resolveGift,
+  SUMMONABLE,
+  isDragon,
+  verifiedDragonGift,
+} from "./gifts.js";
 import { safeAvatar } from "./hud-data.js";
-import { TYPES, WORLD, LIKE_REWARDS, formation, ARMY } from "./characters.js";
+import {
+  TYPES,
+  WORLD,
+  LIKE_REWARDS,
+  formation,
+  ARMY,
+  MONSTERS,
+} from "./characters.js";
 import { SpatialGrid, seeded } from "./spatial.js";
 export { TYPES } from "./characters.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -109,7 +123,17 @@ export class Battle {
     )
       return 0;
     const t = TYPES[type];
-    count = clamp(Math.floor(count), 0, this.maxUnits - this.units.length);
+    count = clamp(
+      Math.floor(count),
+      0,
+      this.maxUnits - this.units.filter((u) => !TYPES[u.type].defender).length,
+    );
+    if (isDragon(type))
+      count = Math.min(
+        count,
+        MONSTERS.maxDragons - this.units.filter((u) => isDragon(u.type)).length,
+      );
+    if (t.defender) return 0;
     if (this.spawnGridDirty) {
       this.spawnGrid.build(this.units);
       this.spawnGridDirty = false;
@@ -280,6 +304,15 @@ export class Battle {
     )
       return reject("Late gift from an earlier round");
     const rule = resolveGift(this.giftMappings, { giftId, giftName, coins });
+    if (
+      rule &&
+      isDragon(rule.type) &&
+      origin !== "demoGift" &&
+      !verifiedDragonGift(rule, this.giftCatalog)
+    )
+      return {
+        error: "Dragon gift ID has not been verified by the LIVE connector",
+      };
     if (!rule) return reject("No configured action for this gift");
     const repeats = Number(count ?? 1);
     if (!Number.isInteger(repeats) || repeats < 1 || repeats > 10000)
@@ -588,7 +621,7 @@ export class Battle {
         kind: "kill",
         unitId: target.id,
         source,
-        boss: target.type === "boss",
+        boss: target.type === "boss" || isDragon(target.type),
         helpers: [...target.contributors.values()],
       });
     }
@@ -621,8 +654,15 @@ export class Battle {
       ty: target.y - (target.type && TYPES[target.type].air ? 85 : 25),
       target: target.id,
       damage,
-      startLift: TYPES[u.type]?.air ? 84 : 10.5,
-      endLift: target.type && TYPES[target.type].air ? 84 : 10.5,
+      startGroundY: u.y,
+      endGroundY: target.y,
+      startLift:
+        u.type === "mushroomKing"
+          ? 135
+          : TYPES[u.type]?.flightHeight || (TYPES[u.type]?.air ? 84 : 10.5),
+      endLift:
+        (target.type && TYPES[target.type].flightHeight) ||
+        (target.type && TYPES[target.type].air ? 84 : 10.5),
       lift: TYPES[u.type]?.air ? 84 : 10.5,
       flightTime: Math.max(
         0.1,
@@ -653,6 +693,11 @@ export class Battle {
       )
         continue;
       this.damage(v, amount, { ...source, team, x }, true);
+      if (source.element === "ice" && v.hp > 0)
+        v.slowUntil = Math.max(
+          v.slowUntil || 0,
+          this.time + MONSTERS.slowSeconds,
+        );
       v.x = clamp(
         v.x + (team === 0 ? knock : -knock),
         WORLD.castles[0] + 60,
@@ -670,7 +715,9 @@ export class Battle {
     }
     dt = clamp(dt, 0, 0.1); // Always age corpses, including after victory.
     for (const u of this.units) if (u.hp <= 0) u.dead += dt;
-    this.units = this.units.filter((u) => u.dead < 0.95);
+    this.units = this.units.filter(
+      (u) => u.dead < (TYPES[u.type].monster ? 2.4 : 0.95),
+    );
     if (this.winner !== null) return;
     this.time += dt;
     const grid = new SpatialGrid(100).build(this.units),
@@ -690,6 +737,7 @@ export class Battle {
         u.state = "idle";
         continue;
       }
+      if (tickMonster(this, u, enemies, dt)) continue;
       if (u.type === "boss" && !u.rage && u.hp < u.maxHp * 0.4) {
         u.rage = true;
         u.enrage = 0.8;
@@ -784,7 +832,8 @@ export class Battle {
         }
       } else {
         u.state = u.hurt > 0 ? "hurt" : t.air ? "fly" : "run";
-        const velocity = t.speed;
+        const velocity =
+          t.speed * (u.slowUntil > this.time ? MONSTERS.slowFactor : 1);
         if (best > 0) {
           u.x += ((target.x - u.x) / best) * velocity * dt;
           const wander =
@@ -857,6 +906,7 @@ export class Battle {
           : alive.get(p.target);
       if (t && t.hp > 0 && p.kind !== "rain") {
         p.tx = t.x;
+        p.endGroundY = t.y;
         p.ty = t.y - (t.type && TYPES[t.type].air ? 85 : 25);
       }
       const dx = p.tx - p.x,
@@ -911,6 +961,9 @@ export class Battle {
           origin,
           attackId,
           spawnBand,
+          faceX,
+          faceY,
+          slowUntil,
         }) => ({
           id,
           team,
@@ -927,6 +980,9 @@ export class Battle {
           origin,
           attackId,
           spawnBand,
+          faceX,
+          faceY,
+          slowUntil,
         }),
       ),
       cameraEvents: this.cameraEvents.filter((e) => this.time - e.time < 4),

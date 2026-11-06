@@ -1,3 +1,5 @@
+Newest monster update: [Dragon gifts and Mushroom King defenders](MONSTERS.md). This documents the exact three-model extraction, owner-supplied gift IDs and remaining LIVE/iPad verification.
+
 # PIXEL WAR 3D
 
 Current public Demo, native owner login, free camera, PBR grass and fast spawning: [MAJOR-LIVE-UPGRADE.md](MAJOR-LIVE-UPGRADE.md). This supersedes the previous camera, terrain and browser-token instructions.

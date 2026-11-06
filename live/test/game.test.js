@@ -20,7 +20,7 @@ function pair(a = "sword", b = "sword", distance = 25) {
 }
 test("six configured combat stats and name-based gift queue", () => {
   assert.deepEqual(
-    Object.values(TYPES).map((t) => [t.hp, t.damage]),
+    Object.values(TYPES).filter(t => !t.monster).map((t) => [t.hp, t.damage]),
     [
       [100, 15],
       [65, 20],

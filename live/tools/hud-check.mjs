@@ -44,8 +44,18 @@ try {
   socket.on("state", (s) => (latest = s));
   await cmd("cameraScenario", { scenario: "balanced", count: 50 });
   await cmd("pause");
-  const cfg=await fetch(base+'/api/config',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());
-  await cmd('giftMappings',{mappings:cfg.giftMappings.map(r=>r.key==='heavy-tier'?{...r,giftName:'Heavy Demo',enabled:true}:r.key==='giant-tier'?{...r,giftName:'Giant Demo',enabled:true}:r)});
+  const cfg = await fetch(base + "/api/config", {
+    headers: { Authorization: "Bearer " + token },
+  }).then((r) => r.json());
+  await cmd("giftMappings", {
+    mappings: cfg.giftMappings.map((r) =>
+      r.key === "heavy-tier"
+        ? { ...r, giftName: "Heavy Demo", enabled: true }
+        : r.key === "giant-tier"
+          ? { ...r, giftName: "Giant Demo", enabled: true }
+          : r,
+    ),
+  });
   const names = [
     ["Astra", "Kael", "Ember"],
     ["Luna", "Orion", "Nova"],
@@ -57,12 +67,25 @@ try {
         name: names[team][i % 3],
         coins: [1, 10, 50, 100, 200, 1000][i],
         count: 2,
-        giftName:["Rose","Finger Heart","Doughnut","Perfume","Heavy Demo","Giant Demo"][i],
+        giftName: [
+          "Rose",
+          "Finger Heart",
+          "Doughnut",
+          "Perfume",
+          "Heavy Demo",
+          "Giant Demo",
+        ][i],
         avatar: "/assets/ui/kit/IMG_4974.PNG",
       });
   // Pause now holds deployment too. Deploy accepted gifts before freezing the HUD fixture.
   await cmd("resumeBattle");
-  for (let i = 0; i < 100 && !(latest?.units.length >= 90 && latest.summonQueue.pending === 0); i++) await sleep(50);
+  for (
+    let i = 0;
+    i < 100 &&
+    !(latest?.units.length >= 90 && latest.summonQueue.pending === 0);
+    i++
+  )
+    await sleep(50);
   assert.ok(latest?.units.length >= 90);
   await cmd("pauseBattle");
   browser = await chromium.launch({
@@ -109,8 +132,12 @@ try {
     for (const k of ["sword", "archer", "cavalry", "mage", "guardian", "boss"])
       assert.equal(
         Number(await page.locator(`#troop-${c}-${k}`).innerText()),
-        latest.units.filter((u) => u.team === team && u.hp > 0 && u.type === k)
-          .length,
+        latest.units.filter(
+          (u) =>
+            u.team === team &&
+            u.hp > 0 &&
+            (u.type === k || (k === "guardian" && u.type === "mushroomKing")),
+        ).length,
       );
   assert.equal(await page.locator("#rankingPanel").isVisible(), false);
   for (const [team, c] of ["red", "blue"].entries()) {
@@ -156,7 +183,13 @@ try {
     await page.screenshot({ path: `artifacts/grok-hud-${scope}.png` });
     await page.locator("#closeRanking").click();
   }
-  await cmd("demoGift", { team: 0, name: "New Summoner", giftName:"Giant Demo",coins: 1000, count: 1 });
+  await cmd("demoGift", {
+    team: 0,
+    name: "New Summoner",
+    giftName: "Giant Demo",
+    coins: 1000,
+    count: 1,
+  });
   await page.waitForFunction(
     () => document.querySelector("#giftName").textContent === "New Summoner",
   );

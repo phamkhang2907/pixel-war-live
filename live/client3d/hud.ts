@@ -16,7 +16,7 @@ const kinds = [
   ["archer", "Archer", "Archer"],
   ["cavalry", "Heavy Soldier", "Heavy"],
   ["mage", "Mage", "Mage"],
-  ["guardian", "Castle Guard", "Guard"],
+  ["guardian", "Gate Kings", "Kings"],
   ["boss", "Giant", "Giant"],
 ];
 export interface Contributor {
@@ -195,7 +195,11 @@ export class BattleHud {
           "troop-" + c + "-" + k,
           String(
             state.units.filter(
-              (u) => u.hp > 0 && u.team === team && u.type === k,
+              (u) =>
+                u.hp > 0 &&
+                u.team === team &&
+                (u.type === k ||
+                  (k === "guardian" && u.type === "mushroomKing")),
             ).length,
           ),
         );
@@ -229,7 +233,7 @@ export class BattleHud {
       this.text(
         "giftDetail",
         notice.kind === "gift"
-          ? `${notice.count ?? 0} ${kinds.find((k) => k[0] === notice.type)?.[1] ?? "units"} ${notice.queued ? "queued" : "summoned"} · ${notice.team === 0 ? "RED" : "BLUE"}`
+          ? `${notice.count ?? 0} ${kinds.find((k) => k[0] === notice.type)?.[1] ?? ({ frostDragon: "Frost Dragon", fireDragon: "Fire Dragon" } as Record<string, string>)[notice.type ?? ""] ?? "units"} ${notice.queued ? "queued" : "summoned"} · ${notice.team === 0 ? "RED" : "BLUE"}`
           : `${notice.team === 0 ? "RED" : "BLUE"} FURY`,
       );
     }

@@ -150,7 +150,7 @@ try {
     );
   });
   await page.waitForFunction(
-    () => window.__PW3D.inspect().assets.rendered === 300,
+    () => window.__PW3D.inspect().assets.rendered === 304,
   );
   const army = await page.evaluate(
     () => window.__PW3D.inspect().assets.rendered,
@@ -178,7 +178,7 @@ try {
     for (const type of ["sword", "archer", "mage"])
       await control("troop", { team, type, count: 1 });
   await page.waitForFunction(
-    () => window.__PW3D.inspect().assets.rendered === 6,
+    () => window.__PW3D.inspect().assets.rendered === 10,
   );
   for (const viewport of [
     { width: 820, height: 1180 },
