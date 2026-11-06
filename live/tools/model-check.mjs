@@ -204,6 +204,11 @@ try {
   for (const team of [0, 1])
     for (const type of ["archer", "mage", "cavalry", "boss"])
       await control("troop", { team, type, count: 1 });
+  await control("resumeBattle");
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().assets.rendered === 14,
+  );
+  await control("pauseBattle");
   await page.waitForFunction(() => {
     const d = window.__PW3D.inspect();
     return (
