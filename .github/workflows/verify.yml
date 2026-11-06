@@ -1,9 +1,15 @@
 name: Verify game
 on: [push, pull_request]
+env:
+  # Bound Mesa software raster workers on CI; browsers still assert all GL errors.
+  LP_NUM_THREADS: 2
+  # Avoid Linux WebKit/ANGLE compositor texture-copy errors on headless Mesa.
+  # WebGL, PCF shadows and HDR bloom remain enabled and strictly verified.
+  WEBKIT_DISABLE_COMPOSITING_MODE: 1
 jobs:
   build-and-play:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -158,3 +164,29 @@ jobs:
             live/artifacts/monsters-*-report.json
             live/artifacts/native-*.png
             live/artifacts/native-*-report.json
+
+  fantasy-visual-upgrade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+        working-directory: live
+      - run: node tools/visual-check.mjs
+        working-directory: live
+      - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 LP_NUM_THREADS=2 VISUAL_ENGINE=webkit node tools/visual-check.mjs
+        working-directory: live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fantasy-lighting-nature-vfx-and-quality
+          path: |
+            live/artifacts/visual-after-*.png
+            live/artifacts/visual-after-*-report.json

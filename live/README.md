@@ -39,3 +39,5 @@ node tools/terrain-check.mjs
 Install browser test engines with `npx playwright install --with-deps chromium webkit` from `live/` when required. Browser results are headless Linux measurements; physical iPad Safari still needs a device test.
 
 Native gift portals and notifications: [NATIVE-SUMMONS.md](NATIVE-SUMMONS.md).
+
+Fantasy lighting, uploaded Nature/Kenney assets, sculpted terrain, quality presets and native VFX: [FANTASY-VISUAL-UPGRADE.md](FANTASY-VISUAL-UPGRADE.md).

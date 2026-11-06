@@ -125,11 +125,11 @@ async function run(label, directory, port) {
     await mode("front");
     const initial = await page.evaluate(() => window.__PW3D.inspect());
     if (label === "stylized") {
-      assert.equal(initial.terrain.style, "photographic-pbr-grass");
+      assert.equal(initial.terrain.style, "stylized-fantasy-pbr-grain");
       assert.equal(initial.terrain.maps.length, 3);
       assert.deepEqual(initial.terrain.errors, []);
       assert.equal(initial.environment.status, "ready");
-      assert.equal(initial.environment.instances, 426);
+      assert.equal(initial.environment.instances, 592);
       assert.equal(initial.environment.batches.length, 9);
       for (const b of initial.environment.batches)
         assert.ok(b.textured && b.instances > 0);

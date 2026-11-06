@@ -1,3 +1,4 @@
+import { terrainHeight } from "./grass-material";
 import { ArmyLOD } from "./army-lod";
 import * as T from "three";
 import { animationFor } from "./unit-animation";
@@ -27,11 +28,13 @@ export class KaykitUnits {
   private selectionCount = -1;
   private lod = new ArmyLOD();
   private tick = 0;
+  private nearBudget = 8;
   private lowQuality = matchMedia("(pointer: coarse)").matches;
   get ready() {
     return this.loaded;
   }
-  setQuality(low: boolean) {
+  setQuality(low: boolean, nearBudget = low ? 4 : 8) {
+    this.nearBudget = nearBudget;
     this.lowQuality = low;
     this.lod.setQuality(low);
     this.selectionAge = 1;
@@ -63,11 +66,7 @@ export class KaykitUnits {
         };
         return distance(a) - distance(b);
       });
-      this.nearIds = new Set(
-        order
-          .slice(0, all.length > 40 ? (this.lowQuality ? 4 : 8) : 40)
-          .map((u) => u.id),
-      );
+      this.nearIds = new Set(order.slice(0, this.nearBudget).map((u) => u.id));
     }
     const units = all.filter((u) => this.nearIds.has(u.id));
     const resultPhase = ["results", "countdown"].includes(
@@ -85,7 +84,8 @@ export class KaykitUnits {
       let visual = this.instances.get(unit.id);
       const target = new T.Vector3(
         worldX(unit.x),
-        unit.type === "mage" ? 2.8 : 0,
+        terrainHeight(worldX(unit.x), worldZ(unit.y)) +
+          (unit.type === "mage" ? 2.8 : 0),
         worldZ(unit.y),
       );
       if (!visual) {

@@ -1,6 +1,6 @@
 import * as T from "three";
 import { originalAttacks, onceClip } from "./unit-animation";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { clone as cloneRig } from "three/addons/utils/SkeletonUtils.js";
 import type { Team, SoldierKind as UnitKind } from "./state";
 
@@ -93,7 +93,7 @@ export class CharacterAssets {
       });
       if (!response.ok) throw Error(`Asset manifest HTTP ${response.status}`);
       const paths: string[] = await response.json();
-      const loader = new GLTFLoader();
+      const loader = createModelLoader();
       await Promise.all(
         characterNames.map(async (name) => {
           const path = findModel(paths, name);
@@ -113,6 +113,7 @@ export class CharacterAssets {
               if (o instanceof T.Mesh) {
                 meshes.push(o.name);
                 o.castShadow = true;
+                o.receiveShadow = true;
                 o.frustumCulled = false;
                 for (const mat of Array.isArray(o.material)
                   ? o.material
@@ -242,7 +243,7 @@ export class CharacterAssets {
         materials.push(mat);
         if (
           mat instanceof T.MeshStandardMaterial &&
-          /Cape|Body|Hat/.test(object.name)
+          /Cape|Hat/.test(object.name)
         ) {
           mat.color.setHex(team === 0 ? 0xff7474 : 0x74baff);
         }

@@ -1,5 +1,5 @@
 import * as T from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { terrainHeight, MEADOW_CLEARANCE } from "./grass-material";
 
 export const forestCatalog = [
@@ -10,12 +10,12 @@ export const forestCatalog = [
   { kind: "stone", file: "Rock_1_A_Color1.gltf", count: 54 },
   { kind: "cliff", file: "Rock_3_A_Color1.gltf", count: 56 },
   { kind: "outcrop", file: "Rock_2_H_Color1.gltf", count: 32 },
-  { kind: "tree", file: "Tree_2_A_Color1.gltf", count: 28 },
-  { kind: "tree", file: "Tree_4_A_Color1.gltf", count: 16 },
+  { kind: "tree", file: "Tree_2_A_Color1.gltf", count: 120 },
+  { kind: "tree", file: "Tree_4_A_Color1.gltf", count: 90 },
 ] as const;
 const ROOT = "/kaykit/forest/Assets/gltf/";
 export async function buildForest(scene: T.Scene) {
-  const loader = new GLTFLoader();
+  const loader = createModelLoader();
   const models = await Promise.all(
     forestCatalog.map((a) => loader.loadAsync(ROOT + a.file)),
   );
@@ -82,8 +82,8 @@ export async function buildForest(scene: T.Scene) {
       }
       if (asset.kind === "tree") {
         x = (random() - 0.5) * 180;
-        z = -34 - random() * 24;
-        height = 3.5 + random() * 2.8;
+        z = (i % 3 === 0 ? 1 : -1) * (39 + random() * 31);
+        height = 5 + random() * 5;
       }
       const radius = radiusFactor * height;
       // Conservative footprint clearance, including the entire fortress envelope.
@@ -115,7 +115,7 @@ export async function buildForest(scene: T.Scene) {
         asset.kind === "cliff" ||
         asset.kind === "outcrop";
       const tint = new T.Color(
-        rock ? 0xd6dfcd : asset.kind === "tree" ? 0xc9d6bd : 0xc8d4af,
+        rock ? 0xd6dfcd : asset.kind === "tree" ? 0xd2e4ca : 0xc8d4af,
       );
       if (asset.kind === "cliff" && i >= 34)
         tint.lerp(new T.Color(0xe1e6de), 0.5);
@@ -153,7 +153,7 @@ export async function buildForest(scene: T.Scene) {
         shared.onBeforeCompile = (shader) => {
           shader.fragmentShader = shader.fragmentShader.replace(
             "#include <color_fragment>",
-            "#include <color_fragment>\nfloat forestLuma = dot(diffuseColor.rgb, vec3(0.2126,0.7152,0.0722));\ndiffuseColor.rgb = mix(vec3(forestLuma), diffuseColor.rgb, 0.72);",
+            "#include <color_fragment>\nfloat forestLuma = dot(diffuseColor.rgb, vec3(0.2126,0.7152,0.0722));\ndiffuseColor.rgb = mix(vec3(forestLuma), diffuseColor.rgb, 0.95);",
           );
         };
         shared.customProgramCacheKey = () => "forest-soft-palette-v1";

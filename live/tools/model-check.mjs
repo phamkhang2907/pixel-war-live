@@ -154,15 +154,14 @@ try {
   }
   await control("pause");
   for (const team of [0, 1])
-    for (const type of ["sword", "archer", "mage", "cavalry", "boss"])
-      await control("troop", { team, type, count: 1 });
+    await control("troop", { team, type: "sword", count: 1 });
   await control("pause");
   await sleep(300);
   await control("pause");
   await page.goto(base + "/3d/?live=1&debug=1");
   await page
     .waitForFunction(
-      () => window.__PW3D?.inspect().assets.rendered >= 10,
+      () => window.__PW3D?.inspect().assets.rendered === 6,
       null,
       { timeout: 180000 },
     )
@@ -199,15 +198,28 @@ try {
     { timeout: 30000 },
   );
   await control("pause");
+  // Inspect normal soldiers' skeletal running in isolation, then verify mixed
+  // classes through the bounded near-rig/VAT pipeline. A distant soldier need
+  // not appear in the near-rig diagnostics simply because the army is small.
+  for (const team of [0, 1])
+    for (const type of ["archer", "mage", "cavalry", "boss"])
+      await control("troop", { team, type, count: 1 });
+  await control("resumeBattle");
+  await page.waitForFunction(
+    () => window.__PW3D.inspect().assets.rendered === 14,
+  );
+  await control("pauseBattle");
   await page.waitForFunction(() => {
     const d = window.__PW3D.inspect();
     return (
-      Math.abs(d.distance - d.targetDistance) < 0.2 && d.assets.rendered >= 10
+      Math.abs(d.distance - d.targetDistance) < 0.2 && d.assets.rendered === 14
     );
   });
   const battlefield = await page.evaluate(() => window.__PW3D.inspect());
   assert.equal(battlefield.assets.proceduralSoldiers, 0);
   assert.ok(battlefield.assets.rendered > 0);
+  assert.ok(battlefield.assets.independentSkeletons <= 8);
+  assert.ok(battlefield.assets.bakedLod >= 2);
   assert.equal(
     battlefield.assets.models.filter((m) => m.status === "ready").length,
     6,

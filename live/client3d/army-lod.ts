@@ -1,3 +1,4 @@
+import { terrainHeight } from "./grass-material";
 import * as T from "three";
 import {
   CharacterAssets,
@@ -296,7 +297,9 @@ export class ArmyLOD {
           };
           const positions = texture(positionData),
             normals = texture(normalData);
-          const material = new T.MeshLambertMaterial({
+          const material = new T.MeshStandardMaterial({
+            roughness: 0.78,
+            metalness: 0.1,
             map: part.map,
             side: part.side,
             vertexColors: true,
@@ -328,7 +331,7 @@ vec2 vatFrames(){float count=abs(instanceAnimation.y);float f=max(0.,vatTime-ins
           material.customProgramCacheKey = () =>
             "pw-vat-1-" + (this.low ? "low" : "smooth");
           (
-            material as T.MeshLambertMaterial & {
+            material as T.MeshStandardMaterial & {
               defines: Record<string, number>;
             }
           ).defines = this.low ? {} : { VAT_INTERPOLATE: 1 };
@@ -358,9 +361,9 @@ vec2 vatFrames(){float count=abs(instanceAnimation.y);float f=max(0.,vatTime-ins
     this.low = low;
     for (const model of this.models.values())
       for (const batch of model.batches) {
-        const m = batch.mesh.material as T.MeshLambertMaterial;
+        const m = batch.mesh.material as T.MeshStandardMaterial;
         (
-          m as T.MeshLambertMaterial & { defines: Record<string, number> }
+          m as T.MeshStandardMaterial & { defines: Record<string, number> }
         ).defines = low ? {} : { VAT_INTERPOLATE: 1 };
         m.needsUpdate = true;
       }
@@ -383,7 +386,8 @@ vec2 vatFrames(){float count=abs(instanceAnimation.y);float f=max(0.,vatTime-ins
         p = {
           position: new T.Vector3(
             worldX(u.x),
-            u.type === "mage" ? 2.8 : 0,
+            terrainHeight(worldX(u.x), worldZ(u.y)) +
+              (u.type === "mage" ? 2.8 : 0),
             worldZ(u.y),
           ),
           key: "",
@@ -394,6 +398,9 @@ vec2 vatFrames(){float count=abs(instanceAnimation.y);float f=max(0.,vatTime-ins
       const alpha = 1 - Math.exp(-16 * dt);
       p.position.x = T.MathUtils.lerp(p.position.x, worldX(u.x), alpha);
       p.position.z = T.MathUtils.lerp(p.position.z, worldZ(u.y), alpha);
+      p.position.y =
+        terrainHeight(p.position.x, p.position.z) +
+        (u.type === "mage" ? 2.8 : 0);
       const name = animationFor(u, results),
         meta = model.clips.get(name) ?? model.clips.get("Idle_A")!,
         key = name + ":" + (/PW_/.test(name) ? (u.attackId ?? 0) : 0);

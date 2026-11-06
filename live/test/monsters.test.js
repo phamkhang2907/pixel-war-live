@@ -297,3 +297,35 @@ test("native pending binding cannot retain a coin fallback or duplicate an older
     validateGiftMappings(b.giftMappings, b.giftCatalog),
   );
 });
+
+test("owner-supplied Dragon Flame 7610 requires native LIVE metadata and preserves sender faction", () => {
+  const b = new Battle();
+  b.choose("viewer", 1);
+  const demo = new TikTokIngest(b, { source: "demo" });
+  demo.observeGift({ giftId: "7610", giftName: "Dragon Flame", coins: 900 });
+  assert.equal(
+    b.giftMappings.find((r) => r.key === "dragon-flame").enabled,
+    false,
+  );
+  const live = new TikTokIngest(b, { source: "live" });
+  live.observeGift(
+    { giftId: "7610", giftName: "Dragon Flame", coins: 900 },
+    "connector-gift-event",
+  );
+  const rule = b.giftMappings.find((r) => r.key === "dragon-flame");
+  assert.equal(rule.enabled, true);
+  assert.equal(rule.count, 1);
+  assert.equal(
+    b.gift({ id: "viewer", giftId: "7610", giftName: "Dragon Flame", count: 1 })
+      .queued,
+    1,
+  );
+  b.drainSummons();
+  assert.equal(b.units[0].type, "fireDragon");
+  assert.equal(b.units[0].team, 1);
+  assert.equal(b.units[0].userId, "viewer");
+  assert.equal(
+    b.giftMappings.find((r) => r.key === "dragon-fire").giftId,
+    "13604",
+  );
+});

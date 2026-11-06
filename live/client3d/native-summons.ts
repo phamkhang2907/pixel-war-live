@@ -1,3 +1,5 @@
+import type { KenneyParticles } from "./kenney-particles";
+import { terrainHeight } from "./grass-material";
 import * as T from "three";
 import { TYPES } from "../src/characters.js";
 import {
@@ -91,9 +93,13 @@ export class NativeSummons {
   private now = 0;
   private round = "";
   private received = 0;
+  private particleBudget = 240;
   private combined = 0;
   private lastOrigins: number[][] = [];
-  constructor(private stage: HTMLElement) {
+  constructor(
+    private stage: HTMLElement,
+    private particles?: KenneyParticles,
+  ) {
     this.stack.id = "nativeGiftNotices";
     this.stack.setAttribute("aria-live", "polite");
     this.labels.id = "summonNameplates";
@@ -117,6 +123,10 @@ export class NativeSummons {
       this.stack.append(n);
       this.toastPool.push(n);
     }
+  }
+  setParticleBudget(cap: number) {
+    this.particleBudget = Math.max(0, Math.min(240, cap));
+    this.motes.count = Math.min(this.motes.count, this.particleBudget);
   }
   private avatar(
     parent: HTMLElement,
@@ -328,6 +338,32 @@ export class NativeSummons {
         node,
       };
     this.waves.push(wave);
+    const at = new T.Vector3(
+      worldX(data.x),
+      terrainHeight(worldX(data.x), worldZ(data.y)) + (dragon ? 4 : 0.2),
+      worldZ(data.y),
+    );
+    const element =
+      data.type === "frostDragon"
+        ? 0x58dfff
+        : data.type === "fireDragon"
+          ? 0xff8233
+          : data.team === 0
+            ? 0xffc36b
+            : 0x62dcff;
+    this.particles?.emit("magic_01", at, element, dragon ? 20 : 10, {
+      size: dragon ? 1.4 : 0.55,
+      spread: wave.radius * 0.6,
+      life: 1.3,
+    });
+    if (dragon)
+      this.particles?.emit(
+        "smoke_04",
+        at,
+        data.type === "frostDragon" ? 0x779bcb : 0x7933a1,
+        20,
+        { size: 4, spread: 2, life: 1.5 },
+      );
     this.fillLabel(wave);
   }
   private fillLabel(wave: Wave) {
@@ -403,14 +439,14 @@ export class NativeSummons {
         z = worldZ(wave.data.y);
       this.color
         .set(wave.data.team === 0 ? 0xff483e : 0x328bff)
-        .multiplyScalar(fade);
-      this.position.set(x, 0.06, z);
+        .multiplyScalar(fade * 3);
+      this.position.set(x, terrainHeight(x, z) + 0.06, z);
       this.scale.setScalar(wave.radius * (0.85 + 0.15 * Math.sin(age * 6)));
       this.quaternion.setFromEuler(new T.Euler(-Math.PI / 2, 0, age * 0.6));
       this.matrix.compose(this.position, this.quaternion, this.scale);
       this.circles.setMatrixAt(ringCount, this.matrix);
       this.circles.setColorAt(ringCount++, this.color);
-      this.position.y = dragon ? 5.5 : 0.08;
+      this.position.y = terrainHeight(x, z) + (dragon ? 5.5 : 0.08);
       this.scale.setScalar(wave.radius * (0.5 + p * 0.65));
       this.quaternion.setFromEuler(
         new T.Euler(dragon ? 0 : -Math.PI / 2, dragon ? Math.PI / 2 : 0, -age),
@@ -418,22 +454,23 @@ export class NativeSummons {
       if (!dragon)
         this.color
           .set(wave.data.team === 0 ? 0xffd46c : 0x62efff)
-          .multiplyScalar(fade);
+          .multiplyScalar(fade * 3);
       if (dragon)
         this.color
           .set(wave.data.type === "frostDragon" ? 0x66dcff : 0xff6235)
-          .multiplyScalar(fade);
+          .multiplyScalar(fade * 3);
       this.matrix.compose(this.position, this.quaternion, this.scale);
       this.circles.setMatrixAt(ringCount, this.matrix);
       this.circles.setColorAt(ringCount++, this.color);
       this.lastOrigins.push([x, this.position.y, z]);
       const budget = dragon ? 40 : 20;
-      for (let j = 0; j < budget && particleCount < 240; j++) {
+      for (let j = 0; j < budget && particleCount < this.particleBudget; j++) {
         const angle = j * 2.39996 + age * (dragon ? 1.8 : 1),
           radius = wave.radius * (0.35 + (j % 7) / 10);
         this.position.set(
           x + Math.cos(angle) * radius,
-          (dragon ? 1.3 : 0.2) +
+          terrainHeight(x, z) +
+            (dragon ? 1.3 : 0.2) +
             ((age * 1.8 + j * 0.13) % 2) * (dragon ? 2 : 1),
           z + Math.sin(angle) * radius,
         );
@@ -457,7 +494,13 @@ export class NativeSummons {
         labelX = worldX(sumX / living);
         labelZ = worldZ(sumY / living);
       }
-      this.position.set(labelX, dragon ? 12 : 3.8, labelZ).project(camera);
+      this.position
+        .set(
+          labelX,
+          terrainHeight(labelX, labelZ) + (dragon ? 12 : 3.8),
+          labelZ,
+        )
+        .project(camera);
       const visible =
         visibleLabels < 4 &&
         living > 0 &&
@@ -492,7 +535,7 @@ export class NativeSummons {
       dragonPortals: this.waves.filter((w) => /Dragon$/.test(w.data.type))
         .length,
       particles: this.motes.count,
-      maxParticles: 240,
+      maxParticles: this.particleBudget,
       circles: this.circles.count,
       activeToasts: this.toasts.length,
       queuedToasts: this.pending.length,

@@ -1,0 +1,7 @@
+{
+  "sourceArchive": "kenney_particle-pack.zip",
+  "sourceSha256": "b631d4b07f7002549fdcf155f01141ad482f79f3440e4e301eed49ce5f1d8958",
+  "atlasSha256": "a8313407b393d5a902da27ee531a28d308c2e928d017e56bd41e31c35f8f6a36",
+  "license": "CC0-1.0",
+  "recipe": "16 RGBA tiles, 252px within padded 256px cells, 1024px atlas; original PNGs unchanged"
+}

@@ -1,5 +1,5 @@
 import * as T from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createModelLoader } from "./model-loader";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 import type { MonsterKind, Team } from "./state";
 export const monsterSlots = {
@@ -69,7 +69,7 @@ export class MonsterAssets {
       Object.values(monsterSlots).map(async (slot) => {
         this.reports[slot.model] = { status: "loading" };
         try {
-          const g = await new GLTFLoader().loadAsync(
+          const g = await createModelLoader().loadAsync(
             `/assets/3d/monsters/${slot.model}/${slot.model}.gltf`,
           );
           const box = new T.Box3().setFromObject(g.scene),

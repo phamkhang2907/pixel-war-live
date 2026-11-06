@@ -4,11 +4,27 @@ import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { io } from "socket.io-client";
 import assert from "node:assert/strict";
+import { DEFAULT_GIFT_MAPPINGS } from "../src/gifts.js";
 const data = await mkdtemp("/tmp/pw-full3d-"),
   port = 3172,
   base = `http://127.0.0.1:${port}`,
   token = "isolated-full3d";
 let browser, socket, latest;
+// Upgrade an existing owner's saved registry, rather than testing only fresh data.
+await writeFile(
+  data + "/gift-mappings.json",
+  JSON.stringify([
+    ...DEFAULT_GIFT_MAPPINGS.filter((r) => r.key !== "dragon-flame"),
+    {
+      key: "owner-custom",
+      giftId: "",
+      giftName: "Owner Custom",
+      type: "archer",
+      count: 7,
+      enabled: false,
+    },
+  ]),
+);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,
@@ -53,6 +69,14 @@ try {
     fetch(base + "/health")
       .then((r) => r.ok)
       .catch(() => false),
+  );
+  const migrated = (await config()).giftMappings;
+  assert.equal(migrated.find((r) => r.key === "owner-custom").count, 7);
+  assert.deepEqual(
+    migrated
+      .filter((r) => r.key === "dragon-flame")
+      .map((r) => [r.giftId, r.enabled, r.pendingVerification]),
+    [["7610", false, true]],
   );
   socket = io(base);
   socket.on("state", (s) => (latest = s));
@@ -125,7 +149,7 @@ try {
   );
   await api("resumeBattle");
   const rows = page.locator(".gift-mapping");
-  assert.equal(await rows.count(), 9);
+  assert.equal(await rows.count(), 11);
   await rows.nth(4).locator("[data-field=giftId]").fill("900001");
   await rows.nth(4).locator("[data-field=enabled]").check();
   await rows.nth(5).locator("[data-field=giftId]").fill("900002");
