@@ -220,13 +220,31 @@ try {
       "-1080x1920.png",
   });
   await command("pause");
-  assert.deepEqual(errors, []);
+  const glDriver = await page.evaluate(() => {
+    const gl = document.querySelector("canvas").getContext("webgl2");
+    const debug = gl.getExtension("WEBGL_debug_renderer_info");
+    return {
+      vendor: gl.getParameter(debug ? debug.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
+      renderer: gl.getParameter(
+        debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER,
+      ),
+      version: gl.getParameter(gl.VERSION),
+      contextLost: gl.isContextLost(),
+    };
+  });
   const report = {
     browser: await browser.version(),
     device: useWebKit
       ? "Linux WebKit touch emulation; NOT physical iPad"
       : "Linux Chromium / SwiftShader software WebGL, touch emulation; NOT physical iPad or desktop GPU",
     physicalIPad: false,
+    glDriver,
+    softwareEnvironment: {
+      LIBGL_ALWAYS_SOFTWARE: process.env.LIBGL_ALWAYS_SOFTWARE ?? null,
+      GALLIUM_DRIVER: process.env.GALLIUM_DRIVER ?? null,
+      WEBKIT_DISABLE_DMABUF_RENDERER:
+        process.env.WEBKIT_DISABLE_DMABUF_RENDERER ?? null,
+    },
     measurements,
     combat: {
       units: combat.units,
@@ -241,6 +259,9 @@ try {
     "artifacts/swarm-report" + (useWebKit ? "-webkit" : "") + ".json",
     JSON.stringify(report, null, 2),
   );
+  console.log("GL driver", JSON.stringify(glDriver));
+  assert.deepEqual(errors, []);
+  assert.equal(glDriver.contextLost, false);
   console.log("Swarm rendering and real animation checks PASS");
 } finally {
   socket?.disconnect();

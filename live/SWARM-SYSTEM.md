@@ -47,6 +47,8 @@ The separate CPU test holds exactly 200/500/1,000/2,000 ownerless test units ali
 
 [Admin music upload screenshot](docs/swarm/music-upload-admin.png) · [Chromium upload/playback report](docs/swarm/music-report.json) · [WebKit upload/playback report](docs/swarm/music-report-webkit.json)
 
+The first pull-request WebKit runner hit ANGLE `TextureGL.cpp` error 0x502/context loss during cold loading (the renderer recovered, but the strict console-error assertion failed). A retry reproduced it while the push run and local runs were clean. The new swarm/music job pins Ubuntu 24.04 instead of the rolling Ubuntu 26 image and explicitly selects software Mesa/llvmpipe with DMA-BUF disabled; reports retain driver/environment details and any console errors before the same strict assertions run. Production browser settings are unchanged. Physical Safari reliability remains unverified.
+
 ## Reproduce verification
 
 From the repository root:
@@ -60,7 +62,7 @@ npx playwright install --with-deps chromium webkit
 node tools/swarm-check.mjs
 node tools/swarm-simulation.mjs
 node tools/music-check.mjs
-MUSIC_ENGINE=webkit node tools/music-check.mjs
+LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 MUSIC_ENGINE=webkit node tools/music-check.mjs
 node tools/gameplay-check.mjs
 node tools/three-check.mjs
 node tools/model-check.mjs
