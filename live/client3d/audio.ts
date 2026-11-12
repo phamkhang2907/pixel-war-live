@@ -1,23 +1,8 @@
 import type { HudState } from "./hud";
 import { worldX } from "./state";
-const sounds = [
-  "sword",
-  "arrow-shot",
-  "arrow-impact",
-  "spell",
-  "magic-impact",
-  "giant-step",
-  "giant-attack",
-  "castle-hit",
-  "death",
-  "gift",
-  "special",
-  "victory",
-  "defeat",
-  "countdown",
-  "next-round",
-  "music",
-] as const;
+import { SOUND_FILES } from "../src/sounds.js";
+type Sound = keyof typeof SOUND_FILES;
+const sounds = Object.keys(SOUND_FILES) as Sound[];
 export type MusicTrack = {
   id: string;
   name: string;
@@ -26,9 +11,27 @@ export type MusicTrack = {
   bytes: number;
   uploadedAt: string;
 };
-type Sound = (typeof sounds)[number];
 export class BattleAudio {
   private context?: AudioContext;
+  private master?: GainNode;
+  private analyser?: AnalyserNode;
+  private compressor?: DynamicsCompressorNode;
+  private slots: {
+    gain: GainNode;
+    pan: StereoPannerNode;
+    source?: AudioBufferSourceNode;
+    name?: Sound;
+    priority: number;
+  }[] = [];
+  private masterVolume = 1;
+  private unlocking = false;
+  private duckUntil = 0;
+  private cues = new Set<string>();
+  private hornRound = "";
+  private latest?: HudState;
+  private crowdAt = 0;
+  private wingsAt = 0;
+  private playedSounds: Partial<Record<Sound, number>> = {};
   private sfx?: GainNode;
   private music?: GainNode;
   private loop?: AudioBufferSourceNode;
@@ -66,7 +69,7 @@ export class BattleAudio {
       .catch(() => {});
     this.ready = Promise.all(
       sounds.map(async (name) => {
-        const r = await fetch("/assets/audio/" + name + ".wav");
+        const r = await fetch("/assets/audio/" + SOUND_FILES[name]);
         if (!r.ok) throw Error("Missing audio " + name);
         this.raw.set(name, await r.arrayBuffer());
       }),
@@ -80,6 +83,7 @@ export class BattleAudio {
       void this.toggle();
     };
     for (const [id, key] of [
+      ["masterVolume", "masterVolume"],
       ["sfxVolume", "sfxVolume"],
       ["musicVolume", "musicVolume"],
     ] as const) {
@@ -107,6 +111,8 @@ export class BattleAudio {
     }
   };
   private async toggle() {
+    if (this.unlocking) return;
+    this.unlocking = true;
     const button = document.getElementById("soundToggle")!;
     try {
       if (!this.context) {
@@ -115,10 +121,26 @@ export class BattleAudio {
           (window as unknown as { webkitAudioContext: typeof AudioContext })
             .webkitAudioContext;
         this.context = new Constructor();
+        this.master = this.context.createGain();
+        this.compressor = this.context.createDynamicsCompressor();
+        this.compressor.threshold.value = -12;
+        this.compressor.ratio.value = 5;
+        this.analyser = this.context.createAnalyser();
+        this.analyser.fftSize = 256;
+        this.master.connect(this.compressor);
+        this.compressor.connect(this.analyser);
+        this.analyser.connect(this.context.destination);
         this.sfx = this.context.createGain();
         this.music = this.context.createGain();
-        this.sfx.connect(this.context.destination);
-        this.music.connect(this.context.destination);
+        this.sfx.connect(this.master);
+        this.music.connect(this.master);
+        this.slots = Array.from({ length: 12 }, () => {
+          const gain = this.context!.createGain(),
+            pan = this.context!.createStereoPanner();
+          gain.connect(pan);
+          pan.connect(this.sfx!);
+          return { gain, pan, priority: 0 };
+        });
       }
       this.mix();
       // Streaming play is requested inside the original gesture, before async decode.
@@ -149,16 +171,27 @@ export class BattleAudio {
       document.getElementById("audioStatus")!.textContent = this.muted
         ? "Muted"
         : "Sound enabled after your tap";
-      if (!this.muted) this.play("gift", 0.5);
+      if (!this.muted) {
+        this.play("gift", 0.5);
+        if (this.latest) this.roundCue(this.latest);
+      }
     } catch (error) {
       document.getElementById("audioStatus")!.textContent =
         "Tap again to enable audio. " + String(error);
+    } finally {
+      this.unlocking = false;
     }
   }
   private mix() {
+    if (this.master)
+      this.master.gain.value = this.muted ? 0 : this.masterVolume;
     if (this.sfx) this.sfx.gain.value = this.muted ? 0 : this.sfxVolume;
     if (this.music)
-      this.music.gain.value = this.muted ? 0 : this.musicVolume * 0.35;
+      this.music.gain.value = this.muted
+        ? 0
+        : this.musicVolume *
+          0.35 *
+          ((this.context?.currentTime ?? 0) < this.duckUntil ? 0.25 : 1);
   }
   setTrack(track: MusicTrack | null) {
     if (this.track?.id === track?.id) return;
@@ -240,7 +273,32 @@ export class BattleAudio {
     this.loop.connect(this.music!);
     this.loop.start();
   }
-  private play(name: Sound, volume = 1) {
+  private stopEffects() {
+    for (const slot of this.slots) {
+      const source = slot.source;
+      slot.source = undefined;
+      if (source) {
+        try {
+          source.stop();
+        } catch {}
+        source.disconnect();
+      }
+    }
+    this.voices.clear();
+    this.cooldown.clear();
+    this.duckUntil = 0;
+    this.mix();
+  }
+  private roundCue(state: HudState) {
+    const elapsed = state.roundState.elapsed ?? state.time;
+    if (!this.enabled || state.paused || this.hornRound === state.roundState.id)
+      return;
+    if (["combat", "final"].includes(state.roundState.phase) && elapsed <= 2) {
+      this.hornRound = state.roundState.id;
+      this.play("war-horn", 1, 0, 3);
+    }
+  }
+  private play(name: Sound, volume = 1, pan = 0, priority = 0) {
     const ctx = this.context;
     if (
       !this.enabled ||
@@ -249,42 +307,102 @@ export class BattleAudio {
       ctx.state !== "running" ||
       document.hidden
     )
-      return;
-    const now = ctx.currentTime;
+      return false;
+    const now = ctx.currentTime,
+      major = [
+        "war-horn",
+        "fire-roar",
+        "frost-roar",
+        "bomb-explosion",
+      ].includes(name);
+    const gap = major
+      ? 0.6
+      : name.includes("cry")
+        ? 1
+        : name === "dragon-wings"
+          ? 0.7
+          : 0.08;
     if (
-      this.voices.size >= 12 ||
-      now - (this.cooldown.get(name) ?? -10) < 0.08
+      now - (this.cooldown.get(name) ?? -100) < gap ||
+      ((major || name.includes("breath") || name === "frost-wind") &&
+        this.slots.some((s) => s.source && s.name === name))
     ) {
       this.dropped++;
-      return;
+      return false;
     }
     const buffer = this.buffers.get(name);
-    if (!buffer) return;
-    this.cooldown.set(name, now);
-    const source = ctx.createBufferSource(),
-      gain = ctx.createGain();
+    if (!buffer) return false;
+    let slot = this.slots.find((s) => !s.source);
+    if (!slot && (priority > 0 || major))
+      slot = this.slots.find((s) => s.priority === 0);
+    if (!slot) {
+      this.dropped++;
+      return false;
+    }
+    if (slot.source) {
+      const old = slot.source;
+      slot.source = undefined;
+      this.voices.delete(old);
+      try {
+        old.stop();
+      } catch {}
+      old.disconnect();
+    }
+    if (major) {
+      this.duckUntil = Math.max(
+        this.duckUntil,
+        now + Math.min(3, buffer.duration),
+      );
+      this.mix();
+    }
+    const source = ctx.createBufferSource();
     source.buffer = buffer;
-    gain.gain.value = Math.min(1, volume);
-    source.connect(gain);
-    gain.connect(this.sfx!);
+    source.playbackRate.value = name.includes("cry")
+      ? 0.94 + Math.random() * 0.12
+      : 1;
+    slot.gain.gain.value =
+      Math.max(0, Math.min(1.2, volume)) *
+      (!major && priority === 0 && now < this.duckUntil ? 0.35 : 1);
+    slot.pan.pan.value = Math.max(-1, Math.min(1, pan));
+    slot.name = name;
+    slot.priority = priority || (major ? 3 : 0);
+    slot.source = source;
+    source.connect(slot.gain);
     this.voices.add(source);
+    const voice = slot;
     source.onended = () => {
       this.voices.delete(source);
+      if (voice.source === source) voice.source = undefined;
       source.disconnect();
-      gain.disconnect();
     };
+    this.cooldown.set(name, now);
     source.start();
     this.played++;
+    this.playedSounds[name] = (this.playedSounds[name] ?? 0) + 1;
+    return true;
   }
+
   update(state: HudState, listenerX: number) {
+    this.latest = state;
+    this.mix();
     if (this.round !== state.roundState.id) {
-      if (this.round) this.play("next-round");
+      this.stopEffects();
+      this.cues.clear();
+      this.hornRound = "";
+      this.crowdAt = 0;
+      this.wingsAt = 0;
       this.round = state.roundState.id;
       this.previous.clear();
       this.effectSeen.clear();
       this.castles = [...state.castles];
       this.lastNotice = "";
     }
+    if (
+      this.phase !== state.roundState.phase &&
+      ["results", "stopped", "ready"].includes(state.roundState.phase)
+    )
+      this.stopEffects();
+    this.roundCue(state);
     const result = state.roundState.result;
     if (
       result &&
@@ -325,14 +443,71 @@ export class BattleAudio {
     }
     const active =
       ["combat", "final"].includes(state.roundState.phase) && !state.paused;
+    if (active && this.enabled) {
+      if (state.time - this.crowdAt > 6 && state.units.length > 30) {
+        this.crowdAt = state.time;
+        const variation = 1 + Math.floor(Math.random() * 3);
+        this.play(("red-cry-" + variation) as Sound, 0.3, -0.55);
+        this.play(
+          ("blue-cry-" + (1 + Math.floor(Math.random() * 3))) as Sound,
+          0.3,
+          0.55,
+        );
+        this.play("ambience", 0.16);
+      }
+      const dragons = state.units.filter((u) => u.flyby && u.hp > 0);
+      for (const u of dragons) {
+        const key = "roar:" + u.id;
+        if (!this.cues.has(key)) {
+          this.cues.add(key);
+          if (u.flyby!.age < 1.5)
+            this.play(
+              u.type === "fireDragon" ? "fire-roar" : "frost-roar",
+              1,
+              Math.max(-0.7, Math.min(0.7, worldX(u.x) / 50)),
+              3,
+            );
+        }
+      }
+      if (dragons.length && state.time - this.wingsAt > 1.1) {
+        this.wingsAt = state.time;
+        this.play("dragon-wings", 0.45);
+      }
+    }
     let budget = 4;
     for (const effect of state.effects ?? []) {
       if (this.effectSeen.has(effect.id)) continue;
       this.effectSeen.add(effect.id);
       if (this.effectSeen.size > 1000)
         this.effectSeen.delete(this.effectSeen.values().next().value!);
-      if (!active || budget <= 0) continue;
+      if (!active) continue;
       const volume = 0.6 / (1 + Math.abs(worldX(effect.x) - listenerX) * 0.055);
+      if (effect.type === "bombWarning") {
+        const key = "raid-warning:" + effect.raidId;
+        if (!this.cues.has(key)) {
+          this.cues.add(key);
+          this.play("bomb-whistle", 0.85, 0, 2);
+        }
+        continue;
+      } else if (effect.type === "bombImpact") {
+        this.play(
+          "bomb-explosion",
+          1,
+          Math.max(-0.7, Math.min(0.7, worldX(effect.x) / 50)),
+          3,
+        );
+        continue;
+      } else if (effect.type === "dragonBreath") {
+        this.play(
+          effect.element === "ice" ? "frost-wind" : "fire-breath",
+          0.7,
+          0,
+          2,
+        );
+        if (effect.element === "ice") this.play("ice-shatter", 0.4, 0, 1);
+        continue;
+      }
+      if (budget <= 0) continue;
       if (effect.type === "hit" || effect.type === "block") {
         this.play(
           effect.dead
@@ -422,6 +597,20 @@ export class BattleAudio {
       context: this.context?.state ?? "locked",
       sfxVolume: this.sfxVolume,
       musicVolume: this.musicVolume,
+      masterVolume: this.masterVolume,
+      effectiveMasterGain: this.master?.gain.value ?? 0,
+      ducked: (this.context?.currentTime ?? 0) < this.duckUntil,
+      playedSounds: { ...this.playedSounds },
+      decodedSounds: [...this.buffers.keys()],
+      durations: Object.fromEntries(
+        [...this.buffers].map(([name, b]) => [name, b.duration]),
+      ),
+      outputRms: (() => {
+        if (!this.analyser) return 0;
+        const b = new Float32Array(this.analyser.fftSize);
+        this.analyser.getFloatTimeDomainData(b);
+        return Math.sqrt(b.reduce((n, v) => n + v * v, 0) / b.length);
+      })(),
       activeVoices: this.voices.size,
       maxVoices: 12,
       played: this.played,

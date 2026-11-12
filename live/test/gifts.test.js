@@ -14,7 +14,10 @@ import { calendarBoard } from "../src/hud-data.js";
 const setup = () => {
   const league = new League(),
     battle = new Battle(),
-    rounds = new RoundManager(battle, league, { defenders: false }),
+    rounds = new RoundManager(battle, league, {
+      defenders: false,
+      baseline: false,
+    }),
     ingest = new TikTokIngest(battle);
   const user = { userId: "stable", nickname: "Viewer" };
   ingest.chat({ user, comment: "1" });
@@ -33,7 +36,7 @@ const gift = (user, extra = {}) => ({
 test("four proposed mappings use connector names, not guessed coin prices", () => {
   const { battle } = setup();
   for (const [giftName, count, type] of [
-    ["Rose", 1, "sword"],
+    ["Rose", 5, "sword"],
     ["Finger Heart", 5, "sword"],
     ["Doughnut", 3, "archer"],
     ["Perfume", 2, "mage"],
@@ -45,11 +48,11 @@ test("four proposed mappings use connector names, not guessed coin prices", () =
     battle.drainSummons(50);
     assert.equal(
       battle.units.filter((u) => u.type === type).length,
-      type === "sword" ? (giftName === "Rose" ? 1 : 6) : count,
+      type === "sword" ? (giftName === "Rose" ? 5 : 10) : count,
     );
   }
   assert.deepEqual(battle.teamScore, [0, 0]);
-  assert.equal(battle.units.length, 11);
+  assert.equal(battle.units.length, 15);
 });
 test("exact observed ID overrides name, and an admin can configure Heavy/Giant tiers", () => {
   const { battle } = setup();
@@ -94,8 +97,8 @@ test("streak progress does not spawn; changed final msg IDs for one group cannot
   ingest.gift(d);
   ingest.gift({ ...d, common: { msgId: "different-final" } });
   battle.drainSummons(50);
-  assert.equal(battle.units.length, 3);
-  assert.equal(league.board()[0].points, 15);
+  assert.equal(battle.units.length, 15);
+  assert.equal(league.board()[0].points, 75);
   assert.equal(battle.teamScore[0], 3);
 });
 test("a recreated connector cannot replay a completed gift because the receipt is authoritative", () => {
@@ -103,8 +106,8 @@ test("a recreated connector cannot replay a completed gift because the receipt i
   ingest.gift(gift(user));
   new TikTokIngest(battle).gift(gift(user, { common: { msgId: "another" } }));
   battle.drainSummons(50);
-  assert.equal(battle.units.length, 3);
-  assert.equal(league.board()[0].points, 15);
+  assert.equal(battle.units.length, 15);
+  assert.equal(league.board()[0].points, 75);
 });
 test("fresh completed gifts during results queue once for the next round; frozen results stay unchanged", () => {
   const { battle, rounds, ingest, user } = setup();
@@ -113,20 +116,20 @@ test("fresh completed gifts during results queue once for the next round; frozen
   rounds.finish("timeout");
   const result = structuredClone(rounds.result);
   const late = gift(user, { groupId: "late", common: { msgId: "late" } });
-  assert.equal(ingest.gift(late).queued, 3);
+  assert.equal(ingest.gift(late).queued, 15);
   assert.equal(battle.drainSummons(), 0);
   assert.deepEqual(rounds.result, result);
   rounds.start();
   assert.equal(ingest.gift(late).duplicate, true);
   battle.drainSummons();
-  assert.equal(battle.units.length, 3);
+  assert.equal(battle.units.length, 15);
 });
 test("observed ongoing streaks complete across a round boundary; unknown old events are rejected", () => {
   const { battle, rounds, ingest, user } = setup();
   const d = gift(user);
   ingest.gift({ ...d, repeatEnd: false });
   rounds.start();
-  assert.equal(ingest.gift(d).queued, 3);
+  assert.equal(ingest.gift(d).queued, 15);
   assert.ok(
     ingest.gift(
       gift(user, {
@@ -178,7 +181,7 @@ test("a valid gift burst is queued compactly; deployment rather than acceptance 
   for (let i = 0; i < 100; i++)
     assert.equal(
       battle.gift({ id: "stable", giftName: "Rose", coins: 1 }).queued,
-      1,
+      5,
     );
   assert.equal(battle.summonQueue.length, 100);
   assert.equal(battle.units.length, 0);
@@ -206,7 +209,7 @@ test("seven-second results use wall seconds even in accelerated demo; next-round
   rounds.advance(1, 8);
   assert.notEqual(rounds.snapshot().id, first);
   assert.equal(league.board().length, 0);
-  assert.equal(calendarBoard(league, "weekly").players[0].points, 35);
+  assert.equal(calendarBoard(league, "weekly").players[0].points, 55);
 });
 
 test("protobuf groupId zero is absent; distinct non-streak gifts must both summon", () => {
@@ -221,7 +224,7 @@ test("protobuf groupId zero is absent; distinct non-streak gifts must both summo
       }),
     );
   battle.drainSummons();
-  assert.equal(battle.units.length, 2);
+  assert.equal(battle.units.length, 10);
   assert.equal(battle.teamScore[0], 2);
 });
 test("protobuf zero group ID still deduplicates identical final message IDs", () => {
@@ -230,7 +233,7 @@ test("protobuf zero group ID still deduplicates identical final message IDs", ()
   ingest.gift(d);
   ingest.gift(d);
   battle.drainSummons();
-  assert.equal(battle.units.length, 3);
+  assert.equal(battle.units.length, 15);
 });
 
 test("protobuf zero repeatCount on a non-streak gift means one event, not a missing summon", () => {
@@ -243,5 +246,5 @@ test("protobuf zero repeatCount on a non-streak gift means one event, not a miss
     }),
   );
   battle.drainSummons();
-  assert.equal(battle.units.length, 1);
+  assert.equal(battle.units.length, 5);
 });

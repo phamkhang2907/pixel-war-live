@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -33,6 +34,7 @@ async function run(label, directory, port) {
   const data = await mkdtemp("/tmp/pw-environment-"),
     base = `http://127.0.0.1:${port}`,
     token = "isolated-environment";
+  isolatedFixture(data);
   const server = spawn(process.execPath, ["src/server.js"], {
     cwd: directory,
     env: {

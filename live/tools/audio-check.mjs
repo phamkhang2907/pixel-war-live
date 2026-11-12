@@ -43,7 +43,7 @@ try {
   await page.waitForFunction(
     () =>
       window.__PW_AUDIO.inspect().context === "running" &&
-      window.__PW_AUDIO.inspect().buffers === 16,
+      window.__PW_AUDIO.inspect().buffers === 32,
   );
   assert.ok(
     (await page.evaluate(() => window.__PW_AUDIO.inspect())).played > 0,

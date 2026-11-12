@@ -4,11 +4,23 @@ import math,random,wave,struct,json
 out=Path(__file__).resolve().parents[1]/'public/assets/audio';out.mkdir(parents=True,exist_ok=True)
 sr=22050;random.seed(7091)
 settings={'sword':(.22,1150),'arrow-shot':(.18,780),'arrow-impact':(.16,280),'spell':(.5,520),'magic-impact':(.4,110),'giant-step':(.35,65),'giant-attack':(.6,90),'castle-hit':(.45,75),'death':(.3,190),'gift':(.55,880),'special':(.9,220),'victory':(1.4,523),'defeat':(1.2,392),'countdown':(.13,720),'next-round':(.65,660),'music':(8,220)}
+settings.update({'red-cry-1':(1.1,135),'red-cry-2':(.95,156),'red-cry-3':(1.2,118),'blue-cry-1':(1.1,142),'blue-cry-2':(1.05,165),'blue-cry-3':(1.3,122),'ambience':(2.5,120),'bomb-whistle':(1.4,1600),'bomb-explosion':(1.4,53),'dragon-wings':(.8,80),'fire-breath':(1.0,90),'frost-wind':(1.2,450),'ice-shatter':(.7,2400)})
 for name,(duration,freq) in settings.items():
  samples=[]
  for i in range(int(sr*duration)):
   t=i/sr;p=t/duration;noise=random.uniform(-1,1)
-  if name in ['sword','arrow-impact']:
+  if '-cry-' in name or name=='ambience':
+   # Original synthetic vowel-like crowd calls; no sampled human recordings.
+   pitch=freq*(1+.12*math.sin(t*7)); voice=sum(math.sin(2*math.pi*pitch*h*t)/h for h in range(1,9))
+   syllable=max(0,math.sin(t*12))**.6
+   a=(.32*voice+.08*noise)*syllable*math.sin(math.pi*p)**.7
+  elif name=='bomb-whistle':a=.42*math.sin(2*math.pi*(freq*t-420*t*t))*(.6+.4*math.sin(45*t))*math.sin(math.pi*p)
+  elif name=='bomb-explosion':a=(.7*noise+.55*math.sin(2*math.pi*(freq*t-12*t*t)))*math.exp(-p*5)*min(1,t*100)
+  elif name in ['dragon-wings','fire-breath','frost-wind']:
+   a=(.42*noise+.18*math.sin(2*math.pi*freq*t))*(math.sin(math.pi*p)**.8)*(1 if name!='dragon-wings' else (.35+.65*abs(math.sin(8*t))))
+  elif name=='ice-shatter':a=(.4*noise+.25*math.sin(2*math.pi*freq*t)+.2*math.sin(2*math.pi*freq*1.7*t))*math.exp(-p*8)
+  elif name in ['sword','arrow-impact']:
+
    a=(.28*noise+.28*math.sin(2*math.pi*freq*t)+.2*math.sin(2*math.pi*freq*1.43*t))*math.exp(-p*9)
   elif name in ['giant-step','giant-attack','castle-hit','magic-impact']:
    a=(.75*math.sin(2*math.pi*(freq*t-25*t*t))+.25*noise)*math.exp(-p*7)

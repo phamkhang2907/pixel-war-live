@@ -11,3 +11,7 @@ live/artifacts/
 # Deterministic runtime copies of the original owner-uploaded visual ZIPs.
 live/public/assets/3d/nature/stylized/
 live/public/assets/3d/effects/kenney/
+
+/live/public/assets/audio/*.mp3
+/live/public/assets/audio/uploaded-manifest.json
+/live/public/assets/audio/LICENSE-SOURCES.md

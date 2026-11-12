@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
@@ -6,6 +7,7 @@ const temp = await mkdtemp("/tmp/pw-forts-"),
   port = 3150,
   base = `http://127.0.0.1:${port}`;
 let browser;
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,

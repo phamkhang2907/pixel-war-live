@@ -14,6 +14,8 @@ type Mapping = {
   pendingVerification?: boolean;
 };
 type Config = {
+  warfareConfig: Record<string, number | boolean | Record<string, number>>;
+  memberships: { id: string; team: number; name?: string; remainder: number }[];
   giftMappings: Mapping[];
   giftCatalog: { giftId: string; giftName: string; coins: number | null }[];
   roundConfig: { duration: number; prepare: number; final: number };
@@ -49,6 +51,7 @@ export function openAdmin(
   root.innerHTML = `<h2>3D LIVE controls</h2><form id="liveConnect"><label>TikTok username<input id="liveUsername" required pattern="[\\w.]{2,40}"></label><button>Connect LIVE</button><button type="button" id="demoMode">Demo mode</button></form><p id="liveStatus"></p>
  <h3>Nhạc nền</h3><p id="musicTrackName"></p><form id="musicUpload"><label>Tệp MP3 / WAV / M4A / OGG (tối đa 12 MiB)<input id="musicFile" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,.mp3,.wav,.m4a,.ogg" required></label><button>Tải nhạc nền lên</button></form><button id="musicPreview" type="button">Nghe thử / bật nhạc</button><button id="musicDefault" type="button">Dùng nhạc mặc định</button><p id="musicUploadStatus" role="status">Nhạc chỉ phát sau thao tác bật âm thanh. Điều chỉnh âm lượng tại Music.</p>
  <h3>Spawn throughput</h3><form id="spawnSettings"><label>Units per tick (8–256)<input id="spawnBatch" type="number" min="8" max="256" value="64"></label><label>CPU budget ms (1–12)<input id="spawnBudget" type="number" min="1" max="12" value="6"></label><button>Save throughput</button></form>
+ <h3>Army / HEART WAR / Flyby settings · next round</h3><form id="warfareSettings"></form><h3>Joined viewers</h3><button id="refreshMembers">Refresh memberships</button><pre id="teamMemberships"></pre>
  <h3>Round settings</h3><form id="roundSettings"><label>Round seconds<input id="roundDuration" type="number" min="1" max="7200"></label><label>Preparation<input id="roundPrepare" type="number" min="0"></label><label>Final battle<input id="roundFinal" type="number" min="0"></label><button>Save next round</button></form><p>Results: 7 seconds. The next round starts directly after results.</p>
  <div class="options"><label>Demo speed<select id="simSpeed"><option>1</option><option>2</option><option>4</option><option>8</option></select></label><button id="autoDemo">Toggle auto demo gifts</button><button id="shortRound">Test 12-second round + 7-second results</button></div>
  <h3>Spawn / gift simulator · Demo only</h3><p id="summonStatus" role="status">Đang đọc hàng đợi FIFO…</p><form id="spawnUnit"><label>Team<select id="unitTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Unit<select id="unitKind">${Object.entries(
@@ -59,7 +62,7 @@ export function openAdmin(
      "",
    )}</select></label><label>Quantity<input id="unitCount" type="number" min="1" max="1000" value="100"></label><button>Spawn</button></form>
  <form id="giftSimulator"><label>Team<select id="giftTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>Viewer<input id="giftViewer" maxlength="24" value="Demo Viewer"></label><label>Gift name<input id="demoGiftName" value="Rose" list="observedGiftNames"></label><datalist id="observedGiftNames"><option>Rose</option><option>Finger Heart</option><option>Doughnut</option><option>Perfume</option></datalist><label>Actual gift ID (optional)<input id="demoGiftId"></label><label>Coins per gift (0 = unknown/demo)<input id="demoGiftCoins" type="number" min="0" max="100000" value="0"></label><label>Streak quantity<input id="demoGiftRepeats" type="number" min="1" max="1000" value="1"></label><button>Simulate streak + completion</button></form>
- <form id="likesSimulator"><label>Team<select id="likeTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>New likes<input id="likeCount" type="number" min="1" max="100000" value="500"></label><button>Simulate likes / Fury</button></form>
+ <form id="likesSimulator"><label>Team<select id="likeTeam"><option value="0">RED</option><option value="1">BLUE</option></select></label><label>New likes<input id="likeCount" type="number" min="1" max="100000" value="500"></label><button>Simulate likes / HEART WAR</button></form>
  <div class="options" id="swarmScenarios"><button type="button" data-army="200">200 quân</button><button type="button" data-army="500">500 quân</button><button type="button" data-army="1000">1.000 quân</button><button type="button" data-army="2000">2.000 quân · thử nghiệm</button></div><p>Demo armies are authoritative combat units with no fabricated gifts or contribution credit. LIVE armies use accepted summons.</p>
  <h3>Gift → summon mappings</h3><p>Exact gift ID takes priority. Names are matched against connector metadata. No official prices are assumed. Configure Heavy / Giant with actual gift IDs or your chosen coin thresholds. Mushroom Kings defend gates automatically and cannot be gifts. Lion auto-verifies its exact ID on the first real Lion event when its ID slot is empty. To disable it, keep the verified ID and uncheck Enabled. Configured by owner: 13604 → Fire Dragon, 6646 → Frost Dragon (Frost Summon, not assumed to be Lion). These slots auto-enable only after the connector confirms their IDs and actual names. Premium dragon LIVE mappings require an exact ID/name already observed by the LIVE connector; select the intended premium dragon gift, not a guessed ID or price.</p><div id="giftMappingRows"></div><button id="addGiftMapping">Add mapping</button><button id="saveGiftMappings">Save mappings</button><button id="refreshGiftCatalog">Refresh observed gift metadata</button><p id="dragonBindingStatus"></p><pre id="giftCatalog"></pre><p id="guardianStatus"></p>`;
   const el = <T extends HTMLElement = HTMLElement>(id: string) =>
@@ -190,6 +193,49 @@ export function openAdmin(
       )
         media.showArmy();
     };
+  const wf = el<HTMLFormElement>("warfareSettings");
+  for (const [key, val] of Object.entries(config.warfareConfig)) {
+    const entries =
+      typeof val === "object"
+        ? Object.entries(val).map(([k, v]) => [key + "." + k, v] as const)
+        : [[key, val] as const];
+    for (const [name, v] of entries) {
+      const field = input(
+        name,
+        String(v),
+        typeof v === "boolean" ? "checkbox" : "number",
+      );
+      field.input.name = name;
+      if (typeof v === "boolean") field.input.checked = v;
+      else field.input.step = "any";
+      wf.append(field.label);
+    }
+  }
+  const save = document.createElement("button");
+  save.textContent = "Save warfare settings for next round";
+  wf.append(save);
+  wf.onsubmit = async (e) => {
+    e.preventDefault();
+    const warfare = structuredClone(config.warfareConfig);
+    for (const field of wf.querySelectorAll<HTMLInputElement>("input")) {
+      const [k, sub] = field.name.split(".");
+      const v = field.type === "checkbox" ? field.checked : Number(field.value);
+      if (sub) (warfare[k] as Record<string, number>)[sub] = Number(v);
+      else warfare[k] = v;
+    }
+    await send("warfareConfig", { config: warfare });
+  };
+  const members = (c: Config) => {
+    el("teamMemberships").textContent =
+      c.memberships
+        .map(
+          (p) =>
+            `${p.name || p.id} · ${p.team === 0 ? "RED" : "BLUE"} · ${p.remainder} remainder likes`,
+        )
+        .join("\n") || "No joined viewers";
+  };
+  members(config);
+  el("refreshMembers").onclick = async () => members(await reload());
   config.giftMappings.forEach(add);
   const readMappings = () =>
     [...root.querySelectorAll<HTMLElement>(".gift-mapping")].map((row) => {

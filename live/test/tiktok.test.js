@@ -19,8 +19,8 @@ test("native nested TikTok chat and completed streak; deduplicate message", () =
   gift.repeatEnd = true;
   a.gift(gift);
   a.gift(gift);
-  b.drainSummons(20);
-  assert.equal(b.units.length, 10);
+  while (b.summonQueue.length) b.drainSummons(100);
+  assert.equal(b.units.length, 50);
   assert.equal(b.units[0].team, 1);
   assert.equal(b.units[0].name, "Minh");
   assert.equal(b.snapshot().scores[0].coins, 50);
@@ -45,5 +45,5 @@ test("native likeCount is per-event, team selected by chat, duplicate IDs ignore
   a.like(d);
   assert.deepEqual(b.energy, [0, 100]);
   b.drainSummons();
-  assert.equal(b.units.length, 3);
+  assert.equal(b.units.length, 10);
 });

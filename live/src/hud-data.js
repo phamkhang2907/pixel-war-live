@@ -33,6 +33,7 @@ export function calendarBoard(league, period, now = Date.now()) {
       continue;
     seen.add(record.id);
     for (const p of Object.values(record.players || {})) {
+      if (league.excludeDemo && /^(demo:|public:)/.test(p.id)) continue;
       const old = totals.get(p.id) || { ...p, points: 0 };
       totals.set(p.id, {
         ...old,

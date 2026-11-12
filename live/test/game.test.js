@@ -20,7 +20,9 @@ function pair(a = "sword", b = "sword", distance = 25) {
 }
 test("six configured combat stats and name-based gift queue", () => {
   assert.deepEqual(
-    Object.values(TYPES).filter(t => !t.monster).map((t) => [t.hp, t.damage]),
+    Object.values(TYPES)
+      .filter((t) => !t.monster)
+      .map((t) => [t.hp, t.damage]),
     [
       [100, 15],
       [65, 20],
@@ -137,7 +139,7 @@ test("configurable capacity, invalid inputs and no recycled IDs", () => {
   assert.ok(g.units[0].id > id);
 });
 test("full siege destroys castle and freezes winner; reset clears powers", () => {
-  const g = new Battle();
+  const g = new Battle({ warfare: { castleHp: 10000 } });
   g.spawn(0, "boss", 30);
   run(g, 180);
   assert.equal(g.winner, 0);

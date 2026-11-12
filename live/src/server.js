@@ -1,3 +1,4 @@
+import { warfareConfig, queueRaid } from "./warfare.js";
 import {
   DEFAULT_GIFT_MAPPINGS,
   validateGiftMappings,
@@ -32,6 +33,13 @@ const game = new Battle();
 const dataDir = process.env.DATA_DIR || root + "data";
 const league = new League(dataDir, { asyncPersistence: true });
 game.profiles = new Map(Object.entries(league.data.profiles || {}));
+for (const [id, p] of game.profiles)
+  if ([0, 1].includes(p.team)) {
+    game.teams.set(id, p.team);
+    if (Number.isFinite(p.teamChangedAt))
+      game.teamChangedAt.set(id, p.teamChangedAt);
+  }
+
 const rounds = new RoundManager(game, league);
 game.giftCatalog = new Map(
   (league.data.observedGifts || [])
@@ -78,6 +86,28 @@ for (const row of DEFAULT_GIFT_MAPPINGS.filter((r) =>
 ))
   if (!game.giftMappings.some((r) => r.key === row.key))
     game.giftMappings.push(structuredClone(row));
+if (league.data.giftRulesVersion !== 1) {
+  const rose = game.giftMappings.find(
+    (r) => r.key === "rose" && r.type === "sword",
+  );
+  if (rose?.count === 1) {
+    rose.count = 5;
+    try {
+      await writeFile(
+        dataDir + "/gift-mappings.before-heart-war-v1.json",
+        await readFile(dataDir + "/gift-mappings.json"),
+        { flag: "wx" },
+      );
+    } catch (e) {
+      if (!["ENOENT", "EEXIST"].includes(e.code)) throw e;
+    }
+    const tmp = dataDir + "/gift-mappings." + randomUUID() + ".tmp";
+    await writeFile(tmp, JSON.stringify(game.giftMappings, null, 2));
+    await rename(tmp, dataDir + "/gift-mappings.json");
+  }
+  league.data.giftRulesVersion = 1;
+  league.dirty = true;
+}
 // Only server-persisted LIVE metadata can restore verified pending bindings.
 new TikTokIngest(game).catalog(
   [...game.giftCatalog.values()],
@@ -162,7 +192,10 @@ const music = await mountMusic(app, {
     io.of("/demo").emit("music", payload);
   },
 });
-const demo = publicDemo(app, io);
+const demo = publicDemo(app, io, {
+  warfare: league.data.warfare,
+  roundConfig: league.data.config,
+});
 demo.game.spawnBatch = game.spawnBatch;
 demo.game.spawnBudgetMs = game.spawnBudgetMs;
 const commands = new Map();
@@ -181,6 +214,14 @@ app.get("/api/config", auth, (_, r) =>
       pending: game.summonQueue.reduce((n, q) => n + q.remaining, 0),
     },
     roundConfig: league.data.config,
+    warfareConfig: league.data.warfare,
+    memberships: [...game.teams].slice(-500).map(([id, team]) => ({
+      id,
+      team,
+      ...game.profiles.get(id),
+      remainder: game.likeRemainders.get(id) || 0,
+    })),
+    likeDiagnostics: game.likeDiagnostics,
     mode: tiktok.mode,
     auto,
     paused: rounds.paused,
@@ -342,7 +383,7 @@ app.post("/api/control", auth, async (req, res) => {
           throw Error("Choose an owner Demo monster fixture");
         if (game.summonQueue.length)
           throw Error("Deploy accepted summons before changing a fixture");
-        rounds.start();
+        rounds.start({ baseline: false });
         rounds.config.prepare = 0;
         rounds.phase = "combat";
         rounds.paused = false;
@@ -363,6 +404,7 @@ app.post("/api/control", auth, async (req, res) => {
               windup: 0,
               cd: 0,
             });
+            Object.assign(d.flyby, { fromX: d.x, fromY: d.y });
             for (let i = 0; i < 4; i++) {
               game.spawn(1 - team, "sword", 1, "Owner Demo target", null);
               Object.assign(game.units.at(-1), {
@@ -411,7 +453,7 @@ app.post("/api/control", auth, async (req, res) => {
           throw Error(
             "Pending accepted summons must deploy before replacing a Demo scenario",
           );
-        rounds.start();
+        rounds.start({ baseline: false });
         rounds.config.prepare = 0;
         rounds.config.duration = Math.max(120, rounds.config.duration);
         rounds.phase = "combat";
@@ -496,6 +538,15 @@ app.post("/api/control", auth, async (req, res) => {
         break;
       case "newRound":
         rounds.start();
+        break;
+      case "warfareConfig":
+        rounds.configureWarfare(p.config);
+        demo.rounds.configureWarfare(p.config);
+        break;
+      case "heartRaid":
+        if (tiktok.mode !== "demo" || ![0, 1].includes(p.team))
+          throw Error("Demo team required");
+        queueRaid(game, p.team);
         break;
       case "roundConfig":
         rounds.configure(p.config);
@@ -655,10 +706,6 @@ const tickTimer = setInterval(() => {
   tickMs = performance.now() - now;
   maxTickMs = Math.max(maxTickMs, tickMs);
 }, 50);
-if (!game.summonQueue.length && !["ready", "stopped"].includes(rounds.phase))
-  for (let team = 0; team < 2; team++)
-    for (const type of ["sword", "archer", "cavalry", "mage"])
-      game.spawn(team, type, 3, "Founders", null);
 league.checkpoint();
 for (const signal of ["SIGTERM", "SIGINT"])
   process.on(signal, async () => {

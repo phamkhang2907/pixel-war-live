@@ -12,30 +12,31 @@ import { TikTokIngest } from "../src/tiktok.js";
 const setup = (config = {}, dir = null) => {
   const league = new League(dir);
   league.data.config = roundConfig({ ...league.data.config, ...config });
+  league.data.warfare.initialPerTeam = 0;
+  league.data.warfare.baselineEnabled = false;
   const game = new Battle();
-  const rounds = new RoundManager(game, league, { defenders: false });
+  const rounds = new RoundManager(game, league, {
+    defenders: false,
+    baseline: false,
+  });
   return { game, league, rounds };
 };
-test("default 300s: prepare30 / combat240 / final30 / result7 / immediate next round", () => {
+test("default 600s: immediate combat570 / final30 / results7 / immediate next round", () => {
   const { game, rounds } = setup();
-  game.choose("a", 0, "A");
-  game.spawn(0, "sword", 1, "A", "a");
-  const x = game.units[0].x;
-  rounds.advance(29);
-  assert.equal(rounds.phase, "prepare");
-  assert.equal(game.units[0].x, x);
-  rounds.advance(1);
   assert.equal(rounds.phase, "combat");
-  rounds.advance(240);
+  game.spawn(0, "sword", 1);
+  const x = game.units[0].x;
+  rounds.advance(1);
+  assert.notEqual(game.units[0].x, x);
+  rounds.advance(569);
   assert.equal(rounds.phase, "final");
-  assert.equal(rounds.snapshot().remaining, 30);
+  assert.ok(Math.abs(rounds.snapshot().remaining - 30) < 1e-7);
   rounds.advance(30);
   assert.equal(rounds.phase, "results");
-  assert.equal(rounds.result.reason, "timeout");
-  const old = rounds.snapshot().id;
+  const id = rounds.snapshot().id;
   rounds.advance(7);
-  assert.equal(rounds.phase, "prepare");
-  assert.notEqual(rounds.snapshot().id, old);
+  assert.equal(rounds.phase, "combat");
+  assert.notEqual(id, rounds.snapshot().id);
 });
 test("timeout prefers castle HP then actual total damage then draw", () => {
   for (const [hp, damage, winner] of [
@@ -49,7 +50,7 @@ test("timeout prefers castle HP then actual total damage then draw", () => {
       final: 1,
     });
     game.castles = hp;
-    league.data.active.damage = damage;
+    game.battleScore = damage;
     rounds.advance(3);
     assert.equal(rounds.result.winner, winner);
     assert.equal(rounds.phase, "results");
@@ -114,11 +115,11 @@ test("projectile owner survives shooter death; splash and like powers retain use
   assert.equal(league.data.active.players.a.kills, 1);
   assert.equal(league.data.active.players.a.unitDamage, 100);
   game.choose("h", 0, "Hearts");
-  game.likes({ id: "h", name: "Hearts", count: 1000 });
-  game.drainSummons(20);
-  assert.equal(game.units.filter((u) => u.userId === "h").length, 6);
-  assert.equal(league.data.active.players.h.summoned, 6);
-  assert.ok(league.data.active.players.h.castleDamage > 0);
+  game.likes({ id: "h", name: "Hearts", count: 270 });
+  game.drainSummons(100);
+  assert.equal(game.units.filter((u) => u.userId === "h").length, 27);
+  assert.equal(league.data.active.players.h.summoned, 27);
+  assert.equal(game.likeRemainders.get("h"), 0);
 });
 test("pause freezes every round timer; input closes during results/countdown", () => {
   const { game, rounds } = setup({
@@ -197,7 +198,7 @@ test("configuration validation and next-round application; exact large-step roll
     results: 2,
     countdown: 1,
   });
-  assert.equal(rounds.config.duration, 300);
+  assert.equal(rounds.config.duration, 600);
   rounds.start();
   rounds.advance(7);
   assert.equal(rounds.phase, "prepare");

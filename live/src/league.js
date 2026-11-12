@@ -1,3 +1,4 @@
+import { warfareConfig } from "./warfare.js";
 import { Worker } from "node:worker_threads";
 import {
   mkdirSync,
@@ -14,8 +15,8 @@ import {
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 export const DEFAULT_ROUND = {
-  duration: 300,
-  prepare: 30,
+  duration: 600,
+  prepare: 0,
   final: 30,
   results: 7,
   countdown: 0,
@@ -64,6 +65,7 @@ const rank = (players) =>
   );
 export class League {
   constructor(directory = null, { asyncPersistence = false } = {}) {
+    this.excludeDemo = !!directory;
     this.asyncPersistence = asyncPersistence;
     this.saving = false;
     this.persistenceError = null;
@@ -101,6 +103,18 @@ export class League {
       this.data.config.results = 7;
       this.data.config.countdown = 0;
       this.data.presentationVersion = 2;
+      this.dirty = true;
+    }
+    if (this.data.warfareVersion !== 1) {
+      if (path && existsSync(path)) {
+        const backup = join(directory, "league.before-heart-war-v1.json");
+        if (!existsSync(backup))
+          copyFileSync(path, backup, constants.COPYFILE_EXCL);
+      }
+      if (this.data.config.duration === 300) this.data.config.duration = 600;
+      if (this.data.config.prepare === 30) this.data.config.prepare = 0;
+      this.data.warfare = warfareConfig(this.data.warfare);
+      this.data.warfareVersion = 1;
       this.dirty = true;
     }
     roundConfig(this.data.config);
@@ -158,12 +172,14 @@ export class League {
           configurable: true,
         });
       players[key].name = String(name || players[key].name).slice(0, 24);
-      players[key].team = team;
+      // Historical unit damage never changes current viewer membership.
+      players[key].team ??= team;
     }
     this.dirty = true;
     return list.map((p) => p[key]);
   }
   award(key, id, name, team, changes = {}) {
+    if (this.excludeDemo && /^(demo:|public:)/.test(String(id))) return false;
     const a = this.data.active;
     if (!a || a.finished || a.awards[key]) return false;
     const rows = this.player(id, name, team);
@@ -185,11 +201,20 @@ export class League {
     return true;
   }
   event(e) {
+    const actor = e.source || e;
+    if (
+      this.excludeDemo &&
+      (/^(demo:|public:)/.test(String(actor.userId ?? "")) ||
+        ["demo", "demoGift", "demoLikes"].includes(actor.origin))
+    )
+      return;
+
     if (e.kind === "profile") {
       const id = String(e.userId);
       this.data.profiles ??= {};
       const previous = this.data.profiles[id];
       const next = {
+        ...previous,
         name: e.profile.name,
         avatar: e.profile.avatar || previous?.avatar || "",
       };
@@ -211,7 +236,16 @@ export class League {
     const p = e.source || e;
     const id = p.userId;
     if (e.kind === "join") {
-      this.player(id, p.name, p.team);
+      const rows = this.player(id, p.name, p.team);
+      for (const row of rows || []) row.team = p.team;
+      this.data.profiles ??= {};
+      this.data.profiles[String(id)] = {
+        ...this.data.profiles[String(id)],
+        name: p.name,
+        team: p.team,
+        teamChangedAt:
+          p.changedAt ?? this.data.profiles[String(id)]?.teamChangedAt,
+      };
       return;
     }
     const eventKey = e.kind + ":" + (e.unitId ?? e.eventId);
@@ -248,7 +282,11 @@ export class League {
         points: 10,
       });
       if (e.boss)
-        for (const helper of e.helpers)
+        for (const helper of e.helpers.filter(
+          (h) =>
+            !this.excludeDemo ||
+            !["demo", "demoGift", "demoLikes"].includes(h.origin),
+        ))
           this.award(
             `assist:${e.unitId}:${helper.userId}`,
             helper.userId,
@@ -303,7 +341,9 @@ export class League {
         : scope === "live"
           ? d.sessions[a?.sessionId || d.sessionId]?.players
           : a?.players;
-    return rank(players || {}).slice(0, limit);
+    return rank(players || {})
+      .filter((p) => !this.excludeDemo || !/^(demo:|public:)/.test(p.id))
+      .slice(0, limit);
   }
   checkpoint(urgent = false) {
     if (!this.asyncPersistence) return this.flush();

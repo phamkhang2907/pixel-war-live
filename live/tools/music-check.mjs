@@ -123,7 +123,7 @@ try {
     const a = window.__PW_AUDIO.inspect();
     return (
       a.context === "running" &&
-      a.buffers === 16 &&
+      a.buffers === 32 &&
       a.musicTrack?.paused === false &&
       a.musicTrack.currentTime > 0.15
     );

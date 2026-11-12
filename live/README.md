@@ -41,3 +41,7 @@ Install browser test engines with `npx playwright install --with-deps chromium w
 Native gift portals and notifications: [NATIVE-SUMMONS.md](NATIVE-SUMMONS.md).
 
 Fantasy lighting, uploaded Nature/Kenney assets, sculpted terrain, quality presets and native VFX: [FANTASY-VISUAL-UPGRADE.md](FANTASY-VISUAL-UPGRADE.md).
+
+## Continuous army warfare / supplied MP3 update
+
+See [LIVE-WARFARE-UPDATE.md](LIVE-WARFARE-UPDATE.md) for current 10-minute rounds, 150 troops per team, HEART WAR, likes, Rose squads, temporary dragon flybys, sound licenses, Demo isolation and test commands.

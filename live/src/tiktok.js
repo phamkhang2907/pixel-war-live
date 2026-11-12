@@ -1,3 +1,4 @@
+import { teamCommand } from "./warfare.js";
 import { safeAvatar } from "./hud-data.js";
 import { normalizeGiftName } from "./gifts.js";
 // TikTok-Live-Connector 2.5 native events use nested user/giftDetails/common.
@@ -94,6 +95,38 @@ export class TikTokIngest {
       this.observeGift(item, evidence, false);
     this.battle.onGiftMetadata?.();
   }
+  normalize(data) {
+    const raw = data?.user;
+    const id = raw?.userId || raw?.id;
+    const user =
+      raw && id && String(id) !== "0"
+        ? {
+            ...raw,
+            userId: String(id),
+            nickname:
+              raw.nickname ||
+              raw.uniqueId ||
+              raw.displayId ||
+              this.battle.profiles.get(String(id))?.name ||
+              String(id),
+          }
+        : undefined;
+    const gift = data?.gift;
+    return {
+      ...data,
+      user,
+      giftDetails:
+        data?.giftDetails ||
+        (gift
+          ? {
+              ...gift,
+              giftName: gift.name,
+              giftType: gift.type,
+              giftImage: gift.image,
+            }
+          : undefined),
+    };
+  }
   profile(data) {
     const user = data?.user;
     if (user?.userId)
@@ -104,39 +137,61 @@ export class TikTokIngest {
           user.avatarMedium?.urlList?.[0] ||
           user.profilePictureUrl ||
           data.profilePictureUrl,
+        this.source,
       );
   }
   chat(data) {
+    data = this.normalize(data);
     this.profile(data);
-    const id = data.user?.userId;
-    const comment = String(data.comment || "").trim();
-    if (id && (comment === "1" || comment === "2"))
-      this.battle.choose(
-        id,
-        Number(comment) - 1,
-        data.user.nickname || data.user.uniqueId || String(id),
-      );
+    const id = data.user?.userId,
+      team = teamCommand(data.comment);
+    if (id && team !== null) {
+      const key = String(data.common?.msgId || data.msgId || "");
+      if (key && key !== "0") {
+        const receipt = "chat:" + key;
+        if (this.seen.has(receipt) || !this.battle.acceptReceipt(receipt))
+          return { duplicate: true };
+        this.seen.add(receipt);
+        if (this.seen.size > 5000)
+          this.seen.delete(this.seen.values().next().value);
+      }
+      return this.battle.choose(id, team, data.user.nickname, this.source);
+    }
+    return { ignored: true };
   }
   like(data) {
+    data = this.normalize(data);
     this.profile(data);
-    const id = data?.user?.userId,
-      count = Number(data?.likeCount),
-      key = data?.common?.msgId || data?.msgId;
-    if (!id || !Number.isInteger(count) || count < 1) return;
-    if (key) {
-      const k = "like-" + key;
-      if (this.seen.has(k) || !this.battle.acceptReceipt(k)) return;
-      this.seen.add(k);
-      if (this.seen.size > 5000)
-        this.seen.delete(this.seen.values().next().value);
+    const id = data.user?.userId,
+      count = Number(data.count ?? data.likeCount),
+      key = String(data.common?.msgId || data.msgId || "");
+    const total = data.total ?? data.totalLikeCount;
+    if (total !== undefined)
+      this.battle.likeDiagnostics.roomTotal = String(total);
+    if (!id || !Number.isInteger(count) || count < 1 || !key || key === "0") {
+      this.battle.likeDiagnostics.rejected++;
+      if (!id) this.battle.likeDiagnostics.unattributed++;
+      return {
+        ignored: true,
+        reason:
+          "Need per-viewer packet delta and stable event ID; room totals are informational only",
+      };
     }
+    const k = "like-" + key;
+    if (this.seen.has(k) || !this.battle.acceptReceipt(k))
+      return { duplicate: true };
+    this.seen.add(k);
+    if (this.seen.size > 5000)
+      this.seen.delete(this.seen.values().next().value);
     return this.battle.likes({
       id,
-      name: data.user.nickname || data.user.uniqueId || "Viewer",
+      name: data.user.nickname,
       count,
+      origin: this.source === "demo" ? "demoLikes" : "likes",
     });
   }
   gift(data) {
+    data = this.normalize(data);
     this.profile(data);
     const user = data?.user,
       id = user?.userId,

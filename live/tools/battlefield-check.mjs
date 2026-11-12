@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
@@ -7,6 +8,7 @@ const data = await mkdtemp("/tmp/pw-field-"),
   port = 3136,
   base = `http://127.0.0.1:${port}`,
   token = "battlefield-test";
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,

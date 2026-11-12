@@ -117,6 +117,10 @@ export class BattlefieldCamera {
     );
   }
 
+  private shakeAmount = 0;
+  shake(amount: number) {
+    this.shakeAmount = Math.min(0.22, Math.max(this.shakeAmount, amount));
+  }
   update(dt: number) {
     this.desiredFocus.y = terrainHeight(
       this.desiredFocus.x,
@@ -146,6 +150,13 @@ export class BattlefieldCamera {
     this.position.z = this.focus.z + horizontal * Math.cos(this.yaw);
     this.camera.position.copy(this.position);
     this.camera.lookAt(this.focus);
+    if (this.shakeAmount > 0.002) {
+      this.camera.position.x +=
+        Math.sin(performance.now() * 0.041) * this.shakeAmount;
+      this.camera.position.y +=
+        Math.cos(performance.now() * 0.033) * this.shakeAmount * 0.5;
+      this.shakeAmount *= Math.exp(-9 * dt);
+    }
     this.camera.updateMatrixWorld();
   }
   diagnostics() {

@@ -1,18 +1,24 @@
+import { queueRaid } from "./warfare.js";
 import { randomBytes } from "node:crypto";
 import { Battle } from "./game.js";
 import { League } from "./league.js";
 import { RoundManager } from "./rounds.js";
 import { TikTokIngest } from "./tiktok.js";
 import { hudSnapshot } from "./hud-data.js";
-export function publicDemo(app, io) {
+export function publicDemo(app, io, settings = {}) {
   const game = new Battle(),
-    league = new League(),
-    rounds = new RoundManager(game, league),
+    league = new League();
+  if (settings.warfare) league.data.warfare = structuredClone(settings.warfare);
+  if (settings.roundConfig)
+    league.data.config = {
+      ...structuredClone(settings.roundConfig),
+      prepare: 0,
+    };
+  const rounds = new RoundManager(game, league),
     ingest = new TikTokIngest(game, { source: "demo" }),
     channel = io.of("/demo"),
     rates = new Map();
-  rounds.configure({ prepare: 0 });
-  rounds.start();
+
   const state = () => ({
     ...game.snapshot(),
     hud: hudSnapshot(game, league),
@@ -60,7 +66,7 @@ export function publicDemo(app, io) {
   const gifts = [
     ["Demo Lion", "Blue Frost Dragon", 1],
     ["Demo Dragon", "Red Fire Dragon", 1],
-    ["Rose", "Small Soldier", 1],
+    ["Rose", "Small Soldier", 5],
     ["Finger Heart", "Small Soldier", 5],
     ["Doughnut", "Archer", 3],
     ["Perfume", "Mage", 2],
@@ -79,20 +85,20 @@ export function publicDemo(app, io) {
       maxQuantity: 50,
     });
   });
-  app.post("/api/demo/gift", (req, res) => {
+  function identify(req, res) {
     const origin = req.get("origin");
     if (origin) {
       try {
         if (new URL(origin).host !== req.get("host"))
-          return res.sendStatus(403);
+          return void res.sendStatus(403);
       } catch {
-        return res.sendStatus(403);
+        return void res.sendStatus(403);
       }
     }
     const id = (req.headers.cookie || "").match(
       /(?:^|;\s*)pw_demo=([A-Za-z0-9_-]{24})(?:;|$)/,
     )?.[1];
-    if (!id) return res.status(401).json({ error: "Open Demo first" });
+    if (!id) return void res.status(401).json({ error: "Open Demo first" });
     const now = Date.now();
     for (const [k, v] of rates) if (now - v.at > 10000) rates.delete(k);
     const key = req.ip + ":" + id;
@@ -102,7 +108,14 @@ export function publicDemo(app, io) {
     let ipRate = rates.get(ipKey);
     if (!ipRate) rates.set(ipKey, (ipRate = { at: now, n: 0 }));
     if (++rate.n > 12 || ++ipRate.n > 120 || rates.size > 5000)
-      return res.status(429).json({ error: "Demo rate limit. Retry shortly." });
+      return void res
+        .status(429)
+        .json({ error: "Demo rate limit. Retry shortly." });
+    return id;
+  }
+  app.post("/api/demo/gift", (req, res) => {
+    const id = identify(req, res);
+    if (!id) return;
     const p = req.body;
     if (
       !p ||
@@ -123,8 +136,9 @@ export function publicDemo(app, io) {
       return res
         .status(429)
         .json({ error: "Demo queue full. Retry when pending summons deploy." });
-    const userId = "public:" + id + ":" + p.team;
-    game.choose(userId, p.team, p.username.trim());
+    const userId = "public:" + id;
+    const selected = game.choose(userId, p.team, p.username.trim());
+    if (selected?.error) return res.status(409).json(selected);
     const result = ingest.gift({
       user: { userId, nickname: p.username.trim() },
       giftId:
@@ -142,6 +156,48 @@ export function publicDemo(app, io) {
       repeatEnd: true,
       groupId: id + ":" + p.eventId,
       common: { msgId: id + ":" + p.eventId },
+    });
+    res
+      .status(result?.error ? 409 : 200)
+      .json({ ...result, simulated: true, arena: "public-demo" });
+  });
+  app.post("/api/demo/action", (req, res) => {
+    const id = identify(req, res);
+    if (!id) return;
+    const p = req.body;
+    if (
+      !p ||
+      !["join", "likes10", "likes300", "raid"].includes(p.action) ||
+      ![0, 1].includes(p.team) ||
+      typeof p.username !== "string" ||
+      !p.username.trim() ||
+      p.username.length > 64 ||
+      !/^[\w-]{8,80}$/.test(p.eventId || "")
+    )
+      return res.status(400).json({ error: "Invalid Demo action" });
+    if (!game.acceptReceipt("demo-action:" + id + ":" + p.eventId))
+      return res.json({ duplicate: true, simulated: true });
+    const userId = "public:" + id,
+      name = p.username.trim();
+    game.profile(userId, name, "", "demo");
+    if (p.action === "join") {
+      const joined = game.choose(userId, p.team, name);
+      return res
+        .status(joined?.error ? 409 : 200)
+        .json({ ...joined, simulated: true });
+    }
+    if (game.teams.get(userId) !== p.team)
+      return res
+        .status(409)
+        .json({ error: "Join this team first. Unjoined likes are discarded." });
+    if (p.action === "raid") {
+      queueRaid(game, p.team);
+      return res.json({ simulated: true, raid: true });
+    }
+    const result = ingest.like({
+      user: { id: userId, nickname: name },
+      count: p.action === "likes10" ? 10 : 300,
+      common: { msgId: id + ":likes:" + p.eventId },
     });
     res
       .status(result?.error ? 409 : 200)

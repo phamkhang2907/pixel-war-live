@@ -1,0 +1,65 @@
+{
+  "originalsUnchanged": true,
+  "sounds": [
+    {
+      "file": "war-horn-01.mp3",
+      "uploadFilename": "1-war-horn-01.mp3",
+      "sha256": "780685e7e098f0903b17cf4f41e5eb21d663e2224e0192da9e9b73b7f1f0b4d9",
+      "bytes": 53959,
+      "source": "Owner-provided attachment",
+      "licenseStatus": "Source explicitly permits commercial games; source download hash matches uploaded original",
+      "trigger": "round-start",
+      "sourceUrl": "https://sfxmint.com/sounds/war-horn",
+      "licenseEvidence": [
+        "s and armies, or for fantasy games \u00b7 1.8\u20134.5 s each \u00b7 MP3 \u00b7 CC0 \u00b7 no signup 10 variations of war horn, from 1.8 s to 4.5 s. The variations are named by feel: Long Deep, Distant, Rising, Short, Cartoon and more. Quick picks: Short War Horn 04 (1.8 s, the shortest) \u00b7 Distant War Horn 02 (4.5 s, the lo",
+        "Distant War Horn 02 (4.5 s). Can I use war horn sounds in a commercial project? + \u2212 Yes. Every war horn variation is CC0 1.0 public domain: commercial games, apps and videos included, with no attribution, no signup and no fee. How were these war horn sounds made? + \u2212 They were AI-generated from text",
+        " a commercial project? + \u2212 Yes. Every war horn variation is CC0 1.0 public domain: commercial games, apps and videos included, with no attribution, no signup and no fee. How were these war horn sounds made? + \u2212 They were AI-generated from text descriptions of war horn, then measured file by file for",
+        "ent hits: browse the full category \u2192 SFXMint Every sound is CC0 1.0. Free for commercial use, no attribution required, hotlinking welcome. Categories 8-Bit & retro game sound effects Impact & hit sound effects Magic & sci-fi sound effects Footstep sound effects Horror & suspense sound effects Nature",
+        "SFXMint Every sound is dedicated to the public domain under CC0 1.0. AI-generated or procedurally synthesized, then checked file by file. Categories 8-Bit & retro game sound effects Impact & hit sound effects Magic & sci-fi sound effects Footstep sound effects Horror & suspense sound effects Nature ",
+        "e sound effects Claude Code, Cursor & Codex Choosing sounds CC0 sounds for commercial games All guides Developers API MCP GitHub Site About License Privacy Terms Contact Popular sound effects 8-Bit Coin Pickup Alert Angelic Choir Applause Bird Chirping Body Fall Button Click Camera Shutter Click Car",
+        " Cleaner Whip Crack Wind Wooden Baseball Bat Hit All sounds CC0 1.0 Universal \u00b7 hotlinking welcome Featured on Twelve Tools "
+      ],
+      "checkedAt": "2026-11-07",
+      "sourceBytesMatch": true,
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "phatphrogstudio-dragon-voice-roar-477831.mp3",
+      "uploadFilename": "2-phatphrogstudio-dragon-voice-roar-477831.mp3",
+      "sha256": "87835b109072cf2e4bad2b601e228d917ad9e8fae116c483af57c6a3fd131bf6",
+      "bytes": 287555,
+      "source": "Owner-provided attachment",
+      "licenseStatus": "Individual source page lists Pixabay Content License; supplied original matches title/author/asset ID",
+      "trigger": "fire-flyby",
+      "sourceUrl": "https://pixabay.com/sound-effects/horror-dragon-voice-roar-477831/",
+      "licenseEvidence": [
+        "Sound 0:31 Musical Fashion Promo Advertising 4.1K Load more Free for use under the Pixabay Content License Free download 48 Save Plays 39,340 Downloads 5,375 Saves 59 Media type MP3 Published date February 3, 2026 Show details PhatPhrogStudio 99 followers Follow Full Albums: http://www.PhatPhrogStud",
+        "ion Promo Advertising 4.1K Load more Free for use under the Pixabay Content License Free download 48 Save Plays 39,340 Downloads 5,375 Saves 59 Media type MP3 Published date February 3, 2026 Show details PhatPhrogStudio 99 followers Follow Full Albums: http://www.PhatPhrogStudio.com Show more Donate"
+      ],
+      "checkedAt": "2026-11-07",
+      "license": "Pixabay Content License",
+      "licenseUrl": "https://pixabay.com/service/license-summary/",
+      "sourceBytesMatch": true,
+      "sourceAudioUrl": "https://cdn.pixabay.com/download/audio/2026/02/01/audio_6a04e07bfd.mp3?filename=phatphrogstudio-dragon-voice-roar-477831.mp3"
+    },
+    {
+      "file": "dragon-studio-epic-dragon-roar-364481.mp3",
+      "uploadFilename": "3-dragon-studio-epic-dragon-roar-364481.mp3",
+      "sha256": "dad6c6c0e18f1f441dd9e6054dedc0ea47f459d5919edbc55f46f5dd05a9e98e",
+      "bytes": 110341,
+      "source": "Owner-provided attachment",
+      "licenseStatus": "Individual source page lists Pixabay Content License; supplied original matches title/author/asset ID",
+      "trigger": "frost-flyby",
+      "sourceUrl": "https://pixabay.com/sound-effects/film-special-effects-epic-dragon-roar-364481/",
+      "licenseEvidence": [
+        "Sound 0:31 Musical Fashion Promo Advertising 4.1K Load more Free for use under the Pixabay Content License Free download 231 Save Plays 207,103 Downloads 40,245 Saves 246 Media type MP3 Published date June 24, 2025 Show details DRAGON-STUDIO 8,222 followers Follow READ BEFORE YOU USE: All of my soun",
+        "ion Promo Advertising 4.1K Load more Free for use under the Pixabay Content License Free download 231 Save Plays 207,103 Downloads 40,245 Saves 246 Media type MP3 Published date June 24, 2025 Show details DRAGON-STUDIO 8,222 followers Follow READ BEFORE YOU USE: All of my sound effects and music are"
+      ],
+      "checkedAt": "2026-11-07",
+      "license": "Pixabay Content License",
+      "licenseUrl": "https://pixabay.com/service/license-summary/",
+      "sourceBytesMatch": true,
+      "sourceAudioUrl": "https://cdn.pixabay.com/download/audio/2025/06/23/audio_76a17fa18a.mp3?filename=dragon-studio-epic-dragon-roar-364481.mp3"
+    }
+  ]
+}

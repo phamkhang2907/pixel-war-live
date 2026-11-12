@@ -14,7 +14,7 @@ export const DEFAULT_GIFT_MAPPINGS = [
     giftId: "",
     giftName: "Rose",
     type: "sword",
-    count: 1,
+    count: 5,
     enabled: true,
   },
   {

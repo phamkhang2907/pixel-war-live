@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
@@ -10,6 +11,7 @@ const data = await mkdtemp("/tmp/pw-upgrade-"),
   token = "test-upgrade-owner",
   kit = process.env.UPGRADE_ENGINE === "webkit",
   sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: { ...process.env, PORT: "3198", ADMIN_TOKEN: token, DATA_DIR: data },
   stdio: "ignore",

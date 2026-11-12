@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
@@ -9,6 +10,7 @@ const data = await mkdtemp("/tmp/pw-hud-"),
   base = `http://127.0.0.1:${port}`,
   token = "isolated-hud";
 let browser, socket, latest;
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,
@@ -116,8 +118,8 @@ try {
     s.value = "low";
     s.dispatchEvent(new Event("change"));
   });
-  await page.waitForFunction(() =>
-    document.querySelector("#redPlayers").textContent.includes("Astra"),
+  await page.waitForFunction(
+    () => document.querySelectorAll("#redPlayers .contributor").length === 3,
   );
   await page.waitForFunction(
     () => [...document.querySelectorAll("#battleHud image")].length > 15,
@@ -126,7 +128,10 @@ try {
   await mkdir("artifacts", { recursive: true });
   assert.equal(
     await page.locator("#totalBattleScore").innerText(),
-    latest.teamScore.reduce((a, b) => a + b, 0).toLocaleString(),
+    latest.battleScore
+      .map(Math.round)
+      .reduce((a, b) => a + b, 0)
+      .toLocaleString(),
   );
   for (const [team, c] of ["red", "blue"].entries())
     for (const k of ["sword", "archer", "cavalry", "mage", "guardian", "boss"])
@@ -147,7 +152,7 @@ try {
     );
     assert.equal(
       await page.locator("#" + c + "Score").innerText(),
-      latest.teamScore[team].toLocaleString(),
+      Math.round(latest.battleScore[team]).toLocaleString(),
     );
     assert.equal(await page.locator("#" + c + "Bar").isVisible(), false);
   }

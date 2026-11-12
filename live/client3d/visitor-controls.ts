@@ -20,6 +20,34 @@ export function visitorControls(api: {
     }
     panel.showModal();
   };
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    "[data-demo-action]",
+  ))
+    button.onclick = async () => {
+      button.disabled = true;
+      if (button.dataset.team)
+        el<HTMLSelectElement>("publicTeam").value = button.dataset.team;
+      try {
+        const r = await fetch("/api/demo/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: button.dataset.demoAction,
+            team: Number(el<HTMLSelectElement>("publicTeam").value),
+            username: el<HTMLInputElement>("publicUsername").value,
+            eventId: crypto.randomUUID(),
+          }),
+        });
+        const p = await r.json();
+        if (!r.ok) throw Error(p.error);
+        el("publicGiftStatus").textContent =
+          `DEMO · ${p.quantity ?? 0} soldiers earned · ${p.remainder ?? 0} remainder likes${p.raid ? " · BOMBING RAID" : ""}${p.team !== undefined ? " · Joined " + (p.team === 0 ? "RED" : "BLUE") : ""}`;
+      } catch (e) {
+        el("publicGiftStatus").textContent = String(e);
+      } finally {
+        button.disabled = false;
+      }
+    };
   const ready = fetch("/api/demo/config")
     .then((r) => r.json())
     .then((c) => {

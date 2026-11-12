@@ -1,8 +1,11 @@
+import { warfareConfig, spawnBaseline } from "./warfare.js";
 import { spawnCastleDefenders } from "./monster-combat.js";
 import { roundConfig } from "./league.js";
 export class RoundManager {
-  constructor(game, league, { defenders = true } = {}) {
+  constructor(game, league, { defenders = true, baseline = true } = {}) {
     this.defenders = defenders;
+    this.baseline = baseline;
+    game.warfareConfig = warfareConfig(league.data.warfare);
     this.game = game;
     this.league = league;
     this.paused = false;
@@ -55,6 +58,7 @@ export class RoundManager {
     for (const u of this.game.units) if (u.hp > 0) u.state = "idle";
     this.game.projectiles = [];
     this.game.effects = [];
+    this.game.pendingBombs = [];
     this.game.cameraEvents = [];
     this.league.data.controlStatus = "stopped";
     this.league.dirty = true;
@@ -79,21 +83,42 @@ export class RoundManager {
       this.league.checkpoint();
     } else if (this.phase === "stopped") this.start();
   }
-  start() {
+  start({ baseline = this.baseline } = {}) {
     if (this.league.data.active && !this.league.data.active.finished)
       this.finish("admin_restart", true);
     this.league.data.controlStatus = "running";
+    this.game.warfareConfig = warfareConfig(this.league.data.warfare);
     this.game.reset();
+    this.paused = false;
     const active = this.league.start();
     this.game.round = active.number;
     this.game.roundId = active.id;
     if (this.defenders) spawnCastleDefenders(this.game);
+    if (baseline)
+      spawnBaseline(this.game, this.game.warfareConfig.initialPerTeam, true);
+    if (!baseline) this.game.warfareConfig.baselineEnabled = false;
+    this.game.event({
+      kind: "roundStart",
+      type: "roundStart",
+      name: "Battle begins",
+      team: 0,
+      roundId: active.id,
+      count: 0,
+    });
     this.config = { ...this.league.data.config };
     this.elapsed = 0;
     this.phase = this.config.prepare ? "prepare" : "combat";
     this.phaseElapsed = 0;
     this.result = null;
     this.gates();
+    this.league.checkpoint();
+  }
+  configureWarfare(input) {
+    const next = warfareConfig({ ...this.league.data.warfare, ...input });
+    if (next.initialPerTeam * 2 > this.game.maxUnits)
+      throw Error("Initial armies exceed unit capacity");
+    this.league.data.warfare = next;
+    this.league.dirty = true;
     this.league.checkpoint();
   }
   configure(input) {
@@ -119,13 +144,10 @@ export class RoundManager {
     if (!aborted) {
       if (g.castles[0] !== g.castles[1])
         winner = g.castles[0] > g.castles[1] ? 0 : 1;
-      else if (
-        this.league.data.active.damage[0] !== this.league.data.active.damage[1]
-      )
-        winner =
-          this.league.data.active.damage[0] > this.league.data.active.damage[1]
-            ? 0
-            : 1;
+      else if (g.battleScore[0] !== g.battleScore[1])
+        winner = g.battleScore[0] > g.battleScore[1] ? 0 : 1;
+      else if (g.teamKills[0] !== g.teamKills[1])
+        winner = g.teamKills[0] > g.teamKills[1] ? 0 : 1;
     }
     const a = this.league.finish({
       winner,
@@ -141,7 +163,8 @@ export class RoundManager {
       reason,
       aborted,
       castles: [...g.castles],
-      scores: [...g.teamScore],
+      scores: [...g.battleScore],
+      kills: [...g.teamKills],
       damage: [...a.damage],
       summoned: [...a.summoned],
       top10: structuredClone(this.league.board("round")).map((p) => ({

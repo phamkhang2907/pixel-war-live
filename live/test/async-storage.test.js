@@ -9,9 +9,9 @@ test("runtime checkpoints serialize and fsync in worker; shutdown retains latest
   const league = new League(dir, { asyncPersistence: true });
   try {
     const battle = new Battle(),
-      rounds = new RoundManager(battle, league);
+      rounds = new RoundManager(battle, league, { baseline: false });
     battle.choose("a", 0, "A");
-    battle.spawn(0, "sword", 1, "A", "a");
+    battle.spawn(0, "sword", 1, "A", "a", null, "gift");
     league.receipt("gift:durable");
     // A runtime checkpoint must never call the synchronous fallback.
     const sync = league.flush;

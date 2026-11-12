@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -7,6 +8,7 @@ const data = await mkdtemp("/tmp/pw-model-test-");
 const port = process.env.TEST_PORT || 3127,
   base = `http://127.0.0.1:${port}`,
   token = "isolated-model-check";
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,

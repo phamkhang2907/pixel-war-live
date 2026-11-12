@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
@@ -12,6 +13,7 @@ const counts = process.env.SWARM_COUNTS
 const data = await mkdtemp("/tmp/pw-swarm-"),
   base = "http://127.0.0.1:3191",
   token = "isolated-swarm";
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: { ...process.env, PORT: "3191", DATA_DIR: data, ADMIN_TOKEN: token },
   stdio: "ignore",
@@ -102,7 +104,9 @@ try {
       "Demo marches stay outside fortress walls",
     );
     for (const team of [0, 1]) {
-      const troops = latest.units.filter((u) => u.team === team && u.type !== "mushroomKing");
+      const troops = latest.units.filter(
+        (u) => u.team === team && u.type !== "mushroomKing",
+      );
       assert.equal(troops.length, count / 2);
       assert.ok(
         new Set(troops.map((u) => u.y)).size > troops.length * 0.85,

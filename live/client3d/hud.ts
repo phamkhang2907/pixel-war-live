@@ -46,13 +46,6 @@ export type HudState = BattleState & {
     queued?: boolean;
     at: number;
   }[];
-  effects?: {
-    id: number;
-    type: string;
-    x: number;
-    sourceKind?: string;
-    dead?: boolean;
-  }[];
   hud?: HudData;
 };
 export class BattleHud {
@@ -75,22 +68,23 @@ export class BattleHud {
     mount.innerHTML = `
   <div class="hud-assembly" aria-label="Fantasy battle dashboard">
    <div class="hud-backlight"></div>
-   <div class="hud-hero">${art("titan")}<h1 class="sr-only">PIXEL WAR 3D — WAR TITAN</h1><div class="hero-score"><small>TOTAL BATTLE SCORE</small><strong id="totalBattleScore">0</strong><span id="scoreUnit">GIFT COINS</span></div></div>
-   <div class="clock-bridge">${art("connector")}<b id="timer">05:00</b><small><span id="round">ROUND —</span> · <span id="phase">CONNECTING</span></small></div>
+   <div class="hud-hero">${art("titan")}<h1 class="sr-only">PIXEL WAR 3D — WAR TITAN</h1><div class="hero-score"><small>TOTAL BATTLE SCORE</small><strong id="totalBattleScore">0</strong><span id="scoreUnit">BATTLE SCORE</span></div></div>
+   <div class="clock-bridge">${art("connector")}<b id="timer">10:00</b><small><span id="round">ROUND —</span> · <span id="phase">CONNECTING</span></small></div>
    ${[0, 1]
      .map((team) => {
        const c = team === 0 ? "red" : "blue";
        return `<section class="faction faction-${c}" aria-label="${c.toUpperCase()} Kingdom">
     <div class="faction-emblem">${art(c + "-crest")}</div><div class="faction-shell">${art("stats")}</div>
     <div class="faction-title">${art(c + "-name")}<h2>${c.toUpperCase()} KINGDOM</h2></div>
-    <div class="faction-score"><b id="${c}Score">0</b><small>GIFT COINS</small></div>
-    <div class="hp-shell">${art(c + "-hp")}<div class="hp-track"><div id="${c}HpFill" class="hp-fill">${art(c + "-fill")}</div></div><strong id="${c}Hp">10,000 HP</strong><meter hidden id="${c}Bar" min="0" max="10000" value="10000"></meter></div>
+    <div class="faction-score"><b id="${c}Score">0</b><small>BATTLE SCORE</small></div>
+    <div class="hp-shell">${art(c + "-hp")}<div class="hp-track"><div id="${c}HpFill" class="hp-fill">${art(c + "-fill")}</div></div><strong id="${c}Hp">500,000 HP</strong><meter hidden id="${c}Bar" min="0" max="500000" value="500000"></meter></div>
     <div class="player-shell">${art("connector")}<div class="faction-players" id="${c}Players"></div></div>
     <div class="army-counter"><b id="${c}Count">0 units</b><small>ARMY ON FIELD</small></div>
    </section>`;
      })
      .join("")}
    <section class="hud-troops" aria-label="Troop statistics">${art("stats")}<h2><span>RED</span> <i>VS</i> <span>BLUE</span></h2><div class="troop-table">${kinds.map(([k, name, short]) => `<div class="troop-row"><b class="red-number" id="troop-red-${k}">0</b><span class="troop-name"><span class="long-name">${name}</span><span class="short-name">${short}</span></span><b class="blue-number" id="troop-blue-${k}">0</b></div>`).join("")}</div></section>
+   <section class="heart-war" aria-label="HEART WAR"><header>♥ HEART WAR <b id="heartClock">60s</b></header><div class="heart-bars"><span class="heart-red"><i id="heartRedFill"></i><b id="heartRed">0 / 300</b></span><span class="heart-blue"><i id="heartBlueFill"></i><b id="heartBlue">0 / 300</b></span></div><small id="heartLead">10 likes = 1 soldier · 300 = bombing raid</small></section>
    <nav class="ranking-tabs" aria-label="Contributor rankings"><button data-board="round">${art("connector")}<span>TOP 10</span></button><button data-board="weekly">${art("connector")}<span>WEEKLY</span></button><button data-board="monthly">${art("connector")}<span>MONTHLY</span></button></nav>
    <div class="hud-source" id="hudSource">CONNECTING</div>
   </div>
@@ -184,12 +178,26 @@ export class BattleHud {
     this.last = performance.now();
     this.text(
       "totalBattleScore",
-      state.teamScore.reduce((a, b) => a + b, 0).toLocaleString(),
+      (state.battleScore ?? state.teamScore)
+        .map(Math.round)
+        .reduce((a, b) => a + b, 0)
+        .toLocaleString(),
     );
     for (const [team, c] of ["red", "blue"].entries()) {
-      this.text(c + "Score", state.teamScore[team].toLocaleString());
+      this.text(
+        c + "Score",
+        Math.round(
+          (state.battleScore ?? state.teamScore)[team],
+        ).toLocaleString(),
+      );
       this.el(c + "HpFill").style.width =
-        Math.max(0, Math.min(100, state.castles[team] / 100)) + "%";
+        Math.max(
+          0,
+          Math.min(
+            100,
+            (state.castles[team] / (state.castleMaxHp ?? 500000)) * 100,
+          ),
+        ) + "%";
       for (const [k] of kinds)
         this.text(
           "troop-" + c + "-" + k,
@@ -203,6 +211,24 @@ export class BattleHud {
             ).length,
           ),
         );
+    }
+    if (state.heartWar) {
+      const h = state.heartWar;
+      this.text("heartClock", `${Math.ceil(h.remaining)}s`);
+      for (const [t, c] of ["Red", "Blue"].entries()) {
+        this.text(
+          "heart" + c,
+          `${h.likes[t]} / ${h.target}${h.raided[t] ? " ✦" : ""}`,
+        );
+        this.el("heart" + c + "Fill").style.width =
+          Math.min(100, (h.likes[t] / h.target) * 100) + "%";
+      }
+      this.text(
+        "heartLead",
+        h.likes[0] === h.likes[1]
+          ? "EVEN · 10 likes = 1 soldier"
+          : `${h.likes[0] > h.likes[1] ? "RED" : "BLUE"} LEADS · 300 likes = bombing raid`,
+      );
     }
     const people = JSON.stringify(state.hud?.teams ?? []);
     if (people !== this.lastPeople) {
@@ -223,9 +249,7 @@ export class BattleHud {
           : "CONNECTING TO TIKTOK",
     );
     if (!this.el("rankingPanel").hidden) this.drawBoard();
-    const notice = state.events.find(
-      (e) => e.kind === "fury",
-    );
+    const notice = state.events.find((e) => e.kind === "fury");
     const show = notice && (state.serverNow ?? Date.now()) - notice.at < 8000;
     this.el("giftNotice").hidden = !show;
     if (show) {
@@ -287,7 +311,7 @@ export class BattleHud {
         );
         this.text(
           "resultScores",
-          `ROUND ${result.number} · RED ${(result.scores?.[0] ?? 0).toLocaleString()} — ${(result.scores?.[1] ?? 0).toLocaleString()} BLUE · GIFT COINS`,
+          `ROUND ${result.number} · RED ${(result.scores?.[0] ?? 0).toLocaleString()} — ${(result.scores?.[1] ?? 0).toLocaleString()} BLUE · BATTLE SCORE`,
         );
         this.el("resultRows").replaceChildren(...this.rows(result.top10));
         this.el("resultEmpty").hidden = result.top10.length > 0;
