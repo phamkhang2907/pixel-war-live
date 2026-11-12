@@ -98,6 +98,8 @@
         <p>
           DEMO · Element color is separate from your selected RED/BLUE team.
         </p>
+        <div class="options"><button type="button" data-demo-action="join" data-team="0">Join RED</button><button type="button" data-demo-action="join" data-team="1">Join BLUE</button><button type="button" data-demo-action="likes10">♥ 10 likes</button><button type="button" data-demo-action="likes300">♥ 300 likes</button><button type="button" data-demo-action="raid">Bombing Raid · DEMO</button></div>
+        <p>Join a team before liking. Unjoined likes are discarded. 10 likes = 1 soldier; Rose = 5. Team switch cooldown: 60s.</p>
         <p id="publicGiftStatus" role="status"></p>
       </dialog>
       <dialog id="livePanel">
@@ -148,7 +150,7 @@
           or wheel: zoom. Reset restores the portrait overview; Follow tracks
           combat.
         </p>
-        <div class="audio-settings">
+        <div class="audio-settings"><label>Master<input id="masterVolume" type="range" min="0" max="1" step="0.05" value="1"></label>
           <label
             >Sound effects<input
               id="sfxVolume"

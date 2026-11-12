@@ -163,7 +163,14 @@ export class NativeSummons {
     name.textContent = data.name;
     name.title = data.name;
     detail.textContent =
-      (data.giftName || "Gift") +
+      (data.giftName ||
+        (data.kind === "join"
+          ? "Joined kingdom"
+          : data.kind === "raid"
+            ? "Bombing raid incoming"
+            : data.kind === "heartResult"
+              ? "HEART WAR phase complete"
+              : "Gift")) +
       " · " +
       (data.userId === "visual-summary"
         ? "gift storm summary"
@@ -192,7 +199,7 @@ export class NativeSummons {
             ? "🌹"
             : "✦";
     const quantity = make("b", "native-gift-quantity");
-    quantity.textContent = "×" + toast.quantity;
+    quantity.textContent = data.kind === "gift" ? "×" + toast.quantity : "✦";
     content.append(icon, quantity);
     node.append(content);
     node.hidden = false;
@@ -221,7 +228,7 @@ export class NativeSummons {
       this.lastOrigins = [];
     }
     for (const e of [...(state.events ?? [])].reverse()) {
-      if (e.kind !== "gift") continue;
+      if (!["gift", "join", "raid", "heartResult"].includes(e.kind)) continue;
       const key = state.roundState.id + ":" + e.id;
       if (this.seenGifts.has(key)) continue;
       this.seenGifts.add(key);
@@ -331,7 +338,7 @@ export class NativeSummons {
         data,
         count: data.count,
         born: this.now,
-        life: dragon ? 2 : 1.7,
+        life: dragon ? 9 : 1.7,
         radius: dragon
           ? 5.2
           : Math.min(3.2, Math.max(1, Math.sqrt(data.count) * 0.5)),
@@ -434,7 +441,10 @@ export class NativeSummons {
       const age = this.now - wave.born,
         p = age / wave.life,
         dragon = /Dragon$/.test(wave.data.type),
-        fade = Math.max(0, Math.min(1, p * 8, (1 - p) * 3));
+        fade = Math.max(
+          0,
+          Math.min(1, age * 5, (Math.min(wave.life, 2) - age) * 2),
+        );
       const x = worldX(wave.data.x),
         z = worldZ(wave.data.y);
       this.color
@@ -514,7 +524,9 @@ export class NativeSummons {
         wave.node.style.left = (this.position.x * 0.5 + 0.5) * width + "px";
         wave.node.style.top =
           (-this.position.y * 0.5 + 0.5) * height - p * 24 + "px";
-        wave.node.style.opacity = String(fade);
+        wave.node.style.opacity = String(
+          dragon ? Math.min(1, age * 5, (wave.life - age) * 3) : fade,
+        );
       }
     }
     this.circles.count = ringCount;

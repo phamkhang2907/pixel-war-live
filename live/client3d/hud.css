@@ -784,3 +784,68 @@
 .results-active .gift-notice {
   display: none;
 }
+
+/* Compact connected HEART WAR bridge, below troop counters. */
+.heart-war {
+  position: absolute;
+  left: 165px;
+  right: 165px;
+  top: 665px;
+  text-align: center;
+  color: #ffe5ad;
+  font: 700 18px Georgia;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #19202bdc 15%,
+    #19202bdc 85%,
+    transparent
+  );
+  padding: 8px 28px;
+  pointer-events: none;
+  border-block: 1px solid #a9864666;
+}
+.heart-war header {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  letter-spacing: 2px;
+}
+.heart-war header b {
+  color: #fff;
+}
+.heart-bars {
+  display: flex;
+  gap: 8px;
+  margin: 7px 0;
+}
+.heart-bars > span {
+  position: relative;
+  flex: 1;
+  height: 24px;
+  border: 1px solid #c7a861;
+  overflow: hidden;
+  background: #121824;
+  border-radius: 12px;
+}
+.heart-bars i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  transition: width 0.35s ease;
+}
+.heart-red i {
+  background: linear-gradient(90deg, #761e32, #d65848);
+}
+.heart-blue i {
+  background: linear-gradient(90deg, #17558d, #43b7df);
+}
+.heart-bars b {
+  position: relative;
+  font: 700 17px system-ui;
+  text-shadow: 0 1px 3px #000;
+}
+.heart-war small {
+  font: 13px system-ui;
+  letter-spacing: 0.3px;
+}

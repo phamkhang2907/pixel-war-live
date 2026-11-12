@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
@@ -8,6 +9,7 @@ const before = process.env.VISUAL_BEFORE === "1",
   base = "http://127.0.0.1:3216",
   token = "isolated-visual-check",
   data = await mkdtemp("/tmp/pw-visual-");
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: { ...process.env, PORT: "3216", DATA_DIR: data, ADMIN_TOKEN: token },
   stdio: "ignore",

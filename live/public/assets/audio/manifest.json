@@ -18,6 +18,19 @@
     "defeat",
     "countdown",
     "next-round",
-    "music"
+    "music",
+    "red-cry-1",
+    "red-cry-2",
+    "red-cry-3",
+    "blue-cry-1",
+    "blue-cry-2",
+    "blue-cry-3",
+    "ambience",
+    "bomb-whistle",
+    "bomb-explosion",
+    "dragon-wings",
+    "fire-breath",
+    "frost-wind",
+    "ice-shatter"
   ]
 }

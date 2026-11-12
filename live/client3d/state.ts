@@ -16,7 +16,32 @@ export interface SoldierState extends UnitState {
 }
 export const isSoldier = (u: UnitState): u is SoldierState =>
   !["frostDragon", "fireDragon", "mushroomKing"].includes(u.type);
+export interface EffectState {
+  id: number;
+  type: string;
+  x: number;
+  y: number;
+  time?: number;
+  life?: number;
+  team?: number;
+  sourceId?: number;
+  raidId?: number;
+  delay?: number;
+  radius?: number;
+  element?: string;
+  sourceKind?: string;
+  dead?: boolean;
+}
 export interface UnitState {
+  name?: string;
+  userId?: string | null;
+  avatar?: string;
+  roundId?: string;
+  spawnTimestamp?: number;
+  quantity?: number;
+  requestQuantity?: number;
+  flyby?: { age: number; duration: number; roundId: string };
+  burning?: { until: number };
   id: number;
   team: Team;
   type: UnitKind;
@@ -50,12 +75,35 @@ export interface BattleState {
   summonProtocol?: number;
   paused: boolean;
   castles: [number, number];
+  castleMaxHp?: number;
+  battleScore?: number[];
+  teamKills?: number[];
+  effects?: EffectState[];
+  hazards?: {
+    raidId: number;
+    team: number;
+    x: number;
+    y: number;
+    at: number;
+    radius: number;
+  }[];
+  heartWar?: {
+    index: number;
+    likes: number[];
+    raided: boolean[];
+    remaining: number;
+    target: number;
+    lastWinner: Team | null;
+    bonus: number[];
+  };
   units: UnitState[];
   armyCapacity?: number;
   summonQueue?: { pending: number; headSequence: number | null };
   serverNow?: number;
   roundState: {
     id: string;
+    elapsed?: number;
+    duration?: number;
     state?: string;
     phase: string;
     remaining: number;

@@ -190,3 +190,29 @@ jobs:
           path: |
             live/artifacts/visual-after-*.png
             live/artifacts/visual-after-*-report.json
+
+  heart-war-and-uploaded-audio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: live/package-lock.json
+      - run: npm run setup
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+        working-directory: live
+      - run: node tools/warfare-check.mjs
+        working-directory: live
+      - run: LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe WEBKIT_DISABLE_DMABUF_RENDERER=1 WARFARE_ENGINE=webkit node tools/warfare-check.mjs
+        working-directory: live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heart-war-flybys-and-original-mp3s
+          path: |
+            live/artifacts/warfare-*.png
+            live/artifacts/warfare-*-report.json

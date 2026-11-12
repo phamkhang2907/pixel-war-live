@@ -1,3 +1,4 @@
+import { tickFlyby } from "./warfare.js";
 import { TYPES, WORLD, MONSTERS } from "./characters.js";
 // Horizontal combat coordinates remain X/Y on the authoritative server (renderer X/Z).
 export function spawnCastleDefenders(game) {
@@ -38,6 +39,9 @@ export function spawnCastleDefenders(game) {
 export function tickMonster(game, u, enemies, dt) {
   const t = TYPES[u.type];
   if (!t.monster) return false;
+  if (!t.defender) return tickFlyby(game, u, dt);
+  u.x = u.homeX;
+  u.y = u.homeY;
   let target = null,
     best = Infinity;
   enemies[1 - u.team].query(
@@ -48,58 +52,27 @@ export function tickMonster(game, u, enemies, dt) {
       if (v.hp <= 0 || v.team === u.team) return;
       const d = Math.hypot(v.x - u.x, v.y - u.y);
       if (d < best) {
-        best = d;
         target = v;
+        best = d;
       }
     },
     128,
     u.id,
   );
-  if (t.defender) {
-    u.x = u.homeX;
-    u.y = u.homeY;
-  } else if (!target) {
-    target = game.castle(1 - u.team, u.lane ?? u.y);
-    best = Math.hypot(target.x - u.x, target.y - u.y);
-  }
   if (target) {
     u.faceX = target.x;
     u.faceY = target.y;
   }
-  // Damage is committed once after a short visible wind-up, independent of particles.
   if (u.monsterCast) {
     u.monsterCast.remaining -= dt;
     if (u.monsterCast.remaining <= 0) {
       const cast = u.monsterCast;
       u.monsterCast = null;
-      if (t.defender) {
-        if (cast.target.hp > 0)
-          game.addProjectile(u, cast.target, t.damage, "kingMagic", t.splash);
-      } else {
-        const p = cast.target,
-          x = p.x,
-          y = p.y;
-        game.hitArea(u.team, x, y, t.damage, t.splash, 0, true, {
-          ...u,
-          element: t.element,
-        });
-        if (p.castle && Math.hypot(p.x - u.x, p.y - u.y) <= t.range + 70)
-          game.damageCastle(1 - u.team, t.damage, u);
-        game.effect("dragonBreath", x, y, {
-          team: u.team,
-          element: t.element,
-          sourceId: u.id,
-          sx: u.x,
-          sy: u.y,
-          radius: t.splash,
-        });
-      }
+      if (cast.target.hp > 0 && cast.target.team !== u.team)
+        game.addProjectile(u, cast.target, t.damage, "kingMagic", t.splash);
     }
   }
-  if (
-    target &&
-    best <= t.range + (target.castle ? 48 : TYPES[target.type].radius)
-  ) {
+  if (target && best <= t.range + TYPES[target.type].radius) {
     u.state =
       u.hurt > 0
         ? "hurt"
@@ -110,14 +83,7 @@ export function tickMonster(game, u, enemies, dt) {
       u.state = "attack";
       u.cd = t.cooldown;
       u.attackId++;
-      u.monsterCast = { remaining: t.defender ? 0.3 : 0.4, target };
-    }
-  } else if (!t.defender && target) {
-    u.state = u.hurt > 0 ? "hurt" : "fly";
-    const speed = t.speed * (u.slowUntil > game.time ? MONSTERS.slowFactor : 1);
-    if (best > 0) {
-      u.x += ((target.x - u.x) / best) * speed * dt;
-      u.y += ((target.y - u.y) / best) * speed * dt;
+      u.monsterCast = { remaining: 0.3, target };
     }
   } else u.state = u.hurt > 0 ? "hurt" : "idle";
   return true;

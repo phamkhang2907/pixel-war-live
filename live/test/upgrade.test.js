@@ -42,7 +42,7 @@ test("STOP survives clocks and graceful storage restart; Reset waits for explici
   try {
     let l = new League(dir),
       b = new Battle(),
-      r = new RoundManager(b, l, { defenders: false });
+      r = new RoundManager(b, l, { defenders: false, baseline: false });
     r.configure({
       duration: 3,
       prepare: 0,
@@ -68,7 +68,7 @@ test("STOP survives clocks and graceful storage restart; Reset waits for explici
     await l.close();
     l = new League(dir);
     b = new Battle();
-    r = new RoundManager(b, l, { defenders: false });
+    r = new RoundManager(b, l, { defenders: false, baseline: false });
     assert.equal(r.phase, "stopped");
     r.advance(100);
     assert.equal(r.phase, "stopped");

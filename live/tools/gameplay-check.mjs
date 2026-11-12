@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -25,6 +26,7 @@ await writeFile(
     },
   ]),
 );
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,
@@ -137,7 +139,7 @@ try {
   await page.waitForFunction(
     () =>
       window.__PW3D.inspect().audio.context === "running" &&
-      window.__PW3D.inspect().audio.buffers === 16,
+      window.__PW3D.inspect().audio.buffers === 32,
   );
   await page.evaluate(() => document.body.classList.remove("overlay"));
   await page.request.post(base + "/owner/login", { form: { password: token } });
@@ -145,7 +147,7 @@ try {
   await page.locator("#adminWorkspace").waitFor({ state: "visible" });
   await page.locator("#soundToggle").click();
   await page.waitForFunction(
-    () => window.__PW3D.inspect().audio.buffers === 16,
+    () => window.__PW3D.inspect().audio.buffers === 32,
   );
   await api("resumeBattle");
   const rows = page.locator(".gift-mapping");
@@ -208,7 +210,7 @@ try {
   const result = structuredClone(latest.roundState.result),
     resultArrived = Date.now();
   assert.equal(result.winner, 0);
-  assert.equal(result.top10.length, 10);
+  assert.equal(result.top10.length, 0);
   await page.locator("#roundResults").waitFor({ state: "visible" });
   const uiDelay = Date.now() - resultArrived;
   assert.match(
@@ -265,8 +267,8 @@ try {
   );
   assert.equal(await page.locator("#rankingPanel").isVisible(), false);
   assert.ok(latest.hud.boards.round.every((p) => p.name === "Too Late"));
-  assert.ok(latest.hud.boards.weekly.length > 0);
-  assert.ok(latest.hud.boards.monthly.length > 0);
+  assert.ok(latest.hud.boards.weekly.length === 0);
+  assert.ok(latest.hud.boards.monthly.length === 0);
   assert.equal(
     (
       await api("demoGift", {

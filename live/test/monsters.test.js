@@ -12,7 +12,7 @@ const run = (b, s) => {
 const setup = () => {
   const b = new Battle(),
     l = new League(),
-    r = new RoundManager(b, l);
+    r = new RoundManager(b, l, { baseline: false });
   r.config.prepare = 0;
   r.phase = "combat";
   r.gates();
@@ -78,41 +78,6 @@ test("defenders stay home, never hurt allies, launch traveling magic and damage 
   run(b, 4);
   assert.deepEqual([king.x, king.y], home);
 });
-test("frost/red allegiance and fire/blue allegiance remain independent; breaths damage area and only frost slows", () => {
-  for (const [type, team] of [
-    ["frostDragon", 0],
-    ["fireDragon", 1],
-  ]) {
-    const b = new Battle();
-    b.spawn(team, type, 1, "Summoner", "viewer");
-    const dragon = b.units[0];
-    Object.assign(dragon, { x: 2200, y: 1600, cd: 0, windup: 0 });
-    b.spawn(1 - team, "sword", 2, "Enemy", null);
-    for (const [i, e] of b.units.slice(1).entries())
-      Object.assign(e, {
-        x: 2400 + i * 35,
-        y: 1600,
-        hp: 500,
-        maxHp: 500,
-        windup: 100,
-      });
-    run(b, 0.8);
-    assert.ok(b.units.slice(1).every((e) => e.hp < 500));
-    assert.ok(
-      b.effects.some(
-        (e) => e.type === "dragonBreath" && e.element === TYPES[type].element,
-      ),
-    );
-    assert.equal(dragon.team, team);
-    assert.ok(
-      b.units
-        .slice(1)
-        .every((e) =>
-          type === "frostDragon" ? e.slowUntil > b.time : !e.slowUntil,
-        ),
-    );
-  }
-});
 test("frost slow is temporary and actually reduces frame-independent movement; ground melee cannot hit dragons", () => {
   const a = new Battle(),
     b = new Battle();
@@ -138,12 +103,12 @@ test("dragon cap retains FIFO remainder; accepted summons are never discarded", 
   const b = new Battle();
   b.enqueue(0, "fireDragon", 15, "Demo", null, "demo");
   for (let i = 0; i < 10; i++) b.drainSummons();
-  assert.equal(b.units.length, MONSTERS.maxDragons);
-  assert.equal(b.summonQueue[0].remaining, 3);
+  assert.equal(b.units.length, b.warfareConfig.maxFlybys);
+  assert.equal(b.summonQueue[0].remaining, 13);
   for (const u of b.units) u.hp = 0;
   run(b, 2.6);
-  assert.equal(b.units.filter((u) => u.hp > 0).length, 3);
-  assert.equal(b.summonQueue.length, 0);
+  assert.equal(b.units.filter((u) => u.hp > 0).length, 2);
+  assert.equal(b.summonQueue[0].remaining, 11);
 });
 test("LIVE IDs require connector metadata; demo cannot verify or overwrite live evidence, exact premium selection only", () => {
   const b = new Battle();

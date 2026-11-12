@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -10,6 +11,7 @@ const port = process.env.TEST_PORT || 3113;
 const base = `http://127.0.0.1:${port}`;
 const token = "isolated-three-acceptance";
 const data = await mkdtemp(join(tmpdir(), "pixel-war-three-"));
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: { ...process.env, PORT: port, DATA_DIR: data, ADMIN_TOKEN: token },
   stdio: ["ignore", "pipe", "pipe"],
@@ -149,9 +151,10 @@ try {
       d.distance <= 251
     );
   });
-  await page.waitForFunction(
-    () => window.__PW3D.inspect().assets.rendered === 304,
-  );
+  await page.waitForFunction(() => {
+    const d = window.__PW3D.inspect();
+    return d.assets.rendered === d.units && d.units >= 280;
+  });
   const army = await page.evaluate(
     () => window.__PW3D.inspect().assets.rendered,
   );

@@ -10,6 +10,7 @@ import { BattlefieldCamera, type CameraMode } from "./camera";
 import { terrainHeight, type TerrainSurface } from "./grass-material";
 import { buildWorld } from "./world";
 import { KaykitUnits } from "./kaykit-units";
+import { WarfareEffects } from "./warfare-effects";
 import { CombatEffects } from "./combat-effects";
 import { GroundContacts } from "./ground-contacts";
 import { loadKaykitWorld } from "./kaykit-world";
@@ -25,6 +26,9 @@ export class BattlefieldRenderer {
     : "medium";
   private particles = new KenneyParticles();
   private effects = new CombatEffects(this.particles);
+  private warfare = new WarfareEffects(this.particles, (amount) =>
+    this.director.shake(amount),
+  );
   private contacts = new GroundContacts();
   private summons: NativeSummons;
   private monsters = new MonsterUnits(this.particles);
@@ -90,6 +94,7 @@ export class BattlefieldRenderer {
       this.monsters.group,
       this.kaykit.group,
       this.effects.group,
+      this.warfare.group,
       this.contacts.group,
     );
     this.applyQuality();
@@ -265,6 +270,7 @@ export class BattlefieldRenderer {
             (r) => r.status === "ready",
           ),
       );
+      if (this.state) this.warfare.update(this.state, dt);
       this.effects.update(this.state, dt);
       this.particles.update(
         dt,
@@ -443,6 +449,7 @@ export class BattlefieldRenderer {
       summons: this.summons.diagnostics(),
       particles: this.particles.diagnostics(),
       combatEffects: this.effects.diagnostics(),
+      warfareEffects: this.warfare.diagnostics(),
       fps: this.fps,
       totalFrames: this.totalFrames,
       maxFrameMs: this.maxFrameMs,
@@ -501,6 +508,7 @@ export class BattlefieldRenderer {
     this.sun.shadow.dispose();
     this.bloom.dispose();
     this.effects.dispose();
+    this.warfare.dispose();
     this.particles.dispose();
     this.kaykit.dispose();
     this.monsters.dispose();

@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
@@ -8,6 +9,7 @@ const kit = process.env.NATIVE_ENGINE === "webkit",
   base = "http://127.0.0.1:3208",
   token = "isolated-native-effects",
   data = await mkdtemp("/tmp/pw-nativefx-");
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
     env: { ...process.env, PORT: "3208", DATA_DIR: data, ADMIN_TOKEN: token },
     stdio: "ignore",
@@ -165,7 +167,7 @@ try {
   await wait(
     () =>
       latest.units.filter((u) => u.name.startsWith("Round backlog ")).length ===
-        12 && latest.summonQueue.pending === 0,
+        60 && latest.summonQueue.pending === 0,
   );
   const backlog = await page.evaluate(() => window.__PW3D.inspect().summons);
   const oldRound = latest.roundState.id;
@@ -274,11 +276,11 @@ try {
   );
   await wait(
     () =>
-      latest.units.filter((u) => u.name === "Slow model viewer").length === 1,
+      latest.units.filter((u) => u.name === "Slow model viewer").length === 5,
   );
   assert.equal(
     latest.units.length,
-    5,
+    9,
     "expired cosmetics cannot remove the actual soldier or four defenders",
   );
   // Public Demo buttons remain unauthenticated; production mappings remain private.

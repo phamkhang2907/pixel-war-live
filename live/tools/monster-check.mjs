@@ -1,3 +1,4 @@
+import { isolatedFixture } from "./isolated-fixture.mjs";
 import { chromium, webkit } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtemp, rm, mkdir, writeFile, readFile } from "node:fs/promises";
@@ -9,6 +10,7 @@ const kit = process.env.MONSTER_ENGINE === "webkit",
   base = `http://127.0.0.1:${port}`,
   token = "isolated-monster-test",
   data = await mkdtemp("/tmp/pw-monsters-");
+isolatedFixture(data);
 const server = spawn(process.execPath, ["src/server.js"], {
   env: {
     ...process.env,
@@ -175,6 +177,11 @@ try {
   await wait(
     () =>
       publicState.units.find((u) => u.type === "frostDragon").x > before + 20,
+  );
+  await page.waitForFunction(() =>
+    window.__PW3D
+      .inspect()
+      .monsters.instances.some((i) => /Fast_Flying/.test(i.clip)),
   );
   const active = await page.evaluate(() => window.__PW3D.inspect().monsters);
   assert.ok(active.instances.some((i) => /Fast_Flying/.test(i.clip)));

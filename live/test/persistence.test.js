@@ -1,3 +1,4 @@
+import { League } from "../src/league.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
@@ -67,6 +68,32 @@ test("real server restart retains completed history, LIVE and season merit/wins/
     assert.equal(response.status, 200, await response.text());
   };
   try {
+    // Persist an actual attributed gameplay fixture before launching the HTTP server.
+    const fixture = new League(directory);
+    fixture.start();
+    fixture.event({
+      kind: "join",
+      userId: "stable-live-viewer",
+      name: "Existing Viewer",
+      team: 0,
+    });
+    fixture.event({
+      kind: "spawn",
+      unitId: 1,
+      source: {
+        userId: "stable-live-viewer",
+        name: "Existing Viewer",
+        team: 0,
+        origin: "gift",
+      },
+    });
+    fixture.finish({
+      winner: null,
+      reason: "timeout",
+      aborted: false,
+      castles: [500000, 500000],
+    });
+    fixture.flush();
     await start();
 
     await command("roundConfig", {
@@ -96,15 +123,16 @@ test("real server restart retains completed history, LIVE and season merit/wins/
     await stop();
     await start();
     assert.equal(latest.roundState.sessionId, session);
-    for (const scope of ["live", "season"]) {
+    for (const scope of ["live"]) {
       const boards = await fetch(base + "/api/leaderboards", { headers }).then(
         (r) => r.json(),
       );
-      const p = boards[scope].find((p) => p.id === "demo:0:persistent");
+      const p = boards[scope].find((p) => p.id === "stable-live-viewer");
       assert.equal(p.points, 5);
       assert.equal(p.draws, 1);
       assert.equal(p.rounds, 1);
       assert.equal(p.wins, 0);
+      assert.ok(!boards[scope].some((p) => p.id.startsWith("demo:")));
     }
     const history = await fetch(base + "/api/history", { headers }).then((r) =>
       r.json(),

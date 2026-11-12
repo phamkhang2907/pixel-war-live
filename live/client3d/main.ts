@@ -94,6 +94,7 @@ socket.on("state", (state: BattleState) => {
   for (const [team, name] of ["red", "blue"].entries()) {
     element(name + "Hp").textContent =
       `${Math.ceil(state.castles[team]).toLocaleString()} HP`;
+    element<HTMLMeterElement>(name + "Bar").max = state.castleMaxHp ?? 500000;
     element<HTMLMeterElement>(name + "Bar").value = state.castles[team];
     element(name + "Count").textContent =
       `${state.units.filter((u) => u.team === team && u.hp > 0).length} units`;
